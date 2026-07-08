@@ -117,8 +117,10 @@ public class FileBundleService {
             } else {
                 node.setNodeType("FILE");
                 node.setFileSize(file.length());
-                // filePath relative to bundle root, for file content retrieval
-                node.setFilePath(file.getAbsolutePath());
+                // Store relative path from bundle root for file content retrieval
+                Path bundleDir = Path.of(skillsPath, bundleId.toString());
+                Path relativePath = bundleDir.relativize(file.toPath().normalize());
+                node.setFilePath(relativePath.toString());
                 nodeMapper.insert(node);
                 fileCount++;
             }
