@@ -1,0 +1,31 @@
+{
+  "eval_id": 2,
+  "eval_name": "subagent-integration",
+  "prompt": "使用 subagent-driven-development 启动一个新迭代：实现文章搜索功能，支持按标题和标签搜索。请先做计划。",
+  "assertions": [
+    {
+      "id": "api-restful-url",
+      "description": "API URL 使用 RESTful 风格（如 /api/v1/articles/search）"
+    },
+    {
+      "id": "api-unified-response",
+      "description": "响应设计使用统一返回结构（包含 code/message/data）"
+    },
+    {
+      "id": "api-pagination",
+      "description": "分页参数使用 page/pageSize 命名"
+    },
+    {
+      "id": "git-branch-naming",
+      "description": "Git 分支命名符合规范（feature/xxx 或 worktree-feature+xxx）"
+    },
+    {
+      "id": "plan-includes-api-design",
+      "description": "计划中包含 API 设计部分"
+    },
+    {
+      "id": "skill-overlay-no-conflict",
+      "description": "开发规范叠加在 subagent 工作流之上，不产生冲突"
+    }
+  ]
+}

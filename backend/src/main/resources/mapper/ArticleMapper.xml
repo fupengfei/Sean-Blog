@@ -37,7 +37,7 @@
     <update id="update">
         UPDATE t_article SET title = #{title}, slug = #{slug}, content_md = #{contentMd},
             content_html = #{contentHtml}, excerpt = #{excerpt}, cover_image = #{coverImage},
-            category_id = #{categoryId}, is_featured = #{isFeatured}
+            category_id = #{categoryId}, is_featured = #{isFeatured}, updated_at = NOW()
         WHERE id = #{id}
     </update>
 

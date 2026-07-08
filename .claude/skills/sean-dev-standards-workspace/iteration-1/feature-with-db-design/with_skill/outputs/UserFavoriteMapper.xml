@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    用户收藏文章 Mapper XML.
+
+    规范遵循：
+    - p3c 6.5：不允许使用 SELECT *，所有查询列出具体字段
+    - 规范 1.2：所有查询带上 is_deleted = 0 条件
+    - 规范 1.2：INSERT 时填充四个审计字段
+    - 规范 1.2：DELETE 只做软删除，更新 is_deleted = 1
+-->
+<mapper namespace="com.sean.blog.module.favorite.UserFavoriteMapper">
+
+    <!-- ==================== Result Map ==================== -->
+    <resultMap id="BaseResultMap" type="com.sean.blog.module.favorite.UserFavorite">
+        <id     column="id"              property="id" />
+        <result column="article_id"      property="articleId" />
+        <result column="user_identifier" property="userIdentifier" />
+        <result column="created_by"      property="createdBy" />
+        <result column="created_at"      property="createdAt" />
+        <result column="updated_by"      property="updatedBy" />
+        <result column="updated_at"      property="updatedAt" />
+        <result column="is_deleted"      property="isDeleted" />
+    </resultMap>
+
+    <!-- ==================== 字段列表（p3c 6.5：不使用 SELECT *） ==================== -->
+    <sql id="Base_Column_List">
+        id, article_id, user_identifier,
+        created_by, created_at, updated_by, updated_at, is_deleted
+    </sql>
+
+    <!-- ==================== INSERT ==================== -->
+    <!-- 规范 1.2：创建时同步设置 created_by, created_at, updated_by, updated_at -->
+    <insert id="insert" parameterType="com.sean.blog.module.favorite.UserFavorite"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_user_favorite (
+            article_id, user_identifier,
+            created_by, created_at, updated_by, updated_at
+        ) VALUES (
+            #{articleId}, #{userIdentifier},
+            #{createdBy}, NOW(), #{updatedBy}, NOW()
+        )
+    </insert>
+
+    <!-- ==================== SOFT DELETE ==================== -->
+    <!-- 规范 1.2：只做软删除，更新 is_deleted = 1，同步更新 updated_by, updated_at -->
+    <update id="softDeleteById">
+        UPDATE t_user_favorite
+        SET is_deleted = 1,
+            updated_by = #{updatedBy},
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND is_deleted = 0
+    </update>
+
+    <!-- ==================== SELECT ==================== -->
+    <!-- 规范 1.2：查询带上 is_deleted = 0 -->
+    <select id="selectByUserAndArticle" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_user_favorite
+        WHERE user_identifier = #{userIdentifier}
+          AND article_id = #{articleId}
+          AND is_deleted = 0
+    </select>
+
+    <select id="selectByUserIdentifier" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_user_favorite
+        WHERE user_identifier = #{userIdentifier}
+          AND is_deleted = 0
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByUserIdentifier" resultType="long">
+        SELECT COUNT(id)
+        FROM t_user_favorite
+        WHERE user_identifier = #{userIdentifier}
+          AND is_deleted = 0
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM t_user_favorite
+        WHERE id = #{id}
+    </select>
+
+</mapper>

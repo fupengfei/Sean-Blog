@@ -1,0 +1,43 @@
+{
+  "eval_id": 1,
+  "eval_name": "feature-with-db-design",
+  "prompt": "我要开发一个新功能：用户收藏文章。需要设计一张 user_favorites 表，用 Java Spring Boot 实现。请先设计数据库表结构，然后写 Controller/Service/Mapper。",
+  "assertions": [
+    {
+      "id": "db-audit-is-deleted",
+      "description": "DDL 包含 is_deleted 字段（TINYINT 或 BOOLEAN，默认 0）"
+    },
+    {
+      "id": "db-audit-created-by",
+      "description": "DDL 包含 created_by 字段（VARCHAR）"
+    },
+    {
+      "id": "db-audit-created-at",
+      "description": "DDL 包含 created_at 字段（DATETIME 或 TIMESTAMP）"
+    },
+    {
+      "id": "db-audit-updated-by",
+      "description": "DDL 包含 updated_by 字段（VARCHAR）"
+    },
+    {
+      "id": "db-audit-updated-at",
+      "description": "DDL 包含 updated_at 字段（DATETIME 或 TIMESTAMP）"
+    },
+    {
+      "id": "db-soft-delete",
+      "description": "删除操作使用软删除（UPDATE is_deleted=1），非物理删除"
+    },
+    {
+      "id": "db-select-with-is-deleted",
+      "description": "查询语句包含 is_deleted=0 条件"
+    },
+    {
+      "id": "java-no-select-star",
+      "description": "SQL 不使用 SELECT *，列出具体字段"
+    },
+    {
+      "id": "java-naming-convention",
+      "description": "Java 类名 UpperCamelCase，方法名 lowerCamelCase"
+    }
+  ]
+}

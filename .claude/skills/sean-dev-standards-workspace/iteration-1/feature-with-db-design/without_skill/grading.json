@@ -1,0 +1,14 @@
+{
+  "run": "without_skill",
+  "expectations": [
+    {"text": "db-audit-is-deleted: DDL 包含 is_deleted 字段", "passed": false, "evidence": "DDL 仅含 id/visitor_id/article_id/created_at 四个字段，无 is_deleted"},
+    {"text": "db-audit-created-by: DDL 包含 created_by 字段", "passed": false, "evidence": "DDL 无 created_by 字段，user 标识使用 visitor_id（业务字段而非审计字段）"},
+    {"text": "db-audit-created-at: DDL 包含 created_at 字段", "passed": true, "evidence": "DDL 第7行: created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"},
+    {"text": "db-audit-updated-by: DDL 包含 updated_by 字段", "passed": false, "evidence": "DDL 无 updated_by 字段"},
+    {"text": "db-audit-updated-at: DDL 包含 updated_at 字段", "passed": false, "evidence": "DDL 无 updated_at 字段"},
+    {"text": "db-soft-delete: 删除使用软删除", "passed": false, "evidence": "Mapper XML 使用物理 DELETE FROM（第21-24行、第49-51行），DDL 第8行使用 ON DELETE CASCADE"},
+    {"text": "db-select-with-is-deleted: 查询带 is_deleted=0", "passed": false, "evidence": "所有 SELECT 查询无 is_deleted 过滤，使用 a.status = 'PUBLISHED' 过滤文章状态但非软删除标记"},
+    {"text": "java-no-select-star: SQL 不使用 SELECT *", "passed": true, "evidence": "Mapper XML 第27-28行: 列出具体字段 f.id, f.visitor_id, f.article_id, f.created_at, a.title... 无 SELECT *"},
+    {"text": "java-naming-convention: 类名 UpperCamelCase", "passed": true, "evidence": "类名: FavoriteController, FavoriteService, UserFavorite — 均符合规范"}
+  ]
+}

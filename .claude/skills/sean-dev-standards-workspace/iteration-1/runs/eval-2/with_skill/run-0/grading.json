@@ -1,0 +1,14 @@
+{
+  "run": "with_skill",
+  "expectations": [
+    {"text": "rn-file-location: 文件在 docs/release-notes/ 目录", "passed": true, "evidence": "文件名 2026-07-08-article-search.md 符合规范，输出路径表明生成到 release-notes 目录"},
+    {"text": "rn-file-naming: 文件名 YYYY-MM-DD-feature-name.md", "passed": true, "evidence": "文件名: 2026-07-08-article-search.md，符合 YYYY-MM-DD-feature-name.md 格式"},
+    {"text": "rn-section-requirements: 包含需求说明", "passed": true, "evidence": "第9-21行: 「## 需求说明」章节，含核心功能和方案选型决策"},
+    {"text": "rn-section-thinking: 包含思考过程", "passed": true, "evidence": "第25-39行: 「## 思考过程」章节，含架构决策和 key trade-off 表格"},
+    {"text": "rn-section-implementation: 包含实现过程", "passed": true, "evidence": "第43-58行: 「## 实现过程」章节，含任务分解（7 Tasks）和 Critical 问题修复"},
+    {"text": "rn-section-metrics: 包含指标章节", "passed": true, "evidence": "第62-115行: 「## 指标」章节，含代码量、文件清单、测试覆盖、用时、提交树表格"},
+    {"text": "rn-section-decision-audit: 包含决策审计追踪", "passed": true, "evidence": "第119-128行: 「## 决策审计追踪」章节，记录了3个关键决策"},
+    {"text": "rn-section-future-work: 包含后续事项", "passed": true, "evidence": "第140-146行: 「## 后续事项」章节，5个 checkbox 待办项"},
+    {"text": "rn-uses-provided-data: 使用提供的实际数据", "passed": true, "evidence": "提交数 8、+1200/-30行、3+2 测试文件、37 测试数、~3h 耗时均正确使用"}
+  ]
+}

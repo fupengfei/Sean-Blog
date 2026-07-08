@@ -1,0 +1,11 @@
+{
+  "run": "with_skill",
+  "expectations": [
+    {"text": "api-restful-url: API URL 使用 RESTful 风格", "passed": true, "evidence": "api-design.md 定义 GET /api/v1/articles/search，RESTful 风格 + 版本号前缀"},
+    {"text": "api-unified-response: 响应使用统一返回结构", "passed": true, "evidence": "standards-applied.md 记录: API 响应遵循统一返回结构 Result<T>/PageResult<T>，包含 code/message/data"},
+    {"text": "api-pagination: 分页参数使用 page/pageSize", "passed": true, "evidence": "api-design.md 第2节: page (integer, default 1), pageSize (integer, default 10, max 50)"},
+    {"text": "git-branch-naming: 分支命名符合规范", "passed": true, "evidence": "plan.md 中使用 feature/article-search 作为分支名，符合 feature/xxx 规范"},
+    {"text": "plan-includes-api-design: 计划包含 API 设计", "passed": true, "evidence": "独立的 api-design.md (11.3 KB) 包含完整的 API 规范：端点、参数、响应格式、错误码"},
+    {"text": "skill-overlay-no-conflict: 规范叠加不冲突", "passed": true, "evidence": "standards-applied.md 记录了兼容性: 'v1 scope excluded search (overridden by user instruction), physical DELETE switched to soft delete'，展示了叠加而非替代"}
+  ]
+}

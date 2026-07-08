@@ -1,0 +1,11 @@
+{
+  "run": "without_skill",
+  "expectations": [
+    {"text": "api-restful-url: API URL 使用 RESTful 风格", "passed": true, "evidence": "计划复用现有 GET /api/v1/articles?keyword=xxx，RESTful 风格"},
+    {"text": "api-unified-response: 响应使用统一返回结构", "passed": false, "evidence": "api-design.md 描述了响应字段但未引用统一返回结构（code/message/data），未在计划中明确响应格式约定"},
+    {"text": "api-pagination: 分页参数使用 page/pageSize", "passed": true, "evidence": "计划引用现有分页设计，项目已有的分页参数为 page/pageSize"},
+    {"text": "git-branch-naming: 分支命名符合规范", "passed": false, "evidence": "计划中未明确提及分支命名规范"},
+    {"text": "plan-includes-api-design: 计划包含 API 设计", "passed": true, "evidence": "独立的 api-design.md (6 KB) 包含端点、参数、响应格式设计"},
+    {"text": "skill-overlay-no-conflict: 与 subagent 工作流无冲突", "passed": true, "evidence": "计划自然融入项目现有架构，未与任何工作流产生冲突"}
+  ]
+}

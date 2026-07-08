@@ -1,0 +1,14 @@
+{
+  "run": "without_skill",
+  "expectations": [
+    {"text": "rn-file-location: 文件在 docs/release-notes/ 目录", "passed": false, "evidence": "文件直接命名为 release-notes.md，未放置在 docs/release-notes/ 目录下"},
+    {"text": "rn-file-naming: 文件名 YYYY-MM-DD-feature-name.md", "passed": false, "evidence": "文件名为 release-notes.md，非 YYYY-MM-DD-article-search.md 格式"},
+    {"text": "rn-section-requirements: 包含需求说明", "passed": true, "evidence": "第9-33行: 「## Overview」和「## Key Features」覆盖需求说明"},
+    {"text": "rn-section-thinking: 包含思考过程", "passed": true, "evidence": "第37-44行: 「## Architecture Decisions」章节，含4个架构决策及理由"},
+    {"text": "rn-section-implementation: 包含实现过程", "passed": false, "evidence": "无任务分解，无 Critical 问题记录。只有文件列表和提交记录"},
+    {"text": "rn-section-metrics: 包含指标章节", "passed": true, "evidence": "第47-56行: 「## Files Changed」和「## Commits」章节，含代码量表格"},
+    {"text": "rn-section-decision-audit: 包含决策审计追踪", "passed": false, "evidence": "无独立的决策审计追踪章节，架构决策分散在 Architecture Decisions 中但无编号追踪"},
+    {"text": "rn-section-future-work: 包含后续事项", "passed": false, "evidence": "有「## Known Limitations」(4项) 和「## Upgrade Notes」但无 checkbox 格式的后续待办事项"},
+    {"text": "rn-uses-provided-data: 使用提供的实际数据", "passed": true, "evidence": "使用了提供的 +1200/-30 行、8提交、3+2 测试文件等数据"}
+  ]
+}

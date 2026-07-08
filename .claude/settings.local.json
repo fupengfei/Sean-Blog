@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards/references)",
+      "Edit(/.claude/skills/sean-dev-standards/**)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1)",
+      "Edit(/.claude/skills/sean-dev-standards-workspace/**)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/release-notes-generation/without_skill/outputs)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/release-notes-generation/with_skill/outputs)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/feature-with-db-design/without_skill/outputs)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/subagent-integration/without_skill/outputs/)",
+      "Read(//Users/fupengfei/coding-vive/Sean-Blog/docs/superpowers/specs/**)",
+      "Bash(mkdir -p \"/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/feature-with-db-design/with_skill/outputs\")",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/subagent-integration/with_skill/outputs)",
+      "Bash(python /Users/fupengfei/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/scripts/aggregate_benchmark.py /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1 --skill-name sean-dev-standards)",
+      "Bash(python3 /Users/fupengfei/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/scripts/aggregate_benchmark.py /Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1 --skill-name sean-dev-standards)",
+      "Bash(grep -n \"eval_dir\\\\|runs_dir\\\\|workspace_dir\\\\|eval_dirs\\\\|glob\\\\|iter_dir\" /Users/fupengfei/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/scripts/aggregate_benchmark.py | head -30)",
+      "Read(//Users/fupengfei/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/scripts/**)"
+    ],
+    "additionalDirectories": [
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/release-notes-generation/without_skill/outputs",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/release-notes-generation/with_skill/outputs",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/feature-with-db-design/without_skill/outputs",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/subagent-integration/without_skill/outputs",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/feature-with-db-design/with_skill/outputs",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/.claude/skills/sean-dev-standards-workspace/iteration-1/subagent-integration/with_skill/outputs"
+    ]
+  }
+}

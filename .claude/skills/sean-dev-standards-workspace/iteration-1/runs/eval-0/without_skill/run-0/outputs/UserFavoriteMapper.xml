@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.favorite.mapper.UserFavoriteMapper">
+
+    <resultMap id="favoriteDetail" type="com.sean.blog.module.favorite.entity.UserFavorite">
+        <id property="id" column="id"/>
+        <result property="visitorId" column="visitor_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleSlug" column="article_slug"/>
+        <result property="articleExcerpt" column="article_excerpt"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_user_favorite (visitor_id, article_id)
+        VALUES (#{visitorId}, #{articleId})
+    </insert>
+
+    <delete id="deleteByVisitorAndArticle">
+        DELETE FROM t_user_favorite
+        WHERE visitor_id = #{visitorId} AND article_id = #{articleId}
+    </delete>
+
+    <select id="findByVisitorId" resultMap="favoriteDetail">
+        SELECT f.id, f.visitor_id, f.article_id, f.created_at,
+               a.title AS article_title, a.slug AS article_slug, a.excerpt AS article_excerpt
+        FROM t_user_favorite f
+        INNER JOIN t_article a ON f.article_id = a.id
+        WHERE f.visitor_id = #{visitorId}
+          AND a.status = 'PUBLISHED'
+        ORDER BY f.created_at DESC
+    </select>
+
+    <select id="existsByVisitorAndArticle" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM t_user_favorite
+        WHERE visitor_id = #{visitorId} AND article_id = #{articleId}
+    </select>
+
+    <select id="countByVisitorId" resultType="long">
+        SELECT COUNT(*)
+        FROM t_user_favorite f
+        INNER JOIN t_article a ON f.article_id = a.id
+        WHERE f.visitor_id = #{visitorId} AND a.status = 'PUBLISHED'
+    </select>
+
+    <delete id="deleteAllByVisitorId">
+        DELETE FROM t_user_favorite WHERE visitor_id = #{visitorId}
+    </delete>
+
+</mapper>

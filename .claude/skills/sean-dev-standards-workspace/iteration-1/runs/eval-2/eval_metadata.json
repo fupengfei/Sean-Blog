@@ -1,0 +1,43 @@
+{
+  "eval_id": 3,
+  "eval_name": "release-notes-generation",
+  "prompt": "文章搜索功能开发完成了，feature/search-articles 分支已合并到 master。请生成本次迭代的 release notes。",
+  "assertions": [
+    {
+      "id": "rn-file-location",
+      "description": "文件生成在 docs/release-notes/ 目录下"
+    },
+    {
+      "id": "rn-file-naming",
+      "description": "文件名符合 YYYY-MM-DD-feature-name.md 格式"
+    },
+    {
+      "id": "rn-section-requirements",
+      "description": "包含「需求说明」章节"
+    },
+    {
+      "id": "rn-section-thinking",
+      "description": "包含「思考过程」或「架构设计」章节"
+    },
+    {
+      "id": "rn-section-implementation",
+      "description": "包含「实现过程」章节（含任务分解）"
+    },
+    {
+      "id": "rn-section-metrics",
+      "description": "包含「指标」章节（含代码量表格，使用提供的数值）"
+    },
+    {
+      "id": "rn-section-decision-audit",
+      "description": "包含「决策审计追踪」章节"
+    },
+    {
+      "id": "rn-section-future-work",
+      "description": "包含「后续事项」章节"
+    },
+    {
+      "id": "rn-uses-provided-data",
+      "description": "使用了提供的实际数据（提交数 8、+1,200/-30 行、3+2 测试文件等）"
+    }
+  ]
+}

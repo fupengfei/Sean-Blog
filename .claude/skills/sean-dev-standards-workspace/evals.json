@@ -1,0 +1,53 @@
+{
+  "skill_name": "sean-dev-standards",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我要开发一个新功能：用户收藏文章。需要设计一张 user_favorites 表，用 Java Spring Boot 实现。请先设计数据库表结构，然后写 Controller/Service/Mapper。",
+      "expected_output": "1. 数据库表包含 created_by/created_at/updated_by/updated_at/is_deleted 五个审计字段；2. SQL 使用软删除；3. Java 代码遵循 Alibaba p3c 规范（命名、@Override、不用 SELECT * 等）",
+      "files": [],
+      "assertions": [
+        {"id": "db-audit-is-deleted", "description": "DDL 包含 is_deleted 字段（TINYINT 或 BOOLEAN，默认 0）"},
+        {"id": "db-audit-created-by", "description": "DDL 包含 created_by 字段（VARCHAR）"},
+        {"id": "db-audit-created-at", "description": "DDL 包含 created_at 字段（DATETIME 或 TIMESTAMP）"},
+        {"id": "db-audit-updated-by", "description": "DDL 包含 updated_by 字段（VARCHAR）"},
+        {"id": "db-audit-updated-at", "description": "DDL 包含 updated_at 字段（DATETIME 或 TIMESTAMP）"},
+        {"id": "db-soft-delete", "description": "删除操作使用软删除（UPDATE is_deleted=1），非物理删除"},
+        {"id": "db-select-with-is-deleted", "description": "查询语句包含 is_deleted=0 条件"},
+        {"id": "java-no-select-star", "description": "SQL 不使用 SELECT *，列出具体字段"},
+        {"id": "java-naming-convention", "description": "Java 类名 UpperCamelCase，方法名 lowerCamelCase"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "使用 subagent-driven-development 启动一个新迭代：实现文章搜索功能，支持按标题和标签搜索。请先做计划。",
+      "expected_output": "1. skill 触发并询问「是否应用 Sean's 开发规范？」；2. 规范叠加在 subagent 工作流之上，不冲突；3. 计划中包含 API 设计规范（RESTful URL、统一返回结构）和 Git 分支命名规范",
+      "files": [],
+      "assertions": [
+        {"id": "api-restful-url", "description": "API URL 使用 RESTful 风格（如 /api/v1/articles/search）"},
+        {"id": "api-unified-response", "description": "响应设计使用统一返回结构（包含 code/message/data）"},
+        {"id": "api-pagination", "description": "分页参数使用 page/pageSize 命名"},
+        {"id": "git-branch-naming", "description": "Git 分支命名符合规范（feature/xxx 或 worktree-feature+xxx）"},
+        {"id": "plan-includes-api-design", "description": "计划中包含 API 设计部分"},
+        {"id": "skill-overlay-no-conflict", "description": "开发规范叠加在 subagent 工作流之上，不产生冲突"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "文章搜索功能开发完成了，feature/search-articles 分支已合并到 master。请生成本次迭代的 release notes。",
+      "expected_output": "1. 生成到 ./docs/release-notes/ 目录；2. 文件名格式 YYYY-MM-DD-search-articles.md；3. 包含需求说明、思考过程、实现过程、指标、决策审计、后续事项等完整结构；4. 使用提供的数据如实填写",
+      "files": [],
+      "assertions": [
+        {"id": "rn-file-location", "description": "文件生成在 docs/release-notes/ 目录下"},
+        {"id": "rn-file-naming", "description": "文件名符合 YYYY-MM-DD-feature-name.md 格式"},
+        {"id": "rn-section-requirements", "description": "包含「需求说明」章节"},
+        {"id": "rn-section-thinking", "description": "包含「思考过程」或「架构设计」章节"},
+        {"id": "rn-section-implementation", "description": "包含「实现过程」章节（含任务分解）"},
+        {"id": "rn-section-metrics", "description": "包含「指标」章节（含代码量表格，使用提供的数值）"},
+        {"id": "rn-section-decision-audit", "description": "包含「决策审计追踪」章节"},
+        {"id": "rn-section-future-work", "description": "包含「后续事项」章节"},
+        {"id": "rn-uses-provided-data", "description": "使用了提供的实际数据（提交数 8、+1,200/-30 行、3+2 测试文件等）"}
+      ]
+    }
+  ]
+}

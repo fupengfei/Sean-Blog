@@ -1,0 +1,14 @@
+{
+  "run": "with_skill",
+  "expectations": [
+    {"text": "db-audit-is-deleted: DDL 包含 is_deleted 字段", "passed": true, "evidence": "DDL 第20行: is_deleted TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除（0=正常, 1=已删除）'"},
+    {"text": "db-audit-created-by: DDL 包含 created_by 字段", "passed": true, "evidence": "DDL 第16行: created_by VARCHAR(64) NOT NULL COMMENT '创建人'"},
+    {"text": "db-audit-created-at: DDL 包含 created_at 字段", "passed": true, "evidence": "DDL 第17行: created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"},
+    {"text": "db-audit-updated-by: DDL 包含 updated_by 字段", "passed": true, "evidence": "DDL 第18行: updated_by VARCHAR(64) NOT NULL COMMENT '修改人'"},
+    {"text": "db-audit-updated-at: DDL 包含 updated_at 字段", "passed": true, "evidence": "DDL 第19行: updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"},
+    {"text": "db-soft-delete: 删除使用软删除 UPDATE is_deleted=1", "passed": true, "evidence": "Mapper XML 第49-56行: softDeleteById 方法使用 UPDATE SET is_deleted = 1, updated_by = #{updatedBy}, updated_at = NOW()"},
+    {"text": "db-select-with-is-deleted: 查询带 is_deleted=0", "passed": true, "evidence": "Mapper XML 中 selectByUserAndArticle/selectByUserIdentifier/countByUserIdentifier 均包含 AND is_deleted = 0"},
+    {"text": "java-no-select-star: SQL 不使用 SELECT *", "passed": true, "evidence": "Mapper XML 第29-32行: 定义 Base_Column_List 列出所有字段，查询使用 <include refid='Base_Column_List' />"},
+    {"text": "java-naming-convention: 类名 UpperCamelCase", "passed": true, "evidence": "类名: UserFavorite, UserFavoriteController, UserFavoriteService, UserFavoriteMapper — 均符合 UpperCamelCase"}
+  ]
+}

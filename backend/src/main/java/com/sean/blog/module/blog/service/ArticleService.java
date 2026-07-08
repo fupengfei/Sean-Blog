@@ -101,7 +101,6 @@ public class ArticleService {
             throw new BusinessException(404, "文章不存在");
         }
         articleMapper.incrementViewCount(article.getId());
-        article.setViewCount(article.getViewCount() + 1);
         return article;
     }
 
