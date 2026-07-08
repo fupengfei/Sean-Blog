@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.blog.mapper.ArticleMapper">
+
+    <resultMap id="articleDetail" type="com.sean.blog.module.blog.entity.Article">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="slug" column="slug"/>
+        <result property="contentMd" column="content_md"/>
+        <result property="contentHtml" column="content_html"/>
+        <result property="excerpt" column="excerpt"/>
+        <result property="coverImage" column="cover_image"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="status" column="status"/>
+        <result property="isFeatured" column="is_featured"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <association property="category" javaType="com.sean.blog.module.blog.entity.Category">
+            <result property="id" column="cat_id"/>
+            <result property="name" column="cat_name"/>
+            <result property="slug" column="cat_slug"/>
+        </association>
+        <collection property="tags" ofType="com.sean.blog.module.blog.entity.Tag">
+            <result property="id" column="tag_id"/>
+            <result property="name" column="tag_name"/>
+            <result property="slug" column="tag_slug"/>
+        </collection>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_article (title, slug, content_md, content_html, excerpt, cover_image, category_id, status, is_featured)
+        VALUES (#{title}, #{slug}, #{contentMd}, #{contentHtml}, #{excerpt}, #{coverImage}, #{categoryId}, #{status}, #{isFeatured})
+    </insert>
+
+    <update id="update">
+        UPDATE t_article SET title = #{title}, slug = #{slug}, content_md = #{contentMd},
+            content_html = #{contentHtml}, excerpt = #{excerpt}, cover_image = #{coverImage},
+            category_id = #{categoryId}, is_featured = #{isFeatured}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_article SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <update id="updateFeatured">
+        UPDATE t_article SET is_featured = #{featured} WHERE id = #{id}
+    </update>
+
+    <update id="incrementViewCount">
+        UPDATE t_article SET view_count = view_count + 1 WHERE id = #{id}
+    </update>
+
+    <select id="findBySlug" resultMap="articleDetail">
+        SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+               t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        LEFT JOIN t_article_tag at ON a.id = at.article_id
+        LEFT JOIN t_tag t ON at.tag_id = t.id
+        WHERE a.slug = #{slug} AND a.status = 'PUBLISHED'
+    </select>
+
+    <select id="findById" resultMap="articleDetail">
+        SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+               t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        LEFT JOIN t_article_tag at ON a.id = at.article_id
+        LEFT JOIN t_tag t ON at.tag_id = t.id
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findPublished" resultMap="articleDetail">
+        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        <where>
+            a.status = 'PUBLISHED'
+            <if test="categoryId != null">AND a.category_id = #{categoryId}</if>
+            <if test="tagId != null">
+                AND a.id IN (SELECT article_id FROM t_article_tag WHERE tag_id = #{tagId})
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY a.created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countPublished" resultType="long">
+        SELECT COUNT(DISTINCT a.id) FROM t_article a
+        <where>
+            a.status = 'PUBLISHED'
+            <if test="categoryId != null">AND a.category_id = #{categoryId}</if>
+            <if test="tagId != null">
+                AND a.id IN (SELECT article_id FROM t_article_tag WHERE tag_id = #{tagId})
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findFeatured" resultMap="articleDetail">
+        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        WHERE a.status = 'PUBLISHED' AND a.is_featured = 1
+        ORDER BY a.created_at DESC LIMIT #{limit}
+    </select>
+
+    <select id="findAll" resultMap="articleDetail">
+        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY a.created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(DISTINCT a.id) FROM t_article a
+        <where>
+            <if test="keyword != null and keyword != ''">
+                (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertArticleTag">
+        INSERT INTO t_article_tag (article_id, tag_id) VALUES (#{articleId}, #{tagId})
+    </insert>
+
+    <delete id="deleteArticleTags">
+        DELETE FROM t_article_tag WHERE article_id = #{articleId}
+    </delete>
+</mapper>
