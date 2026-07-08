@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.blog.mapper.TagMapper">
+    <select id="findAll" resultType="com.sean.blog.module.blog.entity.Tag">
+        SELECT id, name, slug, created_at, updated_at FROM t_tag ORDER BY id
+    </select>
+    <select id="findById" resultType="com.sean.blog.module.blog.entity.Tag">
+        SELECT id, name, slug, created_at, updated_at FROM t_tag WHERE id = #{id}
+    </select>
+    <select id="findBySlug" resultType="com.sean.blog.module.blog.entity.Tag">
+        SELECT id, name, slug, created_at, updated_at FROM t_tag WHERE slug = #{slug}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_tag (name, slug) VALUES (#{name}, #{slug})
+    </insert>
+    <update id="update">
+        UPDATE t_tag SET name = #{name}, slug = #{slug} WHERE id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE FROM t_tag WHERE id = #{id}
+    </delete>
+    <select id="existsByName" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM t_tag WHERE name = #{name}
+    </select>
+</mapper>
