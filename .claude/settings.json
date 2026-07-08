@@ -7,7 +7,16 @@
       "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 217f0d9 113f451)",
       "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 113f451 9fee833)",
       "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 9fee833 342619a)",
-      "Bash(mvn compile *)"
+      "Bash(mvn compile *)",
+      "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 342619a 933f3d1)",
+      "Bash(git checkout *)",
+      "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package 933f3d1 da85c0f)",
+      "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package da85c0f *)",
+      "Bash(npm install *)",
+      "Bash(sudo chown -R 501:20 \"/Users/fupengfei/.npm\")",
+      "Bash(npm cache *)",
+      "Bash(npm run *)",
+      "Bash(npx next *)"
     ]
   }
 }
