@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.file.mapper.FileNodeMapper">
+    <select id="findByBundleId" resultType="com.sean.blog.module.file.entity.FileNode">
+        SELECT * FROM t_file_node WHERE bundle_id = #{bundleId} ORDER BY node_type ASC, sort_order ASC, name ASC
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_file_node (bundle_id, parent_id, name, node_type, file_path, file_size, sort_order)
+        VALUES (#{bundleId}, #{parentId}, #{name}, #{nodeType}, #{filePath}, #{fileSize}, #{sortOrder})
+    </insert>
+    <delete id="deleteByBundleId">
+        DELETE FROM t_file_node WHERE bundle_id = #{bundleId}
+    </delete>
+</mapper>
