@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.contact.mapper.ContactRecordMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_contact_record (type, company_name, email, ip_address)
+        VALUES (#{type}, #{companyName}, #{email}, #{ipAddress})
+    </insert>
+    <select id="findAll" resultType="com.sean.blog.module.contact.entity.ContactRecord">
+        SELECT * FROM t_contact_record
+        <where>
+            <if test="type != null and type != ''">AND type = #{type}</if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_contact_record
+        <where>
+            <if test="type != null and type != ''">AND type = #{type}</if>
+        </where>
+    </select>
+</mapper>
