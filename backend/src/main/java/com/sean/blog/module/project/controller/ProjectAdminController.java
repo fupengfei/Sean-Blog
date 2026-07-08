@@ -41,6 +41,19 @@ public class ProjectAdminController {
         return Result.success();
     }
 
+    @PutMapping("/{id}")
+    public Result<?> update(@PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam String description,
+            @RequestParam(required = false) String url,
+            @RequestParam(required = false) String githubUrl,
+            @RequestParam(required = false) String tags,
+            @RequestParam(defaultValue = "false") boolean isFeatured,
+            @RequestParam(required = false) MultipartFile coverImage) {
+        projectService.update(id, title, description, url, githubUrl, tags, isFeatured, coverImage);
+        return Result.success();
+    }
+
     @PutMapping("/{id}/feature")
     public Result<?> toggleFeature(@PathVariable Long id) {
         projectService.toggleFeatured(id);
