@@ -22,6 +22,9 @@ public class CategoryService {
     public Category update(Long id, String name, String slug) {
         Category category = categoryMapper.findById(id);
         if (category == null) throw new BusinessException(404, "分类不存在");
+        if (!category.getName().equals(name) && categoryMapper.existsByName(name)) {
+            throw new BusinessException("分类已存在");
+        }
         category.setName(name); category.setSlug(slug);
         categoryMapper.update(category);
         return category;

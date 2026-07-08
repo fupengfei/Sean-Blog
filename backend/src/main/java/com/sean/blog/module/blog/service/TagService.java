@@ -22,6 +22,9 @@ public class TagService {
     public Tag update(Long id, String name, String slug) {
         Tag tag = tagMapper.findById(id);
         if (tag == null) throw new BusinessException(404, "标签不存在");
+        if (!tag.getName().equals(name) && tagMapper.existsByName(name)) {
+            throw new BusinessException("标签已存在");
+        }
         tag.setName(name); tag.setSlug(slug);
         tagMapper.update(tag);
         return tag;
