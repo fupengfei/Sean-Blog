@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevPort | 专业开发者作品集 &amp; 博客</title>
+<!-- Google Fonts: Inter and Source Serif 4 -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:opsz,wght@8..60,400;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2a303d",
+                        "secondary-container": "#9ff5c1",
+                        "on-secondary-fixed": "#002111",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005231",
+                        "on-primary-fixed": "#001b3c",
+                        "surface-variant": "#dde2f3",
+                        "surface-container-low": "#f1f3ff",
+                        "inverse-primary": "#adc7f7",
+                        "on-primary-container": "#86a0cd",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#d6e3ff",
+                        "on-secondary-container": "#167249",
+                        "secondary-fixed": "#9ff5c1",
+                        "on-background": "#161c27",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d4daea",
+                        "outline-variant": "#c4c6cf",
+                        "inverse-on-surface": "#ecf0ff",
+                        "surface-container": "#e8eeff",
+                        "surface-container-highest": "#dde2f3",
+                        "primary-container": "#1a365d",
+                        "on-error-container": "#93000a",
+                        "outline": "#74777f",
+                        "secondary": "#0a6c44",
+                        "tertiary-fixed": "#ffddba",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "tertiary-container": "#4f2e00",
+                        "surface-bright": "#f9f9ff",
+                        "on-surface": "#161c27",
+                        "surface-tint": "#455f88",
+                        "on-tertiary-fixed-variant": "#633f0f",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#002045",
+                        "on-tertiary-container": "#c6955e",
+                        "tertiary-fixed-dim": "#f2bc82",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#321b00",
+                        "surface": "#f9f9ff",
+                        "on-tertiary-fixed": "#2b1700",
+                        "background": "#f9f9ff",
+                        "secondary-fixed-dim": "#83d8a6",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e3e8f9",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#adc7f7",
+                        "on-surface-variant": "#43474e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1200px",
+                        "gutter": "24px",
+                        "article-max": "720px",
+                        "margin-mobile": "16px",
+                        "unit": "8px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "ui-medium": ["Inter"],
+                        "metadata": ["Inter"],
+                        "article-body-mobile": ["\"Source Serif 4\""],
+                        "article-body": ["\"Source Serif 4\""],
+                        "display-lg-mobile": ["Inter"],
+                        "ui-small": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "article-title": ["Inter"]
+                    },
+                    "fontSize": {
+                        "ui-medium": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "metadata": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "article-body-mobile": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "article-body": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "ui-small": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "article-title": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9ff;
+            color: #161c27;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-ui-medium text-on-background">
+<!-- Top Navigation Bar -->
+<header class="bg-surface fixed top-0 w-full z-50 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-20">
+<div class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary">DevPort</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="font-ui-medium text-ui-medium text-primary border-b-2 border-primary pb-1 transition-colors duration-200" href="#">首页</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">博客</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">项目</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">关于</a>
+</nav>
+<div class="flex items-center space-x-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">search</button>
+<a class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-ui-medium text-ui-medium hover:opacity-90 transition-opacity" href="#">联系我</a>
+</div>
+</div>
+</header>
+<main class="pt-20">
+<!-- Hero Section: Balanced Left-Text Right-Image Structure -->
+<section class="max-w-container-max mx-auto px-margin-desktop py-24 md:py-32">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="max-w-article-max">
+<h1 class="font-display-lg text-display-lg text-primary mb-6">
+                    通过技术清晰度，打造可扩展的工程方案。
+                </h1>
+<p class="font-article-body text-article-body text-on-surface-variant mb-10 leading-relaxed">
+                    我是一名资深全栈开发工程师，专注于高性能 Web 系统与信息架构。我致力于在复杂业务需求与优雅用户体验之间建立桥梁，坚持严谨的思考与可持续的编码实践。
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-lg font-ui-medium text-ui-medium hover:shadow-lg transition-all duration-200">查看作品</button>
+<button class="border border-primary text-primary px-8 py-3 rounded-lg font-ui-medium text-ui-medium hover:bg-primary-fixed transition-all duration-200">阅读博客</button>
+</div>
+</div>
+<div class="relative">
+<div class="aspect-square bg-surface-container rounded-2xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a software engineer in a modern, minimalist office environment. The setting is clean, with soft natural light and high-end tech gear subtly visible in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaDMd1nw-H8BVXzdHs_2mIkhDDHDW2N7W4941iLT6ejHstsjKqu1pHGk9e-afsqQDCWbRm0a07j6JiRom-3sGgUPmK16gs-OiZRWqWICt99WeE-GnHo4w3B3R8xg7FPepy_2xBQPaQWttnis-rW477W9frPeX8x5qvr-NpBqDmzRNYMhq9R3s4xc7QDwJFfKR8Da1f55LIgqDpiJyM2_dT1oAxHtEjGbRH9s_VWSQKThaoffUSUz6e5w"/>
+</div>
+<div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg border border-outline-variant hidden sm:block">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">code</span>
+</div>
+<div>
+<div class="text-sm font-bold text-primary">10+ 年经验</div>
+<div class="text-xs text-on-surface-variant">全栈工程专家</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Projects: Staggered 3-Column Grid -->
+<section class="bg-surface-container-low py-24">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex items-center justify-between mb-16">
+<h2 class="font-article-title text-article-title text-primary">精选作品</h2>
+<a class="text-primary font-ui-medium flex items-center gap-2 hover:underline" href="#">
+                    全部项目 <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Project Card 1: Standard position -->
+<div class="bg-surface border border-outline-variant hover:shadow-xl transition-all duration-300 group rounded-xl overflow-hidden">
+<div class="h-64 overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="NexGen Analytics Dashboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy0wLwVxRy1I8UWDUECg9yJXcustLpUC7rdvzJaDm6j-vxzP_F3DU3skDO3dKmB1Osq90jnO6JrW8DCUZjCvn7l093MbPqgMpqUfWcZ8O3C0-j8zEVwC2wSrX2uGOlA5KZPTrz1L6FjisWvNSApkL-QfFZDYpqcxx6LztD4ExxodFqcjYgoKkrNf5UNFsDkVHt5wVzu1W17uh8IY3RSVi3z96PhOE1P8h4WaJq4QY9HjZmhTnCs6iFOw"/>
+</div>
+<div class="p-8">
+<div class="flex gap-2 mb-4">
+<span class="bg-surface-container-high text-metadata font-metadata px-2 py-1 rounded">REACT</span>
+<span class="bg-surface-container-high text-metadata font-metadata px-2 py-1 rounded">TYPESCRIPT</span>
+</div>
+<h3 class="font-ui-medium text-xl text-primary mb-3">NexGen 数据看板</h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant mb-6">
+                            专为实时供应链监控设计的高密度数据可视化组件。
+                        </p>
+<a class="text-secondary font-ui-medium flex items-center gap-1 hover:underline text-sm" href="#">
+                            查看案例 <span class="material-symbols-outlined text-sm">north_east</span>
+</a>
+</div>
+</div>
+<!-- Project Card 2: Elevated position for rhythm -->
+<div class="bg-surface border border-outline-variant hover:shadow-xl transition-all duration-300 group rounded-xl overflow-hidden lg:-mt-8">
+<div class="h-64 overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="OmniSense Core Engine" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaDMd1nw-H8BVXzdHs_2mIkhDDHDW2N7W4941iLT6ejHstsjKqu1pHGk9e-afsqQDCWbRm0a07j6JiRom-3sGgUPmK16gs-OiZRWqWICt99WeE-GnHo4w3B3R8xg7FPepy_2xBQPaQWttnis-rW477W9frPeX8x5qvr-NpBqDmzRNYMhq9R3s4xc7QDwJFfKR8Da1f55LIgqDpiJyM2_dT1oAxHtEjGbRH9s_VWSQKThaoffUSUz6e5w"/>
+</div>
+<div class="p-8">
+<div class="flex gap-2 mb-4">
+<span class="bg-surface-container-high text-metadata font-metadata px-2 py-1 rounded">NODE.JS</span>
+<span class="bg-surface-container-high text-metadata font-metadata px-2 py-1 rounded">IOT</span>
+</div>
+<h3 class="font-ui-medium text-xl text-primary mb-3">OmniSense 核心引擎</h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant mb-6">
+                            分布式后端基础架构，处理超过 1 万个并发传感器流，延迟低于 50ms。
+                        </p>
+<a class="text-secondary font-ui-medium flex items-center gap-1 hover:underline text-sm" href="#">
+                            查看案例 <span class="material-symbols-outlined text-sm">north_east</span>
+</a>
+</div>
+</div>
+<!-- Project Card 3: Further elevation for rhythm -->
+<div class="bg-surface border border-outline-variant hover:shadow-xl transition-all duration-300 group rounded-xl overflow-hidden lg:-mt-16">
+<div class="h-64 overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Atlas Design Framework" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVYPoMLdmMDH1z7JB2Y0FzgpfaQqkol0yM5lhK1LpKjdpj23XWLhMJojEFhyQ4XtF0bmMGHddTueforbZi-XeBJXLefxYhptWxqrE85HJ3O6JzFSHulqAwmdFDvP3kSYcjEwr5agnU7TI0v7b2jBm06zgFV4G-LCMNUw_02nTjzy-82OIdtijyy6-wYa96N-Mg8LYlAjISlRBaOaoqGUNVP5bWfnLGKIvCtsp_ZYQTXrf7TECo1AQRmw"/>
+</div>
+<div class="p-8">
+<div class="flex gap-2 mb-4">
+<span class="bg-surface-container-high text-metadata font-metadata px-2 py-1 rounded">UI 设计</span>
+<span class="bg-surface-container-high text-metadata font-metadata px-2 py-1 rounded">系统化</span>
+</div>
+<h3 class="font-ui-medium text-xl text-primary mb-3">Atlas 设计规范</h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant mb-6">
+                            面向企业级应用的全面设计系统，专注于可访问性与实用性。
+                        </p>
+<a class="text-secondary font-ui-medium flex items-center gap-1 hover:underline text-sm" href="#">
+                            查看案例 <span class="material-symbols-outlined text-sm">north_east</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Latest Articles: Refined List Design -->
+<section class="max-w-container-max mx-auto px-margin-desktop py-24">
+<div class="max-w-article-max">
+<h2 class="font-article-title text-article-title text-primary mb-12">深度思考</h2>
+<div class="space-y-4">
+<!-- Article 1 -->
+<article class="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex flex-col md:flex-row md:items-center md:gap-8">
+<div class="font-metadata text-metadata text-on-surface-variant mb-2 md:mb-0 w-32 shrink-0">
+                            2024年3月12日
+                        </div>
+<div class="flex-grow">
+<h3 class="font-ui-medium text-xl text-primary group-hover:text-secondary transition-colors mb-2">
+<a href="#">分布式微服务中静态类型的价值</a>
+</h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant leading-relaxed">
+                                探讨在管理共享数据契约时，开发效率与系统长期稳定性之间的权衡...
+                            </p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors hidden md:block">arrow_forward</span>
+</div>
+</article>
+<!-- Article 2 -->
+<article class="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex flex-col md:flex-row md:items-center md:gap-8">
+<div class="font-metadata text-metadata text-on-surface-variant mb-2 md:mb-0 w-32 shrink-0">
+                            2024年2月28日
+                        </div>
+<div class="flex-grow">
+<h3 class="font-ui-medium text-xl text-primary group-hover:text-secondary transition-colors mb-2">
+<a href="#">高性能 Rust 系统中的内存管理实践</a>
+</h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant leading-relaxed">
+                                深入浅出所有权与借用机制，以及我们如何优化摄入引擎以实现零成本抽象...
+                            </p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors hidden md:block">arrow_forward</span>
+</div>
+</article>
+<!-- Article 3 -->
+<article class="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex flex-col md:flex-row md:items-center md:gap-8">
+<div class="font-metadata text-metadata text-on-surface-variant mb-2 md:mb-0 w-32 shrink-0">
+                            2024年1月15日
+                        </div>
+<div class="flex-grow">
+<h3 class="font-ui-medium text-xl text-primary group-hover:text-secondary transition-colors mb-2">
+<a href="#">架构决策：何时选择 NoSQL 而非 SQL</a>
+</h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant leading-relaxed">
+                                拒绝盲目跟风。一套基于数据访问模式评估数据库需求的系统框架...
+                            </p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors hidden md:block">arrow_forward</span>
+</div>
+</article>
+</div>
+<div class="mt-12">
+<a class="bg-surface-container-high text-primary px-8 py-3 rounded-lg font-ui-medium text-ui-medium hover:bg-surface-container-highest transition-colors inline-block" href="#">
+                    阅读更多文章
+                </a>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="max-w-container-max mx-auto px-margin-desktop mb-24">
+<div class="bg-primary p-12 md:p-20 text-center rounded-2xl relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -mr-32 -mt-32"></div>
+<div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary rounded-full blur-3xl -ml-32 -mb-32"></div>
+</div>
+<h2 class="font-display-lg-mobile text-display-lg-mobile text-on-primary mb-6 relative z-10">让我们构建严谨的作品。</h2>
+<p class="text-on-primary-container max-w-xl mx-auto mb-10 text-lg relative z-10">
+                目前我接受架构咨询及资深工程师岗位的约见。欢迎探讨我如何帮助您的团队实现卓越的技术目标。
+            </p>
+<div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
+<a class="bg-on-primary text-primary px-10 py-4 rounded-lg font-ui-medium text-ui-medium hover:shadow-xl transition-all" href="mailto:contact@devport.com">发送邮件</a>
+<a class="border border-on-primary text-on-primary px-10 py-4 rounded-lg font-ui-medium text-ui-medium hover:bg-white/10 transition-all" href="#">获取简历</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center w-full py-12 px-margin-desktop max-w-container-max mx-auto">
+<div class="mb-6 md:mb-0">
+<div class="font-ui-medium text-ui-medium font-bold text-on-surface mb-2">DevPort</div>
+<p class="font-metadata text-metadata text-on-surface-variant">© 2024 DevPort. 为清晰而生。</p>
+</div>
+<div class="flex items-center space-x-8">
+<a class="font-metadata text-metadata text-on-surface-variant hover:text-primary underline transition-all" href="#">GitHub</a>
+<a class="font-metadata text-metadata text-on-surface-variant hover:text-primary underline transition-all" href="#">LinkedIn</a>
+<a class="font-metadata text-metadata text-on-surface-variant hover:text-primary underline transition-all" href="#">RSS</a>
+</div>
+</div>
+</footer>
+<script>
+    // Simple scroll behavior for header
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        if (window.scrollY > 20) {
+            header.classList.add('shadow-sm');
+            header.classList.remove('border-b');
+        } else {
+            header.classList.remove('shadow-sm');
+            header.classList.add('border-b');
+        }
+    });
+</script>
+</body></html>

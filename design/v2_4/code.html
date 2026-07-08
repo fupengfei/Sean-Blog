@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>关于我 | 个人作品集</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#001b3c",
+                    "outline-variant": "#c4c6cf",
+                    "on-secondary-fixed-variant": "#005231",
+                    "error": "#ba1a1a",
+                    "tertiary": "#321b00",
+                    "on-surface": "#161c27",
+                    "tertiary-fixed-dim": "#f2bc82",
+                    "secondary-fixed-dim": "#83d8a6",
+                    "primary-fixed-dim": "#adc7f7",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-container": "#c6955e",
+                    "outline": "#74777f",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#0a6c44",
+                    "secondary-container": "#9ff5c1",
+                    "on-background": "#161c27",
+                    "background": "#f9f9ff",
+                    "tertiary-fixed": "#ffddba",
+                    "primary-fixed": "#d6e3ff",
+                    "surface-container-high": "#e3e8f9",
+                    "on-primary-fixed-variant": "#2d476f",
+                    "on-primary": "#ffffff",
+                    "surface": "#f9f9ff",
+                    "primary-container": "#1a365d",
+                    "secondary-fixed": "#9ff5c1",
+                    "inverse-surface": "#2a303d",
+                    "surface-container": "#e8eeff",
+                    "on-tertiary-fixed-variant": "#633f0f",
+                    "surface-variant": "#dde2f3",
+                    "primary": "#002045",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#dde2f3",
+                    "on-surface-variant": "#43474e",
+                    "surface-bright": "#f9f9ff",
+                    "on-primary-container": "#86a0cd",
+                    "inverse-on-surface": "#ecf0ff",
+                    "tertiary-container": "#4f2e00",
+                    "on-tertiary-fixed": "#2b1700",
+                    "on-secondary-fixed": "#002111",
+                    "surface-tint": "#455f88",
+                    "on-secondary-container": "#167249",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d4daea",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#adc7f7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "unit": "8px",
+                    "container-max": "1200px",
+                    "article-max": "720px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px"
+            },
+            "fontFamily": {
+                    "article-body": ["\"Source Serif 4\""],
+                    "metadata": ["Inter"],
+                    "ui-medium": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "article-title": ["Inter"],
+                    "ui-small": ["Inter"]
+            },
+            "fontSize": {
+                    "article-body": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                    "metadata": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "ui-medium": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "article-title": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "ui-small": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; color: #161c27; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .article-content p { margin-bottom: 1.5rem; }
+        .skill-card:hover .skill-icon { transform: scale(1.1) rotate(5deg); }
+        .dot-pattern { background-image: radial-gradient(#c4c6cf 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pt-16">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop h-16 max-w-container-max mx-auto">
+<div class="font-display-lg text-ui-medium font-bold text-primary">Portfolio</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors" href="#">首页</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors" href="#">博客</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors" href="#">项目</a>
+<a class="font-ui-medium text-ui-medium text-primary border-b-2 border-primary pb-1" href="#">关于</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:opacity-80">search</span>
+<span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:opacity-80">dark_mode</span>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-desktop py-12 md:py-24">
+<!-- Narrative Hero Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-16 items-start mb-32">
+<div class="md:col-span-5 sticky top-24">
+<div class="relative group">
+<div class="absolute -inset-4 bg-surface-container border border-outline-variant rounded-xl -z-10 transform -rotate-2 group-hover:rotate-0 transition-transform duration-500"></div>
+<div class="relative aspect-[4/5] overflow-hidden rounded-lg shadow-xl border border-outline-variant">
+<img alt="Professional portrait of a male software engineer" class="w-full h-full object-cover grayscale-[30%] hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDffAFYLx35byA2HcKSziMNk6dPlbCSpn6GsWoDcxD54iPRqwSNpsiBmhEujNemeQGJ2neWz4TmUCm-DOvJZgK_o-0OPvJiOUNxWXx251Uf2Kcfj_Ys5inNCMHGlSLNROouC5urf2A8waCZVjLnYjuTOxD6M-ZcFYnMh36LYflsK6RtXx-yld4j4ATDDMi1WTAdzVM-imABYzEXEeZpJfIj2hyroXJAFKpYHorkBlm3OTDt5Xh8h3rxiQ"/>
+</div>
+<div class="mt-6 flex gap-4">
+<div class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">camera</span>
+</div>
+<div class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</div>
+</div>
+</div>
+</div>
+<div class="md:col-span-7">
+<span class="font-metadata text-metadata text-secondary mb-4 block tracking-[0.2em]">MY STORY / 我的故事</span>
+<h1 class="font-article-title text-[40px] md:text-[48px] leading-tight text-on-surface mb-10">在代码与生活之间，<br/>构建有温度的数字体验。</h1>
+<div class="font-article-body text-article-body text-on-surface-variant article-content space-y-6">
+<p class="italic border-l-4 border-secondary/30 pl-6 text-on-surface py-2">“伟大的产品不仅在于其功能的强大，更在于它与用户产生情感共鸣的瞬间。”</p>
+<p>你好，我是林深。一名专注于前端开发与交互设计的资深工程师。在过去的五年里，我一直致力于将复杂的技术逻辑转化为优雅、易用的用户界面。我坚信，好的设计不仅是视觉上的美感，更是技术深度与人文关怀的完美结合。</p>
+<p>我的职业生涯始于对纯粹代码的热爱，随后在大型互联网公司积累了深厚的全栈开发经验。目前，我专注于 React 生态系统，探索如何利用高效的状态管理和组件化思维，为全球用户打造极致流畅的 Web 应用。</p>
+<p>在代码之外，我是一个热衷于记录生活的摄影师和开源社区的贡献者。我喜欢在清晨的咖啡馆里敲下第一行代码，也喜欢在周末的远足中寻找解决复杂逻辑的灵感。对我而言，开发是一场永无止境的探索旅程。</p>
+</div>
+<div class="mt-12 grid grid-cols-2 gap-8 border-t border-outline-variant pt-12">
+<div>
+<div class="text-display-lg text-primary font-bold mb-1">5+</div>
+<div class="text-metadata text-on-surface-variant uppercase">行业经验 (年)</div>
+</div>
+<div>
+<div class="text-display-lg text-primary font-bold mb-1">40+</div>
+<div class="text-metadata text-on-surface-variant uppercase">交付项目</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Modular Skills Section -->
+<section class="mb-32">
+<div class="flex flex-col items-center mb-16 text-center">
+<h2 class="font-display-lg text-article-title font-bold text-primary mb-4">技术专长</h2>
+<p class="font-ui-medium text-on-surface-variant max-w-xl">持续探索前沿技术栈，致力于打造高性能、可维护且具有卓越体验的现代化 Web 应用。</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Skill 1 -->
+<div class="skill-card p-10 bg-surface-container-lowest border border-outline-variant rounded-xl hover:shadow-lg transition-all duration-300">
+<div class="skill-icon w-14 h-14 bg-primary/5 rounded-xl flex items-center justify-center text-primary mb-8 transition-transform duration-300">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">layers</span>
+</div>
+<h3 class="font-ui-medium text-xl font-bold mb-4">前端核心技术</h3>
+<p class="text-on-surface-variant text-ui-small mb-6">精通 React/Next.js 生态，擅长使用 TypeScript 构建大型复杂应用。</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container text-primary font-metadata text-[11px] rounded-md border border-outline-variant/30">React 18</span>
+<span class="px-3 py-1 bg-surface-container text-primary font-metadata text-[11px] rounded-md border border-outline-variant/30">Next.js</span>
+<span class="px-3 py-1 bg-surface-container text-primary font-metadata text-[11px] rounded-md border border-outline-variant/30">TypeScript</span>
+</div>
+</div>
+<!-- Skill 2 -->
+<div class="skill-card p-10 bg-surface-container-lowest border border-outline-variant rounded-xl hover:shadow-lg transition-all duration-300">
+<div class="skill-icon w-14 h-14 bg-secondary/5 rounded-xl flex items-center justify-center text-secondary mb-8 transition-transform duration-300">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+</div>
+<h3 class="font-ui-medium text-xl font-bold mb-4">工程化与后端</h3>
+<p class="text-on-surface-variant text-ui-small mb-6">关注开发效率与交付质量，具备 Node.js 全栈开发及 CI/CD 自动化能力。</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container text-secondary font-metadata text-[11px] rounded-md border border-outline-variant/30">Node.js</span>
+<span class="px-3 py-1 bg-surface-container text-secondary font-metadata text-[11px] rounded-md border border-outline-variant/30">Docker</span>
+<span class="px-3 py-1 bg-surface-container text-secondary font-metadata text-[11px] rounded-md border border-outline-variant/30">GraphQL</span>
+</div>
+</div>
+<!-- Skill 3 -->
+<div class="skill-card p-10 bg-surface-container-lowest border border-outline-variant rounded-xl hover:shadow-lg transition-all duration-300">
+<div class="skill-icon w-14 h-14 bg-tertiary-container/5 rounded-xl flex items-center justify-center text-on-tertiary-container mb-8 transition-transform duration-300">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">draw</span>
+</div>
+<h3 class="font-ui-medium text-xl font-bold mb-4">设计系统与体验</h3>
+<p class="text-on-surface-variant text-ui-small mb-6">坚持以设计驱动开发，熟悉组件化思维与 Figma 设计规范管理。</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container text-on-tertiary-container font-metadata text-[11px] rounded-md border border-outline-variant/30">Figma</span>
+<span class="px-3 py-1 bg-surface-container text-on-tertiary-container font-metadata text-[11px] rounded-md border border-outline-variant/30">Tailwind</span>
+<span class="px-3 py-1 bg-surface-container text-on-tertiary-container font-metadata text-[11px] rounded-md border border-outline-variant/30">Motion</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Formal Contact Section -->
+<section class="max-w-container-max mx-auto mb-32">
+<div class="bg-primary text-on-primary rounded-2xl relative overflow-hidden flex flex-col lg:flex-row">
+<!-- Left: Info & Decoration -->
+<div class="lg:w-2/5 p-12 md:p-16 flex flex-col justify-between relative bg-primary-container/20">
+<div class="dot-pattern absolute inset-0 opacity-10"></div>
+<div class="relative z-10">
+<h2 class="font-article-title text-article-title mb-6 leading-tight">期待与您的<br/>思想碰撞</h2>
+<p class="font-ui-medium text-ui-medium text-on-primary-container mb-12 opacity-80 leading-relaxed">
+                            我目前正在寻找令人兴奋的新机会或合作。无论是项目咨询还是技术交流，我都非常乐意倾听。
+                        </p>
+</div>
+<div class="relative z-10 space-y-6 pt-12 border-t border-on-primary-container/20">
+<div class="flex items-center gap-4 group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center group-hover:bg-secondary transition-colors">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</div>
+<span class="font-metadata text-ui-medium">hi@linshen.dev</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+</div>
+<span class="font-metadata text-ui-medium">上海 · 中国</span>
+</div>
+</div>
+</div>
+<!-- Right: Form -->
+<div class="lg:w-3/5 p-12 md:p-16 bg-primary">
+<form class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="flex flex-col gap-3">
+<label class="font-ui-small text-[12px] font-bold uppercase tracking-widest text-on-primary-container/70" for="name">您的姓名</label>
+<input class="bg-transparent border-b border-on-primary-container/30 focus:border-secondary outline-none py-2 text-white placeholder-on-primary-container/30 transition-colors" id="name" placeholder="Name" type="text"/>
+</div>
+<div class="flex flex-col gap-3">
+<label class="font-ui-small text-[12px] font-bold uppercase tracking-widest text-on-primary-container/70" for="email">邮箱地址</label>
+<input class="bg-transparent border-b border-on-primary-container/30 focus:border-secondary outline-none py-2 text-white placeholder-on-primary-container/30 transition-colors" id="email" placeholder="Email Address" type="email"/>
+</div>
+<div class="flex flex-col gap-3 md:col-span-2">
+<label class="font-ui-small text-[12px] font-bold uppercase tracking-widest text-on-primary-container/70" for="message">合作详情</label>
+<textarea class="bg-transparent border-b border-on-primary-container/30 focus:border-secondary outline-none py-2 text-white placeholder-on-primary-container/30 resize-none min-h-[120px] transition-colors" id="message" placeholder="请简要描述您的项目需求或合作意向..."></textarea>
+</div>
+<div class="md:col-span-2 pt-8">
+<button class="flex items-center justify-center gap-2 px-12 py-5 bg-secondary text-on-secondary font-ui-medium text-ui-medium rounded-lg hover:bg-secondary/90 transition-all active:scale-[0.98] shadow-xl group" type="submit">
+                                提交意向
+                                <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-16 px-margin-desktop max-w-container-max mx-auto border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
+<div class="flex flex-col gap-4">
+<div class="font-display-lg text-ui-medium font-bold text-primary">Portfolio</div>
+<p class="text-on-surface-variant text-ui-small max-w-[300px]">致力于将极致的技术与设计融入到每一个数字产品中。</p>
+</div>
+<div class="flex flex-col items-start md:items-end gap-6">
+<nav class="flex flex-wrap gap-x-8 gap-y-4">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-metadata text-metadata" href="#">RSS 订阅</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-metadata text-metadata" href="#">GitHub</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-metadata text-metadata" href="#">LinkedIn</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-metadata text-metadata" href="#">隐私权政策</a>
+</nav>
+<div class="flex flex-col items-start md:items-end gap-2">
+<p class="font-metadata text-metadata text-secondary">© 2024 Personal Portfolio. All rights reserved.</p>
+<p class="text-[10px] text-outline uppercase tracking-widest">Designed with focus &amp; code</p>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple scroll interaction for header shadow
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md', 'backdrop-blur-md', 'bg-surface/90');
+            } else {
+                header.classList.remove('shadow-md', 'backdrop-blur-md', 'bg-surface/90');
+            }
+        });
+
+        // Form handling micro-interaction
+        const contactForm = document.querySelector('form');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = contactForm.querySelector('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '发送成功 ✓';
+            btn.classList.replace('bg-secondary', 'bg-on-secondary-container');
+            contactForm.reset();
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.replace('bg-on-secondary-container', 'bg-secondary');
+            }, 3000);
+        });
+    </script>
+</body></html>

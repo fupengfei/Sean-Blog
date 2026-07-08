@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>技术洞察与深度思考 - Portfolio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#001b3c",
+                    "outline-variant": "#c4c6cf",
+                    "on-secondary-fixed-variant": "#005231",
+                    "error": "#ba1a1a",
+                    "tertiary": "#321b00",
+                    "on-surface": "#161c27",
+                    "tertiary-fixed-dim": "#f2bc82",
+                    "surface-container-low": "#f1f3ff",
+                    "secondary-fixed-dim": "#83d8a6",
+                    "primary-fixed-dim": "#adc7f7",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-container": "#c6955e",
+                    "outline": "#74777f",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#0a6c44",
+                    "secondary-container": "#9ff5c1",
+                    "on-background": "#161c27",
+                    "background": "#f9f9ff",
+                    "tertiary-fixed": "#ffddba",
+                    "primary-fixed": "#d6e3ff",
+                    "surface-container-high": "#e3e8f9",
+                    "on-primary-fixed-variant": "#2d476f",
+                    "on-primary": "#ffffff",
+                    "surface": "#f9f9ff",
+                    "primary-container": "#1a365d",
+                    "secondary-fixed": "#9ff5c1",
+                    "inverse-surface": "#2a303d",
+                    "surface-container": "#e8eeff",
+                    "on-tertiary-fixed-variant": "#633f0f",
+                    "surface-variant": "#dde2f3",
+                    "primary": "#002045",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#dde2f3",
+                    "on-surface-variant": "#43474e",
+                    "surface-bright": "#f9f9ff",
+                    "on-primary-container": "#86a0cd",
+                    "inverse-on-surface": "#ecf0ff",
+                    "tertiary-container": "#4f2e00",
+                    "on-tertiary-fixed": "#2b1700",
+                    "on-secondary-fixed": "#002111",
+                    "surface-tint": "#455f88",
+                    "on-secondary-container": "#167249",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d4daea",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#adc7f7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "unit": "8px",
+                    "container-max": "1200px",
+                    "article-max": "720px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px"
+            },
+            "fontFamily": {
+                    "article-body": ["\"Source Serif 4\""],
+                    "metadata": ["Inter"],
+                    "ui-medium": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "article-title": ["Inter"],
+                    "article-body-mobile": ["\"Source Serif 4\""],
+                    "ui-small": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "article-body": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                    "metadata": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "ui-medium": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "article-title": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "article-body-mobile": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "ui-small": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9f9ff;
+            color: #161c27;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .article-card {
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -12px rgba(0, 32, 69, 0.15);
+        }
+        .filter-chip {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .filter-chip.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #002045;
+        }
+    </style>
+</head>
+<body class="bg-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 max-w-container-max mx-auto">
+<div class="font-display-lg text-xl font-bold text-primary tracking-tight">Portfolio</div>
+<div class="hidden md:flex items-center space-x-10">
+<a class="font-ui-medium text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">首页</a>
+<a class="font-ui-medium text-sm text-primary relative after:absolute after:-bottom-5 after:left-0 after:w-full after:h-0.5 after:bg-primary" href="#">博客专栏</a>
+<a class="font-ui-medium text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">项目案例</a>
+<a class="font-ui-medium text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">关于我</a>
+</div>
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:text-primary transition-colors">search</span>
+<span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:text-primary transition-colors">dark_mode</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Header Section -->
+<header class="mb-16 border-l-4 border-primary pl-6 py-2">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-4 tracking-tight">技术洞察与深度思考</h1>
+<p class="font-ui-medium text-ui-medium text-on-surface-variant max-w-3xl leading-relaxed">
+            探索现代软件工程的前沿技术，沉淀架构设计的实践心得。这里不仅有代码，更有关于技术演进与解决问题的哲学思考。
+        </p>
+</header>
+<!-- Professional Category Filters -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6 border-b border-outline-variant pb-8">
+<div class="flex flex-wrap gap-2 md:gap-4">
+<button class="filter-chip active px-5 py-2 rounded-lg bg-primary text-on-primary font-ui-medium text-sm">全部文章</button>
+<button class="filter-chip px-5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-variant font-ui-medium text-sm transition-colors">前端开发</button>
+<button class="filter-chip px-5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-variant font-ui-medium text-sm transition-colors">后端架构</button>
+<button class="filter-chip px-5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-variant font-ui-medium text-sm transition-colors">AI &amp; 算法</button>
+<button class="filter-chip px-5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-variant font-ui-medium text-sm transition-colors">效率工具</button>
+</div>
+<div class="flex items-center text-on-surface-variant font-metadata text-metadata uppercase tracking-widest gap-2">
+<span>排序方式:</span>
+<select class="bg-transparent border-none focus:ring-0 cursor-pointer text-primary font-bold pr-8 py-0">
+<option>最新发布</option>
+<option>最多阅读</option>
+</select>
+</div>
+</div>
+<!-- Article Layout Grid -->
+<div class="space-y-12">
+<!-- Featured Article (Hero Style) -->
+<article class="group relative grid grid-cols-1 lg:grid-cols-12 gap-0 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm article-card">
+<div class="lg:col-span-7 aspect-[16/10] overflow-hidden">
+<img alt="Hero Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYEXDTzmnBnmOdKcJBT7NGPGr1XmhhLolSs6kFZ868dSPrJjTAjb-W09ZcuV26vCRFNFntzpZ3eZKrCFsvQp3dLjXPMF7dYOcJgva8aCLqPvZwOlfJr3eBjGTuWuu1F_MguNCUqlqw9cB6l757EueKbm3YapQTr_-pqAOwdjLyfk1vj2ehUThpBACgSucnrfZ6G_u6CeLIduFrGikjrXLVuo-tYids6U_T-z1MLN4dCVUY1JBLmZu9KQ"/>
+</div>
+<div class="lg:col-span-5 p-8 md:p-12 flex flex-col justify-center">
+<div class="flex items-center gap-3 mb-6">
+<span class="text-secondary font-metadata text-[10px] uppercase tracking-widest px-2 py-0.5 border border-secondary/20 bg-secondary-container/30 rounded">精品专题</span>
+<span class="text-on-surface-variant font-metadata text-metadata">2024.10.24 • 12 MIN READ</span>
+</div>
+<h2 class="font-article-title text-3xl md:text-4xl text-primary mb-6 leading-[1.2] group-hover:text-primary-container transition-colors">
+                    从单体到微服务：大规模分布式系统的架构演进之路
+                </h2>
+<p class="font-article-body text-base text-on-surface-variant mb-8 line-clamp-3 leading-relaxed">
+                    本文深入剖析了在业务快速增长背景下，如何通过合理的领域拆分与服务治理，实现系统的平滑演进。我们将讨论常见的陷阱以及如何构建一个弹性、可扩展的现代化后端架构。
+                </p>
+<a class="inline-flex items-center text-primary font-ui-medium text-sm uppercase tracking-wider group/link" href="#">
+                    阅读全文
+                    <span class="material-symbols-outlined ml-2 group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Two-Column Grid / Masonry style feel -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Article 2 -->
+<article class="article-card bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="aspect-[16/9] overflow-hidden">
+<img alt="React 19" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCroWDKSRxsY1YLHfFhLf0EKSJLzNePFgHg2H6EfFku_xIdbSy5YtEBRtMxgTlhaiw3_s_AdRsVc6es3j9lVxaX7PQm459HHVSO53sQO-GRhxUt05j-nTCeAh5Jb4EPihT2L80otZsS3fPQ7lrvvDpbQizn50bE42OurK8R14jvQa7_4hNsO_-G61zZwhOUPl1o0P9hx0SRoA6qM7TQL84IsqiO7iDrOVkpPQ3ZgPdQL1Ei8Maar8_IWQ"/>
+</div>
+<div class="p-8 flex flex-col flex-grow">
+<div class="flex items-center justify-between mb-4">
+<span class="text-on-tertiary-fixed-variant font-metadata text-[10px] uppercase tracking-widest px-2 py-0.5 bg-tertiary-fixed rounded">前端开发</span>
+<span class="text-on-surface-variant font-metadata text-metadata">2024.10.15</span>
+</div>
+<h3 class="font-article-title text-2xl text-primary mb-4 leading-tight">React 19 全新特性详解：Server Components 与动作系统</h3>
+<p class="font-ui-small text-on-surface-variant mb-6 flex-grow leading-relaxed">React 团队近期发布的最新版本带来了革命性的性能优化方案。通过对服务器组件的深度整合，前端开发者现在可以更轻松地构建高性能的全栈应用。</p>
+<a class="text-primary font-ui-medium text-sm inline-flex items-center group/link" href="#">
+                        阅读详情 <span class="material-symbols-outlined ml-1 group-hover/link:translate-x-1 transition-transform">chevron_right</span>
+</a>
+</div>
+</article>
+<!-- Article 3 -->
+<article class="article-card bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="aspect-[16/9] overflow-hidden">
+<img alt="CI/CD" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0jtpP5a21y-1rBIgUSoOlIoaHJUVDJqn-RUIvjDDu1Fgq3E9GF6ZGNF5i_geQOagH8lKXV4wZabF-NgPQWEuZbFVKsTPPeutfohqVjC6cy810YPwhjjC5nPQZJQXJCCxQsXCphk001EG_Juyl0-J9JE_VrumEiMzYQgrST1GM-Tqx3dL5xc1hEeX5U46wbJ8qr_hkvbP8JcGOsJr-6sNpmea36j9158lw7dPCQXCig06f3_cgBwAgfg"/>
+</div>
+<div class="p-8 flex flex-col flex-grow">
+<div class="flex items-center justify-between mb-4">
+<span class="text-on-secondary-fixed-variant font-metadata text-[10px] uppercase tracking-widest px-2 py-0.5 bg-secondary-fixed rounded">工程实践</span>
+<span class="text-on-surface-variant font-metadata text-metadata">2024.10.08</span>
+</div>
+<h3 class="font-article-title text-2xl text-primary mb-4 leading-tight">构建可持续的 CI/CD 流水线：效率与质量的平衡艺术</h3>
+<p class="font-ui-small text-on-surface-variant mb-6 flex-grow leading-relaxed">自动化部署不仅仅是脚本的堆砌，更是一套关于软件交付质量的保障机制。我们将探讨如何优化构建速度并利用自动化测试。</p>
+<a class="text-primary font-ui-medium text-sm inline-flex items-center group/link" href="#">
+                        阅读详情 <span class="material-symbols-outlined ml-1 group-hover/link:translate-x-1 transition-transform">chevron_right</span>
+</a>
+</div>
+</article>
+</div>
+<!-- Multi-Column Grid for smaller entries -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Entry 4 -->
+<article class="article-card bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col">
+<span class="text-secondary font-metadata text-[10px] uppercase tracking-widest mb-4">人工智能</span>
+<h3 class="font-article-title text-xl text-primary mb-4 leading-snug">大语言模型驱动的智能代码助手实践</h3>
+<p class="font-ui-small text-on-surface-variant text-sm mb-6 flex-grow">探讨如何有效利用 LLM 辅助开发，同时避免盲目依赖带来的潜在代码债务。</p>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-on-surface-variant font-metadata text-[10px]">2024.09.28</span>
+<a class="text-primary hover:opacity-70 transition-opacity" href="#"><span class="material-symbols-outlined">north_east</span></a>
+</div>
+</article>
+<!-- Entry 5 -->
+<article class="article-card bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col">
+<span class="text-secondary font-metadata text-[10px] uppercase tracking-widest mb-4">前端前沿</span>
+<h3 class="font-article-title text-xl text-primary mb-4 leading-snug">2024年 CSS 设计趋势：容器查询与层级化样式</h3>
+<p class="font-ui-small text-on-surface-variant text-sm mb-6 flex-grow">原生 CSS 的进化让许多第三方库变得不再必要。深入了解容器查询如何让响应式设计变得更具组件化。</p>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-on-surface-variant font-metadata text-[10px]">2024.09.20</span>
+<a class="text-primary hover:opacity-70 transition-opacity" href="#"><span class="material-symbols-outlined">north_east</span></a>
+</div>
+</article>
+<!-- Entry 6 -->
+<article class="article-card bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col">
+<span class="text-secondary font-metadata text-[10px] uppercase tracking-widest mb-4">架构方法</span>
+<h3 class="font-article-title text-xl text-primary mb-4 leading-snug">理解领域驱动设计 (DDD) 中的核心限界上下文</h3>
+<p class="font-ui-small text-on-surface-variant text-sm mb-6 flex-grow">通过实例分析，如何识别并拆分系统的核心与支撑子域，对复杂业务逻辑进行高效建模。</p>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-on-surface-variant font-metadata text-[10px]">2024.09.12</span>
+<a class="text-primary hover:opacity-70 transition-opacity" href="#"><span class="material-symbols-outlined">north_east</span></a>
+</div>
+</article>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-24 flex justify-center items-center gap-2">
+<button class="p-2.5 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-sm">west</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-ui-medium text-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors font-ui-medium text-sm text-on-surface-variant">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors font-ui-medium text-sm text-on-surface-variant">3</button>
+<span class="px-2 text-on-surface-variant">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors font-ui-medium text-sm text-on-surface-variant">12</button>
+<button class="p-2.5 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm">east</span>
+</button>
+</div>
+</main>
+<!-- Newsletter Section -->
+<section class="bg-primary-container py-24 px-margin-mobile md:px-margin-desktop text-center">
+<div class="max-w-3xl mx-auto">
+<div class="inline-block px-4 py-1 bg-white/10 text-on-primary-container text-xs font-metadata uppercase tracking-widest rounded-full mb-6">定期更新</div>
+<h2 class="font-display-lg text-3xl md:text-4xl text-on-primary mb-6">订阅技术专刊</h2>
+<p class="font-ui-medium text-on-primary-container/80 mb-10 max-w-xl mx-auto leading-relaxed">
+            每两周一次，获取经过深度筛选的技术好文与架构心得。无广告，无垃圾邮件。
+        </p>
+<form class="flex flex-col md:flex-row gap-0 max-w-xl mx-auto overflow-hidden rounded-xl border border-white/20">
+<input class="flex-grow px-6 py-4 bg-white/5 border-none focus:ring-0 text-white placeholder-white/40 font-ui-medium" placeholder="您的工作邮箱地址" required="" type="email"/>
+<button class="px-10 py-4 bg-secondary text-white font-ui-medium hover:bg-on-secondary-container transition-colors whitespace-nowrap" type="submit">
+                立即加入
+            </button>
+</form>
+<p class="mt-6 text-on-primary-container/40 text-[10px] font-metadata">点击订阅即表示您同意我们的《隐私政策》</p>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-16 px-margin-mobile md:px-margin-desktop bg-surface border-t border-outline-variant">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="max-w-xs">
+<div class="font-display-lg text-xl font-bold text-primary mb-4 tracking-tight">Portfolio</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6">
+                致力于分享深度、专业、前沿的软件技术见解。愿在这里与你共同探索技术之美。
+            </p>
+<div class="flex gap-4">
+<a class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant hover:bg-primary hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">hub</span></a>
+<a class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant hover:bg-primary hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">alternate_email</span></a>
+<a class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant hover:bg-primary hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">code</span></a>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-12">
+<div>
+<h4 class="font-ui-medium text-sm text-primary mb-6">快速链接</h4>
+<ul class="space-y-4 text-sm text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">博客主页</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">专题归档</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">精选合集</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-ui-medium text-sm text-primary mb-6">资源</h4>
+<ul class="space-y-4 text-sm text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">开源项目</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">技术栈图谱</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">RSS 订阅</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-1">
+<h4 class="font-ui-medium text-sm text-primary mb-6">联系</h4>
+<p class="text-sm text-on-surface-variant mb-4">有合作意向或技术交流？</p>
+<a class="text-primary font-bold text-sm underline underline-offset-4" href="mailto:hello@example.com">hello@example.com</a>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto mt-16 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-metadata text-[10px] text-on-surface-variant uppercase tracking-widest">© 2024 PORTFOLIO LABS. DESIGNED BY ME.</p>
+<div class="flex gap-8">
+<a class="font-metadata text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-metadata text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Terms</a>
+</div>
+</div>
+</footer>
+<script>
+    // Micro-interaction for filter chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.filter-chip').forEach(c => {
+                c.classList.remove('active', 'bg-primary', 'text-on-primary');
+                c.classList.add('bg-surface-container', 'text-on-surface-variant');
+            });
+            chip.classList.add('active', 'bg-primary', 'text-on-primary');
+            chip.classList.remove('bg-surface-container', 'text-on-surface-variant');
+        });
+    });
+</script>
+</body></html>
