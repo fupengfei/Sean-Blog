@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedProjects from '@/components/home/FeaturedProjects';
 import FeaturedArticles from '@/components/home/FeaturedArticles';
-import CTASection from '@/components/home/CTASection';
+import ContactSection from '@/components/about/ContactSection';
 
 export default function HomePage() {
   return (
@@ -13,7 +13,7 @@ export default function HomePage() {
         <HeroSection />
         <FeaturedProjects />
         <FeaturedArticles />
-        <CTASection />
+        <ContactSection />
       </main>
       <Footer />
     </>

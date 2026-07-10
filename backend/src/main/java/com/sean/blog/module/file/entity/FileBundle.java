@@ -11,6 +11,7 @@ public class FileBundle {
     private String rootPath;
     private String type;
     private String status;
+    private Boolean isFeatured;
     private Integer fileCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

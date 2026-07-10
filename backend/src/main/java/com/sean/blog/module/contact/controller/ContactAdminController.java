@@ -6,6 +6,8 @@ import com.sean.blog.module.contact.entity.ContactRecord;
 import com.sean.blog.module.contact.service.ContactService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/admin")
 public class ContactAdminController {
@@ -22,5 +24,10 @@ public class ContactAdminController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String type) {
         return Result.success(contactService.listAll(page, size, type));
+    }
+
+    @GetMapping("/contacts/stats")
+    public Result<Map<String, Long>> stats() {
+        return Result.success(contactService.getTypeCounts());
     }
 }

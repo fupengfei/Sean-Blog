@@ -23,6 +23,7 @@ export interface Article {
   contentMd: string;
   contentHtml: string;
   excerpt: string;
+  author: string;
   coverImage: string;
   categoryId: number | null;
   status: string;
@@ -56,6 +57,7 @@ export interface FileBundle {
   rootPath: string;
   type: string;
   status: string;
+  isFeatured: boolean;
   fileCount: number;
   createdAt: string;
   updatedAt: string;
@@ -78,12 +80,16 @@ export interface FileTreeResponse {
 
 export interface ContactRecord {
   id: number;
-  type: string; // MAIL | RESUME
+  type: string; // BUSINESS | MAIL | RESUME | SUBSCRIBE
+  content: string;
   companyName: string;
   email: string;
   ipAddress: string;
   createdAt: string;
 }
+
+/** 各类型联系记录的数量统计，key 为类型 (BUSINESS/MAIL/RESUME/SUBSCRIBE) */
+export type ContactStats = Record<string, number>;
 
 // ---------- 认证相关 ----------
 
@@ -137,4 +143,49 @@ export interface AdminArticleListParams {
   page?: number;
   size?: number;
   keyword?: string;
+}
+
+// ---------- 统计分析 ----------
+
+export interface PageViewRequest {
+  pageType: string;
+  pageKey?: string;
+}
+
+export interface PageViewStatVO {
+  pageType: string;
+  pageKey: string;
+  name: string;
+  cnt: number;
+}
+
+export interface PageViewTrendVO {
+  day: string;
+  home: number;
+  blogList: number;
+  blogDetail: number;
+  projects: number;
+  about: number;
+  skills: number;
+  skillsDetail: number;
+}
+
+export interface PageViewSummaryVO {
+  totalPv: number;
+  todayPv: number;
+  weekPv: number;
+  totalDelta: number;
+  weekDelta: number;
+}
+
+export interface CountryStatVO {
+  country: string;
+  cnt: number;
+  percentage: number;
+}
+
+export interface VisitorSummaryVO {
+  totalUv: number;
+  todayUv: number;
+  weekUv: number;
 }

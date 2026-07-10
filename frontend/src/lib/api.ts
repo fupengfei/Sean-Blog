@@ -11,17 +11,24 @@ import {
   FileTreeNode,
   ContactRecord,
   ContactListParams,
+  ContactStats,
   LoginRequest,
   LoginResponse,
   PasswordChangeRequest,
   AdminArticleListParams,
+  PageViewRequest,
+  PageViewStatVO,
+  PageViewTrendVO,
+  PageViewSummaryVO,
+  CountryStatVO,
+  VisitorSummaryVO,
 } from '@/types';
 
 // ---------------------------------------------------------------------------
 // 基础配置
 // ---------------------------------------------------------------------------
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 function adminUrl(path: string): string {
   return `${API_BASE}/admin${path}`;
@@ -48,13 +55,29 @@ async function request<T>(
   url: string,
   options: RequestInit = {},
 ): Promise<T> {
+  // 分离 headers 和其余选项，避免 options.headers 覆盖默认 headers
+  const { headers: optHeaders, ...rest } = options;
+  const isFormData = rest.body instanceof FormData;
+
   const res = await fetch(url, {
+    ...rest,
     headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
+      // FormData 不设置 Content-Type，让浏览器自动生成 multipart boundary
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...optHeaders,
     },
-    ...options,
   });
+
+  // 401 / 403 → 清除 token 并跳转登录页
+  if ((res.status === 401 || res.status === 403) && typeof window !== 'undefined') {
+    // 避免登录接口自身失败时死循环
+    const isLoginRequest = url.includes('/admin/login');
+    if (!isLoginRequest) {
+      localStorage.removeItem('token');
+      window.location.href = '/admin/login';
+      throw new ApiError(res.status, '登录已过期，请重新登录');
+    }
+  }
 
   // 非 JSON 响应（例如文件内容）
   const contentType = res.headers.get('content-type') || '';
@@ -129,6 +152,21 @@ export async function getArticleBySlug(slug: string): Promise<Article> {
   return request<Article>(publicUrl(`/articles/${slug}`));
 }
 
+/** Fetch previous and next articles relative to the given slug */
+export async function getAdjacentArticles(
+  slug: string,
+): Promise<{ prev: Article | null; next: Article | null }> {
+  // Fetch a large page of articles to find adjacent ones; for a personal blog this is fine
+  const result = await getArticles({ page: 1, size: 100 });
+  const articles = result.list;
+  const idx = articles.findIndex((a) => a.slug === slug);
+  if (idx === -1) return { prev: null, next: null };
+  return {
+    prev: idx > 0 ? articles[idx - 1] : null,
+    next: idx < articles.length - 1 ? articles[idx + 1] : null,
+  };
+}
+
 // 项目
 export async function getProjects(): Promise<Project[]> {
   return request<Project[]>(publicUrl('/projects'));
@@ -143,6 +181,10 @@ export async function getBundles(): Promise<FileBundle[]> {
   return request<FileBundle[]>(publicUrl('/bundles'));
 }
 
+export async function getFeaturedBundles(limit = 6): Promise<FileBundle[]> {
+  return request<FileBundle[]>(publicUrl(`/bundles/featured?limit=${limit}`));
+}
+
 export async function getBundleTree(id: number): Promise<FileTreeResponse> {
   return request<FileTreeResponse>(publicUrl(`/bundles/${id}/tree`));
 }
@@ -153,14 +195,39 @@ export async function getBundleFile(id: number, path: string): Promise<string> {
 }
 
 // 联系
-export async function postMailContact(): Promise<void> {
-  await request<void>(publicUrl('/contact/mail'), { method: 'POST' });
+/** 首页商务合作 */
+export async function postBusinessContact(
+  companyName: string,
+  email: string,
+  content: string,
+): Promise<void> {
+  await request<void>(publicUrl('/contact/business'), {
+    method: 'POST',
+    body: JSON.stringify({ companyName, email, content }),
+  });
 }
 
+/** 关于我 - 发送邮件 */
+export async function postMailContact(email: string, content: string): Promise<void> {
+  await request<void>(publicUrl('/contact/mail'), {
+    method: 'POST',
+    body: JSON.stringify({ email, content }),
+  });
+}
+
+/** 获取简历 */
 export async function postResumeContact(companyName: string, email: string): Promise<void> {
   await request<void>(publicUrl('/contact/resume'), {
     method: 'POST',
     body: JSON.stringify({ companyName, email }),
+  });
+}
+
+/** 订阅 */
+export async function postSubscribeContact(email: string): Promise<void> {
+  await request<void>(publicUrl('/contact/subscribe'), {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   });
 }
 
@@ -196,7 +263,6 @@ export async function adminCreateArticle(formData: FormData): Promise<Article> {
   return requestWithAuth<Article>(adminUrl('/articles'), {
     method: 'POST',
     body: formData,
-    // 不设置 Content-Type，让浏览器自动设置 multipart boundary
     headers: {} as Record<string, string>,
   });
 }
@@ -333,6 +399,22 @@ export async function adminUnpublishBundle(id: number): Promise<void> {
   });
 }
 
+export async function adminUpdateBundle(
+  id: number,
+  data: { name: string; description: string; type: string },
+): Promise<FileBundle> {
+  return requestWithAuth<FileBundle>(adminUrl(`/bundles/${id}`), {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function adminToggleBundleFeature(id: number): Promise<void> {
+  await requestWithAuth<void>(adminUrl(`/bundles/${id}/feature`), {
+    method: 'PUT',
+  });
+}
+
 export async function adminDeleteBundle(id: number): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/bundles/${id}`), {
     method: 'DELETE',
@@ -346,4 +428,50 @@ export async function adminGetContacts(params: ContactListParams = {}): Promise<
   if (params.size) qs.set('size', String(params.size));
   if (params.type) qs.set('type', params.type);
   return requestWithAuth<PageResult<ContactRecord>>(adminUrl(`/contacts?${qs.toString()}`));
+}
+
+export async function adminGetContactStats(): Promise<ContactStats> {
+  return requestWithAuth<ContactStats>(adminUrl('/contacts/stats'));
+}
+
+// ---------------------------------------------------------------------------
+// 访问统计
+// ---------------------------------------------------------------------------
+
+/** 发送 PV 事件（公开 API） */
+export async function postPageView(data: PageViewRequest): Promise<void> {
+  await request<void>(publicUrl('/page-views'), {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** PV 排行 */
+export async function getPageViewRanking(
+  window: string = '7d',
+  pageType?: string,
+): Promise<PageViewStatVO[]> {
+  const qs = new URLSearchParams({ window });
+  if (pageType) qs.set('pageType', pageType);
+  return requestWithAuth<PageViewStatVO[]>(adminUrl(`/stats/page-views?${qs.toString()}`));
+}
+
+/** PV 每日趋势 */
+export async function getPageViewTrend(days: number = 7): Promise<PageViewTrendVO[]> {
+  return requestWithAuth<PageViewTrendVO[]>(adminUrl(`/stats/page-views/trend?days=${days}`));
+}
+
+/** PV 汇总 */
+export async function getPageViewSummary(): Promise<PageViewSummaryVO> {
+  return requestWithAuth<PageViewSummaryVO>(adminUrl('/stats/page-views/summary'));
+}
+
+/** 访客国家排行 */
+export async function getVisitorCountries(window: string = '7d'): Promise<CountryStatVO[]> {
+  return requestWithAuth<CountryStatVO[]>(adminUrl(`/stats/visitors/countries?window=${window}`));
+}
+
+/** 访客 UV 汇总 */
+export async function getVisitorSummary(): Promise<VisitorSummaryVO> {
+  return requestWithAuth<VisitorSummaryVO>(adminUrl('/stats/visitors/summary'));
 }

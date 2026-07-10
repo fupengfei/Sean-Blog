@@ -26,33 +26,23 @@ export default function FeaturedArticles() {
   }, []);
 
   return (
-    <section className="py-16 md:py-24 bg-surface-container-low">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-12">
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-primary">
-            精选文章
-          </h2>
-          <Link
-            href="/blog"
-            className="text-sm font-medium text-secondary hover:text-secondary/80 transition-colors"
-          >
-            查看全部 →
-          </Link>
-        </div>
+    <section className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-24">
+      <div className="max-w-[720px]">
+        <h2 className="text-3xl sm:text-[36px] font-bold tracking-[-0.01em] text-primary mb-12">
+          精选文章
+        </h2>
 
         {/* Loading state */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="rounded-lg border border-outline-variant bg-white p-6 animate-pulse"
+                className="bg-surface p-6 rounded-xl animate-pulse"
               >
-                <div className="h-4 bg-surface-container rounded w-1/4 mb-3" />
+                <div className="h-4 bg-surface-container rounded w-24 mb-3" />
                 <div className="h-5 bg-surface-container rounded w-3/4 mb-2" />
-                <div className="h-3 bg-surface-container rounded w-full mb-1" />
-                <div className="h-3 bg-surface-container rounded w-2/3" />
+                <div className="h-4 bg-surface-container rounded w-full" />
               </div>
             ))}
           </div>
@@ -60,11 +50,11 @@ export default function FeaturedArticles() {
 
         {/* Empty state */}
         {!loading && articles.length === 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="rounded-lg border-2 border-dashed border-outline-variant bg-white flex flex-col items-center justify-center p-12 text-center min-h-[200px]"
+                className="rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-12 text-center min-h-[120px]"
               >
                 <svg
                   className="w-12 h-12 text-outline-variant mb-4"
@@ -79,92 +69,67 @@ export default function FeaturedArticles() {
                     d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
                   />
                 </svg>
-                <p className="text-sm text-on-surface-variant/50">
-                  文章即将发布
-                </p>
+                <p className="text-sm text-on-surface-variant/50">文章即将发布</p>
               </div>
             ))}
           </div>
         )}
 
-        {/* Article cards */}
+        {/* Article list */}
         {!loading && articles.length > 0 && (
-          <div
-            className={`grid grid-cols-1 md:grid-cols-2 gap-8 ${
-              articles.length === 1 ? 'justify-center' : ''
-            }`}
-          >
+          <div className="space-y-4">
             {articles.map((article) => (
-              <Link
+              <article
                 key={article.id}
-                href={`/blog/${article.slug}`}
-                className="group rounded-lg border border-outline-variant bg-white overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+                className="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant"
               >
-                {/* Cover image (optional) */}
-                {article.coverImage && (
-                  <div className="aspect-[16/9] overflow-hidden">
-                    <img
-                      src={article.coverImage}
-                      alt={article.title}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                  </div>
-                )}
-
-                <div className="p-6">
-                  {/* Metadata row */}
-                  <div className="flex items-center gap-3 mb-3">
-                    {article.category && (
-                      <span className="inline-block px-2 py-0.5 rounded bg-secondary-container text-secondary text-xs font-semibold">
-                        {article.category.name}
-                      </span>
-                    )}
-                    <span className="text-xs text-on-surface-variant/60">
-                      {formatDate(article.createdAt)}
-                    </span>
+                <div className="flex flex-col md:flex-row md:items-center md:gap-8">
+                  {/* Date */}
+                  <div className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant mb-2 md:mb-0 w-32 shrink-0">
+                    {formatDate(article.createdAt)}
                   </div>
 
-                  {/* Title */}
-                  <h3 className="font-display text-lg font-semibold text-primary mb-2 group-hover:text-secondary transition-colors line-clamp-2">
-                    {article.title}
-                  </h3>
+                  {/* Content */}
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-semibold text-primary group-hover:text-secondary transition-colors mb-2">
+                      <Link href={`/blog/${article.slug}`}>
+                        {article.title}
+                      </Link>
+                    </h3>
+                    <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-1">
+                      {article.excerpt || '暂无摘要'}
+                    </p>
+                  </div>
 
-                  {/* Excerpt */}
-                  <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-2">
-                    {article.excerpt || '暂无摘要'}
-                  </p>
-
-                  {/* Read more */}
-                  <span className="text-sm font-medium text-secondary group-hover:underline">
-                    阅读全文 →
-                  </span>
-                </div>
-              </Link>
-            ))}
-
-            {/* Placeholder cards */}
-            {articles.length > 0 &&
-              articles.length % 2 !== 0 &&
-              articles.length < 6 && (
-                <div className="rounded-lg border-2 border-dashed border-outline-variant bg-white flex flex-col items-center justify-center p-12 text-center min-h-[200px]">
+                  {/* Arrow */}
                   <svg
-                    className="w-12 h-12 text-outline-variant mb-4"
+                    className="w-5 h-5 text-outline group-hover:text-secondary transition-colors hidden md:block shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                     />
                   </svg>
-                  <p className="text-sm text-on-surface-variant/50">
-                    更多文章即将发布
-                  </p>
                 </div>
-              )}
+              </article>
+            ))}
+          </div>
+        )}
+
+        {/* Read more button */}
+        {articles.length > 0 && (
+          <div className="mt-12">
+            <Link
+              href="/blog"
+              className="bg-surface-container-high text-primary px-8 py-3 rounded-lg text-base font-medium hover:bg-surface-container-highest transition-colors inline-block"
+            >
+              阅读更多文章
+            </Link>
           </div>
         )}
       </div>

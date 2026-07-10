@@ -23,6 +23,12 @@ public class FileBundlePublicController {
         return Result.success(bundles);
     }
 
+    @GetMapping("/featured")
+    public Result<List<FileBundle>> listFeatured() {
+        List<FileBundle> bundles = fileBundleService.getFeatured();
+        return Result.success(bundles);
+    }
+
     @GetMapping("/{id}/tree")
     public Result<FileTreeResponse> getTree(@PathVariable Long id) {
         FileTreeResponse tree = fileBundleService.getTree(id);

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>文章详情 - DevPort</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#86a0cd",
+                        "on-primary-fixed": "#001b3c",
+                        "on-secondary-fixed-variant": "#005231",
+                        "on-tertiary-container": "#c6955e",
+                        "surface-container-highest": "#dde2f3",
+                        "on-surface-variant": "#43474e",
+                        "tertiary-fixed-dim": "#f2bc82",
+                        "secondary-fixed-dim": "#83d8a6",
+                        "surface-container-high": "#e3e8f9",
+                        "on-primary": "#ffffff",
+                        "on-background": "#161c27",
+                        "primary-fixed-dim": "#adc7f7",
+                        "outline-variant": "#c4c6cf",
+                        "on-secondary-container": "#167249",
+                        "primary": "#002045",
+                        "inverse-surface": "#2a303d",
+                        "surface-variant": "#dde2f3",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#321b00",
+                        "secondary-container": "#9ff5c1",
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-secondary-fixed": "#002111",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f9f9ff",
+                        "background": "#f9f9ff",
+                        "surface-container-low": "#f1f3ff",
+                        "surface-dim": "#d4daea",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed": "#9ff5c1",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#633f0f",
+                        "primary-fixed": "#d6e3ff",
+                        "tertiary-fixed": "#ffddba",
+                        "surface-tint": "#455f88",
+                        "surface-container": "#e8eeff",
+                        "tertiary-container": "#4f2e00",
+                        "primary-container": "#1a365d",
+                        "inverse-primary": "#adc7f7",
+                        "on-secondary": "#ffffff",
+                        "outline": "#74777f",
+                        "on-surface": "#161c27",
+                        "on-error": "#ffffff",
+                        "secondary": "#0a6c44",
+                        "inverse-on-surface": "#ecf0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "container-max": "1200px",
+                        "gutter": "24px",
+                        "article-max": "720px",
+                        "margin-desktop": "40px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "article-body-mobile": ["\"Source Serif 4\""],
+                        "article-body": ["\"Source Serif 4\""],
+                        "metadata": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "ui-medium": ["Inter"],
+                        "ui-small": ["Inter"],
+                        "article-title": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "article-body-mobile": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "article-body": ["20px", {"lineHeight": "32px", "fontWeight": "400"}],
+                        "metadata": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "ui-medium": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "ui-small": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "article-title": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .prose-custom h1, .prose-custom h2, .prose-custom h3 {
+            font-family: 'Inter', sans-serif;
+            color: #002045;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .prose-custom h2 { font-size: 1.75rem; font-weight: 700; border-bottom: 1px solid #EDF2F7; padding-bottom: 0.5rem; }
+        .prose-custom h3 { font-size: 1.25rem; font-weight: 600; }
+        .prose-custom p { margin-bottom: 1.5rem; }
+        .prose-custom blockquote {
+            border-left: 4px solid #002045;
+            padding-left: 1.5rem;
+            font-style: italic;
+            color: #43474e;
+            margin: 2rem 0;
+        }
+        .sticky-toc {
+            position: sticky;
+            top: 120px;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-ui-small">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant fixed top-0 left-0 right-0 z-50 h-20">
+<nav class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-12">
+<a class="font-display-lg text-display-lg font-bold text-primary" href="#">DevPort</a>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Home</a>
+<a class="font-ui-medium text-ui-medium text-primary border-b-2 border-primary pb-1" href="#">Blog</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Projects</a>
+<a class="font-ui-medium text-ui-medium text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">About</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-0 text-ui-small rounded-lg w-64 transition-all" placeholder="搜索文章..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 font-ui-medium text-ui-medium rounded hover:opacity-90 transition-opacity">Contact</button>
+</div>
+</nav>
+</header>
+<main class="pt-32 pb-24">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Content: Article -->
+<article class="lg:col-span-8 xl:col-span-9">
+<!-- Metadata & Title -->
+<header class="mb-12">
+<div class="flex items-center gap-3 mb-4">
+<span class="font-metadata text-metadata text-secondary px-2 py-1 bg-secondary-container rounded">TECHNICAL DEEP DIVE</span>
+<span class="font-metadata text-metadata text-on-surface-variant">2024年5月12日</span>
+<span class="text-outline-variant">•</span>
+<span class="font-metadata text-metadata text-on-surface-variant">12 分钟阅读时间</span>
+</div>
+<h1 class="font-article-title text-article-title text-primary mb-6">深入浅出：构建高性能的分布式系统架构设计指南</h1>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a senior software architect with a friendly smile, wearing a minimal navy blazer. The lighting is soft and directional, typical of a high-end editorial shoot. The background is a clean, neutral grey that complements the professional and trustworthy modern light-mode design aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmZ-j4wiDkv6x8Uh4i6USHMa59KOOSKcXWvjQUDofU0arwGQVh9HSQ2Dp9vDRYXB3hbCMEXJetCEedwN_3lLPjCDclXL5Jd7z2545ZVJZTIlN_lipLCbHLz7l5i5TonenjVcG8Y9TrlCitJWNon6xwzvgZ_ninxqtyqvc58wJS1CiRpPw9bASDMBmTFTMk01PMo3KRM7E9cmRCcrYOVXbqGqhjDP_EYqNDpg_KjCY1fZZaVKZiirV-yQ"/>
+</div>
+<div>
+<p class="font-ui-medium text-ui-medium text-primary">张建国 (Alex Zhang)</p>
+<p class="font-metadata text-metadata text-on-surface-variant uppercase">Senior Systems Architect @ DevPort</p>
+</div>
+</div>
+</header>
+<!-- Featured Image -->
+<div class="mb-12 rounded-xl overflow-hidden border border-outline-variant">
+<img class="w-full aspect-[21/9] object-cover" data-alt="A sophisticated abstract 3D visualization representing distributed network nodes and data flows. The scene features translucent glass-like spheres connected by delicate glowing lines against a pristine white and pale blue background. The aesthetic is clean, intellectual, and high-density, using a palette of Navy, Silver, and Emerald green to convey reliability and technological precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWB8RC4MiVZbDZdExhVdiX6chAQxVD8yvXhpxW698K__D97uRy_htwMbRlQTKNNmIj_Z32RXS_FGfUvD2t36Vo8XHf5tDeR0-kfNKan5YqQvyUIfN3PXA69yXBxcSyW88zEPkCWrmTSBqEma7M6T44gr_5aeKxvcdlCjeq4y-nYlfYxDjEdIg_G4zW_s5B0zYtR7TF1pFlK80u0gfWNKY5_iihVIefY5HuRlMrtNwlkweF2VjCkQyJIg"/>
+</div>
+<!-- Article Body -->
+<div class="prose-custom font-article-body text-article-body text-on-surface max-w-article-max">
+<p id="section-1">分布式系统是现代互联网基础设施的基石。在当今全球化的数字经济中，如何设计一个既能应对海量用户并发，又能保证高可用性和强一致性的系统，是每一位高级工程师必须面对的挑战。</p>
+<h2 id="section-2">1. 核心设计原则：从 CAP 定理说起</h2>
+<p>在设计任何分布式架构之前，我们必须首先理解 CAP 定理。一致性（Consistency）、可用性（Availability）和分区容忍性（Partition Tolerance）三者不可兼得。在实际生产环境中，由于网络分区是必然发生的，设计者通常需要在 CP 和 AP 之间进行权衡。</p>
+<blockquote>
+                            “架构设计的本质不是追求完美，而是在各种约束条件下寻找最优的权衡方案。” —— 架构师笔记
+                        </blockquote>
+<h3 id="section-2-1">1.1 一致性模型的选择</h3>
+<p>并不是所有的业务场景都需要强一致性。例如，社交媒体的点赞数可以使用最终一致性，而金融交易系统则必须保证原子性和强一致性。我们可以通过引入 Raft 或 Paxos 算法来实现共识，但这也意味着性能上的妥协。</p>
+<h2 id="section-3">2. 性能优化的关键技术栈</h2>
+<p>高性能系统往往依赖于多级缓存策略和异步处理流程。通过有效地减少对核心数据库的直接压力，我们可以显著提升响应速度。</p>
+<div class="my-8 rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full object-cover" data-alt="A clean, flat-design technical diagram showing a multi-layer system architecture. It includes UI components, Load Balancer, Microservices, Cache Layer, and Databases. The color scheme uses Navy Blue, Slate Grey, and subtle Green accents. The layout is perfectly balanced and professional, with clear typography and minimal line weights, reflecting an editorial-grade technical blog." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDi15gxmx2r8_oeA9tbokGFWMEZMOi2dQIxrpwjn0DoXxIV5DIT8bbQzekV9geW1lpu5zmawiCmqk73hohgDrx06dDYAk4tatlTKSUZp14jJ_cX4w8P6B3Dbl0Sn2I1EqyWNFFPDl0bTRiNVX86X38qR_8SJZaD5AgMfxfNSQCXfvGu5p4w28_AleWaBH-JAhv1P1evp5Gf4JOQpZqUnvq0qAJsm8BCpvbCpXcFViqgCshJPxUIL7Ehdw"/>
+<p class="bg-surface-container-low px-4 py-3 text-center font-metadata text-metadata text-on-surface-variant italic">图 1: 典型分布式系统多级架构模型</p>
+</div>
+<h3 id="section-3-1">2.1 代码实现示例</h3>
+<p>下面是一个使用 Go 语言实现的简单负载均衡算法示例。这种轮询策略是分布式系统中实现流量分发的基础：</p>
+<pre class="bg-primary-container text-on-primary-container p-6 rounded-lg font-mono text-ui-small overflow-x-auto mb-8">type RoundRobinBalancer struct {
+    servers []string
+    current int
+}
+
+func (b *RoundRobinBalancer) Next() string {
+    server := b.servers[b.current]
+    b.current = (b.current + 1) % len(b.servers)
+    return server
+}
+
+// 初始化服务器列表
+balancer := &amp;RoundRobinBalancer{
+    servers: []string{"Server-A", "Server-B", "Server-C"},
+}</pre>
+<h2 id="section-4">3. 结论：持续演进的架构</h2>
+<p>架构不是一蹴而就的，而是随着业务需求的变化而不断进化的。在初期，单体应用往往比微服务更高效；只有当团队规模和复杂度达到临界点时，分布式架构的优势才会显现。</p>
+</div>
+<!-- Article Footer Tags -->
+<div class="mt-12 pt-8 border-t border-outline-variant flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-metadata text-metadata rounded">分布式系统</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-metadata text-metadata rounded">架构设计</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-metadata text-metadata rounded">后端开发</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-metadata text-metadata rounded">高可用</span>
+</div>
+<!-- Navigation: Prev/Next -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-4">
+<a class="p-6 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors group" href="#">
+<span class="flex items-center gap-2 font-metadata text-metadata text-outline mb-2">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span> 上一篇
+                            </span>
+<p class="font-ui-medium text-ui-medium text-primary group-hover:text-secondary transition-colors">Rust 语言中的内存安全：为什么所有权模型是未来的趋势</p>
+</a>
+<a class="p-6 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors text-right group" href="#">
+<span class="flex items-center justify-end gap-2 font-metadata text-metadata text-outline mb-2">
+                                下一篇 <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</span>
+<p class="font-ui-medium text-ui-medium text-primary group-hover:text-secondary transition-colors">如何使用 Kubernetes 自动化部署大规模容器集群</p>
+</a>
+</div>
+</article>
+<!-- Right Content: Sidebar (TOC) -->
+<aside class="hidden lg:block lg:col-span-4 xl:col-span-3">
+<div class="sticky-toc pl-8 border-l border-outline-variant">
+<h4 class="font-ui-medium text-ui-medium text-primary mb-6 uppercase tracking-wider">目录</h4>
+<ul class="space-y-4">
+<li>
+<a class="font-ui-small text-ui-small text-primary font-medium hover:text-secondary transition-colors" href="#section-1">前言</a>
+</li>
+<li>
+<a class="font-ui-small text-ui-small text-on-surface-variant hover:text-primary transition-colors" href="#section-2">1. 核心设计原则</a>
+<ul class="pl-4 mt-3 space-y-3 border-l border-outline-variant ml-1">
+<li><a class="font-ui-small text-ui-small text-on-surface-variant hover:text-primary transition-colors" href="#section-2-1">1.1 一致性模型的选择</a></li>
+</ul>
+</li>
+<li>
+<a class="font-ui-small text-ui-small text-on-surface-variant hover:text-primary transition-colors" href="#section-3">2. 性能优化的关键技术栈</a>
+<ul class="pl-4 mt-3 space-y-3 border-l border-outline-variant ml-1">
+<li><a class="font-ui-small text-ui-small text-on-surface-variant hover:text-primary transition-colors" href="#section-3-1">2.1 代码实现示例</a></li>
+</ul>
+</li>
+<li>
+<a class="font-ui-small text-ui-small text-on-surface-variant hover:text-primary transition-colors" href="#section-4">3. 结论：持续演进</a>
+</li>
+</ul>
+<div class="mt-12 p-6 bg-primary-container text-on-primary-container rounded-xl">
+<h5 class="font-ui-medium text-ui-medium mb-2">订阅我们的周报</h5>
+<p class="text-ui-small text-on-primary-container opacity-80 mb-4">每周获取最新的架构设计深度文章。</p>
+<input class="w-full bg-white/10 border border-white/20 rounded px-3 py-2 text-ui-small mb-3 focus:ring-0 focus:border-white" placeholder="your@email.com" type="email"/>
+<button class="w-full bg-secondary text-on-secondary font-ui-medium text-ui-medium py-2 rounded hover:opacity-90">立即订阅</button>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Related Articles -->
+<section class="mt-24 bg-surface-container-low py-20 border-t border-outline-variant">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<h2 class="font-article-title text-article-title text-primary mb-12">推荐阅读</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Related Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-video rounded-lg overflow-hidden border border-outline-variant mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A minimalist and sharp editorial photograph of a high-end keyboard and a clean desk setup. Soft, high-diffusion natural light fills the frame, creating a calm and professional atmosphere. The color palette centers on soft whites and deep navy tones. This image represents the 'lifestyle' of a modern software engineer focused on quality and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrcOWmWJ9np6KSnHHST7g6GyE5u-GR20JdZ6TRZ1ZNzrzKX8EqP3m--8otnllDf-Lgh2hzOS7UGuW8s7oe0tm1Yt86DImATTGNHDJ3gRBtWUpvD_L3bINEtTJlByTQLqBHfSpm7TUi_XZSMLHGkKCxGzlPU6zQMx0UtQpK5_FQX49uhoE83h58uEKHMPXlkU1JIxYmBjPRrScx-ba9CWBukWeoU6N-50dcFBgNqlFGJdoB4wzLQLCqwg"/>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-metadata text-metadata text-secondary">ARCH</span>
+<span class="text-outline-variant">•</span>
+<span class="font-metadata text-metadata text-on-surface-variant">2024年4月20日</span>
+</div>
+<h3 class="font-ui-medium text-ui-medium text-primary group-hover:text-secondary transition-colors mb-2">领域驱动设计 (DDD) 实战指南</h3>
+<p class="text-ui-small text-on-surface-variant line-clamp-2">深入探讨如何通过限界上下文和聚合根来拆分复杂的单体业务...</p>
+</div>
+<!-- Related Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-video rounded-lg overflow-hidden border border-outline-variant mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean data visualization showing a series of interconnected digital blocks representing a blockchain or ledger system. The visual style is futuristic yet grounded in the 'Modern Professional' aesthetic, using a restricted palette of Navy, Emerald, and Silver. The lighting is high-key and modern, emphasizing clarity and structural integrity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAElBkJOECcQRzTualWn6B9XkAeEL-rPjdhVtKogGzkGKhUHOHjCk3Ct-ICB_bfAkvJbykcWxYsRZWLisaFDh116XKi3kwMFpQA38BjxCDcFO46upjSF5QsVX6AXfQYMWkFc_D5OWuT8DiHi7Felag8f3N3-v4E00Y0-y4lpOXD0cuxmrh8cJCiEj5l2MafaTG2QQDVdKMN7xFRNsf7jGD6lY9AnEPaFbPIjmL0yPXav7jB6lcqd2Drig"/>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-metadata text-metadata text-secondary">SECURITY</span>
+<span class="text-outline-variant">•</span>
+<span class="font-metadata text-metadata text-on-surface-variant">2024年3月15日</span>
+</div>
+<h3 class="font-ui-medium text-ui-medium text-primary group-hover:text-secondary transition-colors mb-2">零信任架构下的 API 安全防护</h3>
+<p class="text-ui-small text-on-surface-variant line-clamp-2">在去中心化的网络环境中，传统的边界防御已失效，我们需要全新的...</p>
+</div>
+<!-- Related Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-video rounded-lg overflow-hidden border border-outline-variant mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sophisticated digital artwork featuring abstract flowing energy streams in vibrant emerald green and deep navy blue. The streams intersect and weave together, symbolizing seamless data integration and fluid system performance. The style is professional and minimalist, with a dark background that allows the colors to pop in a refined, controlled manner." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9pf2CltYPrLvMDSTRY1PLOJcdSTEsk6PpxvJtDgabIFKJUle7YHkXA6aGj1F7zenPv7YPNo2Sc8Km-zYtwd9sEoI8r9n-j6mgOUQKJdYH9p7N5artjvevSTyMKGOg9zeTlfegEOfgA-i1N8osSzq1FAU80bKHT2KSPGU09KnEW9n0tSrSKVubEMZYpBATWZ3u5V74lcjqVNNGobJCa9AsKo7z6KZzRgor2DTNf1fGf3MqHU80BJTNNg"/>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-metadata text-metadata text-secondary">OPS</span>
+<span class="text-outline-variant">•</span>
+<span class="font-metadata text-metadata text-on-surface-variant">2024年2月28日</span>
+</div>
+<h3 class="font-ui-medium text-ui-medium text-primary group-hover:text-secondary transition-colors mb-2">Prometheus + Grafana 监控体系搭建</h3>
+<p class="text-ui-small text-on-surface-variant line-clamp-2">没有监控的系统就像盲人摸象。本教程将手把手带你搭建一套工业级的...</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center w-full py-12 px-margin-desktop max-w-container-max mx-auto">
+<div class="mb-8 md:mb-0">
+<a class="font-ui-medium text-ui-medium font-bold text-on-surface block mb-2" href="#">DevPort</a>
+<p class="font-metadata text-metadata text-on-surface-variant">© 2024 DevPort. Built for clarity.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-metadata text-metadata text-on-surface-variant hover:text-primary underline transition-all" href="#">GitHub</a>
+<a class="font-metadata text-metadata text-on-surface-variant hover:text-primary underline transition-all" href="#">LinkedIn</a>
+<a class="font-metadata text-metadata text-on-surface-variant hover:text-primary underline transition-all" href="#">RSS</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for Scrollspy on TOC
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -80% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const id = entry.target.getAttribute('id');
+                const tocLink = document.querySelector(`.sticky-toc a[href="#${id}"]`);
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.sticky-toc a').forEach(link => {
+                        link.classList.remove('text-primary', 'font-medium', 'border-primary');
+                        link.classList.add('text-on-surface-variant');
+                    });
+                    if (tocLink) {
+                        tocLink.classList.add('text-primary', 'font-medium');
+                        tocLink.classList.remove('text-on-surface-variant');
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('h1[id], h2[id], h3[id], p[id]').forEach((section) => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll for TOC links
+        document.querySelectorAll('.sticky-toc a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                const headerOffset = 100;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            });
+        });
+    </script>
+</body></html>

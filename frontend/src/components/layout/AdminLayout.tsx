@@ -7,6 +7,7 @@ import { isAuthenticated, logout } from "@/lib/auth";
 
 const NAV_ITEMS = [
   { label: "仪表盘", href: "/admin/dashboard", icon: "📊" },
+  { label: "访问统计", href: "/admin/analytics", icon: "📈" },
   { label: "文章管理", href: "/admin/articles", icon: "📝" },
   { label: "分类管理", href: "/admin/categories", icon: "📁" },
   { label: "标签管理", href: "/admin/tags", icon: "🏷️" },
@@ -49,7 +50,8 @@ export default function AdminLayout({
       <aside className="w-64 bg-primary min-h-screen flex flex-col flex-shrink-0">
         {/* Logo 区域 */}
         <div className="px-6 py-6 border-b border-white/10">
-          <Link href="/admin/dashboard" className="text-white text-xl font-display font-semibold tracking-wide">
+          <Link href="/admin/dashboard" className="flex items-center gap-2.5 text-white text-xl font-display font-semibold tracking-wide">
+            <img src="/logo.png" alt="Logo" className="h-6 w-auto" />
             Sean&apos;s Admin
           </Link>
         </div>

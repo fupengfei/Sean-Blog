@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ContactRecord } from "@/types";
-import { adminGetContacts } from "@/lib/api";
+import { ContactRecord, ContactStats } from "@/types";
+import { adminGetContacts, adminGetContactStats } from "@/lib/api";
 
 const PAGE_SIZE = 20;
 
@@ -10,9 +10,10 @@ export default function AdminContactsPage() {
   const [contacts, setContacts] = useState<ContactRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [typeFilter, setTypeFilter] = useState(""); // "" = 全部, "MAIL", "RESUME"
+  const [typeFilter, setTypeFilter] = useState(""); // "" = 全部, "BUSINESS", "MAIL", "RESUME", "SUBSCRIBE"
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [stats, setStats] = useState<ContactStats>({});
 
   async function fetchContacts(p: number, type: string) {
     setLoading(true);
@@ -36,6 +37,12 @@ export default function AdminContactsPage() {
   useEffect(() => {
     fetchContacts(page, typeFilter);
   }, [page, typeFilter]);
+
+  useEffect(() => {
+    adminGetContactStats()
+      .then(setStats)
+      .catch(() => setStats({}));
+  }, []);
 
   function handleTypeChange(newType: string) {
     setTypeFilter(newType);
@@ -64,14 +71,25 @@ export default function AdminContactsPage() {
   }
 
   const typeBadgeStyle: Record<string, string> = {
+    BUSINESS: "bg-orange-50 text-orange-700 border-orange-200",
     MAIL: "bg-blue-50 text-blue-700 border-blue-200",
     RESUME: "bg-purple-50 text-purple-700 border-purple-200",
+    SUBSCRIBE: "bg-green-50 text-green-700 border-green-200",
   };
 
   const typeLabel: Record<string, string> = {
+    BUSINESS: "商务合作",
     MAIL: "邮件",
     RESUME: "简历",
+    SUBSCRIBE: "订阅",
   };
+
+  const allTypes = ["", "BUSINESS", "MAIL", "RESUME", "SUBSCRIBE"];
+
+  function truncateText(text: string | undefined | null, maxLen = 60): string {
+    if (!text) return "-";
+    return text.length > maxLen ? text.slice(0, maxLen) + "..." : text;
+  }
 
   return (
     <div>
@@ -87,26 +105,27 @@ export default function AdminContactsPage() {
         <label className="text-sm font-ui font-medium text-on-surface">
           类型筛选：
         </label>
-        <div className="flex gap-2">
-          {["", "MAIL", "RESUME"].map((t) => (
-            <button
-              key={t}
-              onClick={() => handleTypeChange(t)}
-              className={`px-3 py-1.5 rounded text-sm font-ui border transition-colors ${
-                typeFilter === t
-                  ? "bg-primary text-white border-primary"
-                  : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
-              }`}
-            >
-              {t === "" ? "全部" : typeLabel[t] || t}
-            </button>
-          ))}
+        <div className="flex gap-2 flex-wrap">
+          {allTypes.map((t) => {
+            const count = t === "" ? Object.values(stats).reduce((a, b) => a + b, 0) : (stats[t] || 0);
+            return (
+              <button
+                key={t}
+                onClick={() => handleTypeChange(t)}
+                className={`px-3 py-1.5 rounded text-sm font-ui border transition-colors ${
+                  typeFilter === t
+                    ? "bg-primary text-white border-primary"
+                    : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
+                }`}
+              >
+                {t === "" ? "全部" : typeLabel[t] || t}
+                <span className={`ml-1.5 text-xs ${typeFilter === t ? "text-white/70" : "text-on-surface-variant/50"}`}>
+                  ({count})
+                </span>
+              </button>
+            );
+          })}
         </div>
-        {total > 0 && (
-          <span className="text-sm text-on-surface-variant ml-auto">
-            共 {total} 条记录
-          </span>
-        )}
       </div>
 
       {/* 错误提示 */}
@@ -124,18 +143,19 @@ export default function AdminContactsPage() {
           <table className="w-full text-sm font-ui">
             <thead>
               <tr className="border-b border-outline-variant text-left text-on-surface-variant">
-                <th className="px-4 py-3 font-medium">类型</th>
-                <th className="px-4 py-3 font-medium">公司名</th>
-                <th className="px-4 py-3 font-medium">邮箱</th>
-                <th className="px-4 py-3 font-medium">IP 地址</th>
-                <th className="px-4 py-3 font-medium">时间</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">类型</th>
+                <th className="px-4 py-3 font-medium">内容</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">公司名</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">邮箱</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">IP 地址</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">时间</th>
               </tr>
             </thead>
             <tbody>
               {contacts.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-4 py-8 text-center text-on-surface-variant"
                   >
                     暂无联系记录
@@ -157,6 +177,11 @@ export default function AdminContactsPage() {
                         {typeLabel[record.type] || record.type}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-on-surface max-w-[240px]">
+                      <span title={record.content || undefined}>
+                        {truncateText(record.content)}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-on-surface">
                       {record.companyName || "-"}
                     </td>
@@ -166,7 +191,7 @@ export default function AdminContactsPage() {
                     <td className="px-4 py-3 text-on-surface-variant font-mono text-xs">
                       {record.ipAddress || "-"}
                     </td>
-                    <td className="px-4 py-3 text-on-surface-variant text-xs">
+                    <td className="px-4 py-3 text-on-surface-variant text-xs whitespace-nowrap">
                       {formatTime(record.createdAt)}
                     </td>
                   </tr>
@@ -192,7 +217,6 @@ export default function AdminContactsPage() {
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((p) => {
-                    // 只显示当前页附近的页码
                     return (
                       p === 1 ||
                       p === totalPages ||

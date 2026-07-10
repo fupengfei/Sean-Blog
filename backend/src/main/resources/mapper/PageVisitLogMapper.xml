@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.analytics.mapper.PageVisitLogMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_page_visit_log (page_type, page_key, ip, visited_at)
+        VALUES (#{pageType}, #{pageKey}, #{ip}, NOW())
+    </insert>
+
+    <update id="updateGeo">
+        UPDATE t_page_visit_log
+        SET country = #{country}, region = #{region}, city = #{city}
+        WHERE id = #{id}
+    </update>
+
+    <select id="countUniqueIp" resultType="long">
+        SELECT COUNT(DISTINCT ip) FROM t_page_visit_log
+        WHERE visited_at >= #{startDay}
+    </select>
+
+    <select id="countryRank" resultType="map">
+        SELECT
+            country,
+            COUNT(DISTINCT ip) AS cnt
+        FROM t_page_visit_log
+        WHERE visited_at >= #{startDay}
+          AND country IS NOT NULL
+          AND country != ''
+          AND country != 'Local'
+        GROUP BY country
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="findWithoutGeo" resultType="com.sean.blog.module.analytics.entity.PageVisitLog">
+        SELECT * FROM t_page_visit_log
+        WHERE country IS NULL
+        ORDER BY id ASC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

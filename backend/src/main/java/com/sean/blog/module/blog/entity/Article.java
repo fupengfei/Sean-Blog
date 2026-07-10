@@ -11,6 +11,7 @@ public class Article {
     private String contentMd;
     private String contentHtml;
     private String excerpt;
+    private String author;
     private String coverImage;
     private Long categoryId;
     private String status;

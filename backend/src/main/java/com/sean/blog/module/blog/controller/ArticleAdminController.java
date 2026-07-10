@@ -32,8 +32,9 @@ public class ArticleAdminController {
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) List<Long> tagIds,
-            @RequestParam(defaultValue = "false") boolean isFeatured) {
-        return Result.success(articleService.createFromMd(file, categoryId, tagIds, isFeatured));
+            @RequestParam(defaultValue = "false") boolean isFeatured,
+            @RequestParam(required = false, defaultValue = "") String author) {
+        return Result.success(articleService.createFromMd(file, categoryId, tagIds, isFeatured, author));
     }
 
     @PutMapping("/{id}")

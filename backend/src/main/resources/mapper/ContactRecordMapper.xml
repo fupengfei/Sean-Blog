@@ -3,8 +3,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sean.blog.module.contact.mapper.ContactRecordMapper">
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_contact_record (type, company_name, email, ip_address)
-        VALUES (#{type}, #{companyName}, #{email}, #{ipAddress})
+        INSERT INTO t_contact_record (type, content, company_name, email, ip_address)
+        VALUES (#{type}, #{content}, #{companyName}, #{email}, #{ipAddress})
     </insert>
     <select id="findAll" resultType="com.sean.blog.module.contact.entity.ContactRecord">
         SELECT * FROM t_contact_record
@@ -19,5 +19,8 @@
         <where>
             <if test="type != null and type != ''">AND type = #{type}</if>
         </where>
+    </select>
+    <select id="countByType" resultType="java.util.HashMap">
+        SELECT type, COUNT(*) AS cnt FROM t_contact_record GROUP BY type
     </select>
 </mapper>

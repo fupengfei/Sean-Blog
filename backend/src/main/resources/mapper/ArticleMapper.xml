@@ -10,6 +10,7 @@
         <result property="contentMd" column="content_md"/>
         <result property="contentHtml" column="content_html"/>
         <result property="excerpt" column="excerpt"/>
+        <result property="author" column="author"/>
         <result property="coverImage" column="cover_image"/>
         <result property="categoryId" column="category_id"/>
         <result property="status" column="status"/>
@@ -30,13 +31,13 @@
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_article (title, slug, content_md, content_html, excerpt, cover_image, category_id, status, is_featured)
-        VALUES (#{title}, #{slug}, #{contentMd}, #{contentHtml}, #{excerpt}, #{coverImage}, #{categoryId}, #{status}, #{isFeatured})
+        INSERT INTO t_article (title, slug, content_md, content_html, excerpt, author, cover_image, category_id, status, is_featured)
+        VALUES (#{title}, #{slug}, #{contentMd}, #{contentHtml}, #{excerpt}, #{author}, #{coverImage}, #{categoryId}, #{status}, #{isFeatured})
     </insert>
 
     <update id="update">
         UPDATE t_article SET title = #{title}, slug = #{slug}, content_md = #{contentMd},
-            content_html = #{contentHtml}, excerpt = #{excerpt}, cover_image = #{coverImage},
+            content_html = #{contentHtml}, excerpt = #{excerpt}, author = #{author}, cover_image = #{coverImage},
             category_id = #{categoryId}, is_featured = #{isFeatured}, updated_at = NOW()
         WHERE id = #{id}
     </update>

@@ -105,3 +105,6 @@ Nginx (80) → Next.js (3000) 前端页面
 - `specs/2026-07-08-sean-blog-design.md` — 系统设计文档（API、数据库、架构）
 - `specs/2026-07-08-sean-blog-feature-list.md` — 功能清单
 - `plans/2026-07-08-sean-blog-implementation.md` — 20 步实现计划（含代码示例）
+
+## 其他
+每次对话用中文沟通

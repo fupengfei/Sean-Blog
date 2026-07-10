@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.analytics.mapper.GeoIpCacheMapper">
+
+    <select id="findByIp" resultType="com.sean.blog.module.analytics.entity.GeoIpCache">
+        SELECT * FROM t_geo_ip_cache WHERE ip = #{ip}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO t_geo_ip_cache (ip, country, region, city)
+        VALUES (#{ip}, #{country}, #{region}, #{city})
+        ON DUPLICATE KEY UPDATE
+            country = VALUES(country),
+            region = VALUES(region),
+            city = VALUES(city),
+            updated_at = NOW()
+    </insert>
+
+    <delete id="deleteOlderThan">
+        DELETE FROM t_geo_ip_cache
+        WHERE updated_at &lt; #{cutoff}
+    </delete>
+
+</mapper>

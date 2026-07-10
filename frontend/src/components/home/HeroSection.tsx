@@ -2,50 +2,64 @@ import Link from 'next/link';
 
 export default function HeroSection() {
   return (
-    <section className="min-h-[60vh] flex items-center">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          {/* Left: Text */}
-          <div className="flex-1 text-center lg:text-left">
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-[48px] font-bold leading-tight tracking-tight text-primary mb-6">
-              探索 AI 的无限可能
-            </h1>
-            <p className="text-lg sm:text-xl text-on-surface-variant leading-relaxed mb-10 max-w-xl">
-              分享技术见解、项目实践与学习心得，在人工智能时代持续探索与成长。
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                href="/projects"
-                className="inline-flex items-center justify-center px-8 py-3 rounded bg-primary text-white font-medium text-sm transition-opacity hover:opacity-90"
-              >
-                查看作品
-              </Link>
-              <Link
-                href="/blog"
-                className="inline-flex items-center justify-center px-8 py-3 rounded border border-primary text-primary font-medium text-sm transition-colors hover:bg-primary hover:text-white"
-              >
-                阅读博客
-              </Link>
-            </div>
+    <section className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-24 md:py-32">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        {/* Left: Text */}
+        <div className="max-w-[720px]">
+          <h1 className="text-3xl sm:text-[48px] font-bold leading-tight sm:leading-[56px] tracking-[-0.02em] text-primary mb-6">
+            探索 AI 的无限可能
+          </h1>
+          <p className="font-body text-lg sm:text-xl leading-relaxed sm:leading-[32px] text-on-surface-variant mb-10">
+            本博客基于 Vibe Coding 完整构建、收录原创 AI 一线技术落地感悟，聚焦 AI 技术快速验证 MVP、高效产品化思维，持续探索人工智能的无限可能，在技术浪潮中持续迭代成长。
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="/projects"
+              className="bg-primary text-on-primary px-8 py-3 rounded-lg text-base font-medium hover:shadow-lg transition-all duration-200"
+            >
+              查看作品
+            </Link>
+            <Link
+              href="/blog"
+              className="border border-primary text-primary px-8 py-3 rounded-lg text-base font-medium hover:bg-primary-fixed transition-all duration-200"
+            >
+              阅读博客
+            </Link>
+          </div>
+        </div>
+
+        {/* Right: Hero image with rotation effect */}
+        <div className="relative flex justify-center">
+          <div className="aspect-square w-full max-w-md rounded-2xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border border-outline-variant">
+            <img
+              src="/探索AI无限可能.png"
+              alt="探索 AI 的无限可能"
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          {/* Right: Placeholder illustration */}
-          <div className="flex-1 flex justify-center">
-            <div className="w-full max-w-md aspect-square rounded-lg bg-surface-container flex flex-col items-center justify-center border border-outline-variant">
-              <svg
-                className="w-24 h-24 text-primary/30 mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"
-                />
-              </svg>
-              <p className="text-sm text-on-surface-variant/50">AI 探索之旅</p>
+          {/* Floating badge */}
+          <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg border border-outline-variant hidden sm:block">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-secondary">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm font-bold text-primary">10+年Java开发经验</div>
+                <div className="text-xs text-on-surface-variant">AI 应用探索者</div>
+              </div>
             </div>
           </div>
         </div>

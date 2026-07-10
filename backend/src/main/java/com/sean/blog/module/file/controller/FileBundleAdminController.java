@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/bundles")
@@ -33,6 +34,17 @@ public class FileBundleAdminController {
         return Result.success(bundle);
     }
 
+    @PutMapping("/{id}")
+    public Result<FileBundle> update(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        String name = body.getOrDefault("name", "");
+        String description = body.getOrDefault("description", "");
+        String type = body.getOrDefault("type", "SKILL");
+        FileBundle bundle = fileBundleService.updateBundle(id, name, description, type);
+        return Result.success(bundle);
+    }
+
     @PutMapping("/{id}/publish")
     public Result<Void> publish(@PathVariable Long id) {
         fileBundleService.publish(id);
@@ -42,6 +54,12 @@ public class FileBundleAdminController {
     @PutMapping("/{id}/unpublish")
     public Result<Void> unpublish(@PathVariable Long id) {
         fileBundleService.unpublish(id);
+        return Result.success();
+    }
+
+    @PutMapping("/{id}/feature")
+    public Result<Void> toggleFeature(@PathVariable Long id) {
+        fileBundleService.toggleFeature(id);
         return Result.success();
     }
 

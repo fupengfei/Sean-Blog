@@ -112,6 +112,9 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
                 标题
               </th>
               <th className="py-3 px-4 text-sm font-ui font-medium text-on-surface-variant">
+                作者
+              </th>
+              <th className="py-3 px-4 text-sm font-ui font-medium text-on-surface-variant">
                 分类
               </th>
               <th className="py-3 px-4 text-sm font-ui font-medium text-on-surface-variant">
@@ -139,6 +142,9 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
                 >
                   <td className="py-3 px-4 text-sm font-ui text-on-surface">
                     {article.title}
+                  </td>
+                  <td className="py-3 px-4 text-sm font-ui text-on-surface-variant">
+                    {article.author || "-"}
                   </td>
                   <td className="py-3 px-4 text-sm font-ui text-on-surface-variant">
                     {article.category?.name || "-"}

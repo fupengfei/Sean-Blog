@@ -10,10 +10,67 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---- Card hover effect (used on list pages) ---- */
+
 .article-card {
   transition: transform 0.3s, box-shadow 0.3s;
 }
 .article-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px -12px rgba(0, 32, 69, 0.15);
+}
+
+/* ---- Smooth scrolling ---- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---- Article body (prose-custom) ---- */
+
+.prose-custom h1,
+.prose-custom h2,
+.prose-custom h3,
+.prose-custom h4,
+.prose-custom h5,
+.prose-custom h6 {
+  font-family: 'Inter', sans-serif;
+  color: #002045;
+}
+
+.prose-custom h1:first-child,
+.prose-custom h2:first-child,
+.prose-custom h3:first-child {
+  margin-top: 0;
+}
+
+/* ---- TOC scrollbar ---- */
+
+nav.sticky::-webkit-scrollbar {
+  width: 4px;
+}
+nav.sticky::-webkit-scrollbar-track {
+  background: transparent;
+}
+nav.sticky::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+/* ---- Code blocks (atom-one-dark) ---- */
+
+.prose-custom pre code.hljs {
+  padding: 1.5rem;
+}
+
+/* ---- Links inside prose ---- */
+
+.prose-custom a {
+  color: #0a6c44;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-custom a:hover {
+  opacity: 0.8;
 }

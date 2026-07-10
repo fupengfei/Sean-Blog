@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class ContactRecord {
     private Long id;
-    private String type;        // MAIL / RESUME
+    private String type;        // BUSINESS / MAIL / RESUME / SUBSCRIBE
+    private String content;
     private String companyName;
     private String email;
     private String ipAddress;

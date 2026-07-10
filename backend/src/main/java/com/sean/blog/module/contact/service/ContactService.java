@@ -19,17 +19,41 @@ public class ContactService {
         this.contactRecordMapper = contactRecordMapper;
     }
 
-    public void recordMail(HttpServletRequest request) {
+    /** 首页商务合作 */
+    public void recordBusiness(HttpServletRequest request, String companyName, String email, String content) {
         ContactRecord record = new ContactRecord();
-        record.setType("MAIL");
+        record.setType("BUSINESS");
+        record.setContent(content);
+        record.setCompanyName(companyName);
+        record.setEmail(email);
         record.setIpAddress(getIpAddress(request));
         contactRecordMapper.insert(record);
     }
 
+    /** 关于我 - 发送邮件 */
+    public void recordMail(HttpServletRequest request, String email, String content) {
+        ContactRecord record = new ContactRecord();
+        record.setType("MAIL");
+        record.setContent(content);
+        record.setEmail(email);
+        record.setIpAddress(getIpAddress(request));
+        contactRecordMapper.insert(record);
+    }
+
+    /** 获取简历 */
     public void recordResume(HttpServletRequest request, String companyName, String email) {
         ContactRecord record = new ContactRecord();
         record.setType("RESUME");
         record.setCompanyName(companyName);
+        record.setEmail(email);
+        record.setIpAddress(getIpAddress(request));
+        contactRecordMapper.insert(record);
+    }
+
+    /** 订阅 */
+    public void recordSubscribe(HttpServletRequest request, String email) {
+        ContactRecord record = new ContactRecord();
+        record.setType("SUBSCRIBE");
         record.setEmail(email);
         record.setIpAddress(getIpAddress(request));
         contactRecordMapper.insert(record);
@@ -49,6 +73,19 @@ public class ContactService {
         List<ContactRecord> list = contactRecordMapper.findAll(params);
         long total = contactRecordMapper.count(params);
         return new PageResult<>(list, total, page, size);
+    }
+
+    public Map<String, Long> getTypeCounts() {
+        List<Map<String, Object>> rows = contactRecordMapper.countByType();
+        Map<String, Long> result = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            String type = (String) row.get("type");
+            Object cnt = row.get("cnt");
+            if (type != null && cnt != null) {
+                result.put(type, ((Number) cnt).longValue());
+            }
+        }
+        return result;
     }
 
     private String getIpAddress(HttpServletRequest request) {

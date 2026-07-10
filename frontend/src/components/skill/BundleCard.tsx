@@ -7,8 +7,15 @@ interface BundleCardProps {
 
 export default function BundleCard({ bundle }: BundleCardProps) {
   return (
-    <Link href={`/blog/skills/${bundle.id}`}>
+    <Link href={`/projects/skills/${bundle.id}`}>
       <article className="rounded-lg border border-outline-variant bg-white p-6 transition-transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        {/* SKILL badge */}
+        <div className="mb-3">
+          <span className="inline-block px-2.5 py-0.5 rounded bg-secondary/10 text-secondary text-xs font-bold tracking-wider uppercase">
+            SKILL
+          </span>
+        </div>
+
         {/* Folder icon + name */}
         <div className="flex items-center gap-3 mb-3">
           <svg
@@ -52,6 +59,11 @@ export default function BundleCard({ bundle }: BundleCardProps) {
             </svg>
             {bundle.fileCount ?? 0} 个文件
           </span>
+          {bundle.type && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">
+              {bundle.type}
+            </span>
+          )}
         </div>
       </article>
     </Link>

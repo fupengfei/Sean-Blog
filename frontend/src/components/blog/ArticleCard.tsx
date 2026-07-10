@@ -26,7 +26,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           <img
             src={article.coverImage}
             alt={article.title}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            className="w-full h-full object-contain transition-transform group-hover:scale-105"
           />
         </div>
       )}

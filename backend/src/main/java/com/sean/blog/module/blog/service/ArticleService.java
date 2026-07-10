@@ -42,7 +42,7 @@ public class ArticleService {
         this.renderer = HtmlRenderer.builder().build();
     }
 
-    public Article createFromMd(MultipartFile file, Long categoryId, List<Long> tagIds, boolean isFeatured) {
+    public Article createFromMd(MultipartFile file, Long categoryId, List<Long> tagIds, boolean isFeatured, String author) {
         String contentMd;
         try {
             contentMd = new String(file.getBytes(), StandardCharsets.UTF_8);
@@ -70,6 +70,7 @@ public class ArticleService {
         article.setContentMd(contentMd);
         article.setContentHtml(contentHtml);
         article.setExcerpt(excerpt);
+        article.setAuthor(author);
         article.setCategoryId(categoryId);
         article.setStatus("DRAFT");
         article.setIsFeatured(isFeatured);

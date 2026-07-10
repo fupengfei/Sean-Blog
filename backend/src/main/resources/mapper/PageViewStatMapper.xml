@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.analytics.mapper.PageViewStatMapper">
+
+    <insert id="upsert">
+        INSERT INTO t_page_view_stat (page_type, page_key, day, cnt)
+        VALUES (#{pageType}, #{pageKey}, #{day}, #{delta})
+        ON DUPLICATE KEY UPDATE cnt = cnt + #{delta}
+    </insert>
+
+    <select id="rankByWindow" resultType="map">
+        SELECT
+            page_type AS pageType,
+            page_key AS pageKey,
+            SUM(cnt) AS cnt
+        FROM t_page_view_stat
+        WHERE day >= #{startDay}
+        <if test="pageType != null and pageType != ''">
+            AND page_type = #{pageType}
+        </if>
+        GROUP BY page_type, page_key
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="trendByDays" resultType="map">
+        SELECT
+            day,
+            page_type AS pageType,
+            SUM(cnt) AS cnt
+        FROM t_page_view_stat
+        WHERE day >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        GROUP BY day, page_type
+        ORDER BY day ASC
+    </select>
+
+    <select id="summaryByWindow" resultType="map">
+        SELECT
+            COALESCE(SUM(cnt), 0) AS totalPv
+        FROM t_page_view_stat
+        WHERE day >= #{startDay}
+    </select>
+
+    <select id="summaryByWindowPrev" resultType="map">
+        SELECT
+            COALESCE(SUM(cnt), 0) AS totalPv
+        FROM t_page_view_stat
+        WHERE day >= #{startDay} AND day &lt; #{endDay}
+    </select>
+
+</mapper>

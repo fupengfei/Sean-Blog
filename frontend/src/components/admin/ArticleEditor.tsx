@@ -17,6 +17,7 @@ export default function ArticleEditor({ onSuccess }: Props) {
     null,
   );
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [author, setAuthor] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -112,6 +113,7 @@ export default function ArticleEditor({ onSuccess }: Props) {
       formData.append("categoryId", String(selectedCategoryId));
       formData.append("tags", selectedTagIds.join(","));
       formData.append("isFeatured", String(isFeatured));
+      formData.append("author", author.trim());
 
       await adminCreateArticle(formData);
       onSuccess();
@@ -242,6 +244,24 @@ export default function ArticleEditor({ onSuccess }: Props) {
             })}
           </div>
         )}
+      </div>
+
+      {/* 作者 */}
+      <div>
+        <label
+          htmlFor="author"
+          className="block text-sm font-ui font-medium text-on-surface mb-2"
+        >
+          作者
+        </label>
+        <input
+          id="author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          placeholder="输入作者名称（可选）"
+          className="border border-outline-variant rounded px-4 py-2 w-full text-on-surface bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-on-surface-variant/50"
+        />
       </div>
 
       {/* 精选切换 */}

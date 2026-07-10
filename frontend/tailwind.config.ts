@@ -20,10 +20,12 @@ const config: Config = {
           'container-low': '#f1f3ff',
           container: '#e8eeff',
           'container-high': '#e3e8f9',
+          'container-highest': '#dde2f3',
         },
         'on-surface': '#161c27',
         'on-surface-variant': '#43474e',
         'on-primary': '#ffffff',
+        'on-primary-container': '#86a0cd',
         'on-secondary': '#ffffff',
         'outline-variant': '#c4c6cf',
         outline: '#74777f',
@@ -35,6 +37,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 }
 export default config

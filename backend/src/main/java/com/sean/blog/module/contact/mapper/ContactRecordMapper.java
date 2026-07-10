@@ -11,4 +11,5 @@ public interface ContactRecordMapper {
     int insert(ContactRecord record);
     List<ContactRecord> findAll(Map<String, Object> params);
     long count(Map<String, Object> params);
+    List<Map<String, Object>> countByType();
 }

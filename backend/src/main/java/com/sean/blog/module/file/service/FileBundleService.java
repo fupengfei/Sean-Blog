@@ -34,10 +34,11 @@ public class FileBundleService {
 
     @Transactional
     public FileBundle uploadBundle(MultipartFile zipFile, String name, String description, String type) throws IOException {
-        // 1. Create bundle record
+        // 1. Create bundle record (rootPath depends on auto-generated ID, set temporary value first)
         FileBundle bundle = new FileBundle();
         bundle.setName(name);
         bundle.setDescription(description);
+        bundle.setRootPath("");
         bundle.setType(type);
         bundle.setStatus(STATUS_DRAFT);
         bundle.setFileCount(0);
@@ -46,6 +47,7 @@ public class FileBundleService {
         Long bundleId = bundle.getId();
         String bundleDir = skillsPath + "/" + bundleId;
         bundle.setRootPath(bundleDir);
+        bundleMapper.updateRootPath(bundleId, bundleDir);
 
         // 2. Extract zip to skills/{bundleId}/
         Files.createDirectories(Path.of(bundleDir));
@@ -70,6 +72,12 @@ public class FileBundleService {
                 // Security: prevent zip slip
                 if (!filePath.normalize().startsWith(Path.of(destDir).normalize())) {
                     throw new IOException("Bad zip entry: " + entry.getName());
+                }
+
+                // Skip macOS metadata
+                if (entry.getName().contains("__MACOSX") || entry.getName().contains(".DS_Store")) {
+                    zis.closeEntry();
+                    continue;
                 }
 
                 if (entry.isDirectory()) {
@@ -223,6 +231,23 @@ public class FileBundleService {
         return bundleMapper.findAll();
     }
 
+    // ==================== Feature / Unfeature ====================
+
+    public void toggleFeature(Long id) {
+        FileBundle bundle = bundleMapper.findById(id);
+        if (bundle == null) {
+            throw new RuntimeException("Bundle not found: " + id);
+        }
+        if (!STATUS_PUBLISHED.equals(bundle.getStatus())) {
+            throw new RuntimeException("Only published bundles can be featured");
+        }
+        bundleMapper.toggleFeature(id);
+    }
+
+    public List<FileBundle> getFeatured() {
+        return bundleMapper.findFeatured();
+    }
+
     // ==================== Publish / Unpublish ====================
 
     public void publish(Long id) {
@@ -231,6 +256,20 @@ public class FileBundleService {
 
     public void unpublish(Long id) {
         bundleMapper.updateStatus(id, STATUS_DRAFT);
+    }
+
+    // ==================== Update ====================
+
+    public FileBundle updateBundle(Long id, String name, String description, String type) {
+        FileBundle bundle = bundleMapper.findById(id);
+        if (bundle == null) {
+            throw new RuntimeException("Bundle not found: " + id);
+        }
+        bundle.setName(name);
+        bundle.setDescription(description);
+        bundle.setType(type);
+        bundleMapper.update(bundle);
+        return bundle;
     }
 
     // ==================== Delete ====================
