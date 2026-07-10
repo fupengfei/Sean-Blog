@@ -68,11 +68,11 @@ async function request<T>(
     },
   });
 
-  // 401 / 403 → 清除 token 并跳转登录页
+  // 401 / 403 → 仅对 admin 接口清除 token 并跳转登录页，公开接口只抛异常
   if ((res.status === 401 || res.status === 403) && typeof window !== 'undefined') {
-    // 避免登录接口自身失败时死循环
+    const isAdminRequest = url.includes('/admin');
     const isLoginRequest = url.includes('/admin/login');
-    if (!isLoginRequest) {
+    if (isAdminRequest && !isLoginRequest) {
       localStorage.removeItem('token');
       window.location.href = '/admin/login';
       throw new ApiError(res.status, '登录已过期，请重新登录');
