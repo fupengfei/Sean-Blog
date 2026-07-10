@@ -32,7 +32,7 @@ export default function HeroSection() {
         <div className="relative flex justify-center">
           <div className="aspect-square w-full max-w-md rounded-2xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border border-outline-variant">
             <img
-              src="/探索AI无限可能.png"
+              src="/探索AI无限可能.webp"
               alt="探索 AI 的无限可能"
               className="w-full h-full object-cover"
             />

@@ -90,7 +90,7 @@ function ProfileSection() {
           {/* Avatar */}
           <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0 border-2 border-outline-variant">
             <img
-              src="/头像.jpg"
+              src="/头像.webp"
               alt="Sean"
               className="w-full h-full object-cover"
             />
