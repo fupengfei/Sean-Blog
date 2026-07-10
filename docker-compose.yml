@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build: ./frontend
@@ -24,14 +22,14 @@ services:
       - DB_PORT=3306
       - DB_NAME=sean_blog
       - DB_USER=root
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
+      - DB_PASSWORD=${DB_PASSWORD:-devsecret}
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-do-not-use-in-production}
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
       - FILE_BASE_PATH=/data
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-devsecret}
     depends_on:
       mysql:
         condition: service_healthy
@@ -42,7 +40,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: sean-blog-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-devsecret}
     restart: unless-stopped
 
   mysql:
@@ -53,7 +51,7 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-devsecret}
       - MYSQL_DATABASE=sean_blog
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
