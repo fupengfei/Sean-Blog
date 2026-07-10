@@ -133,7 +133,11 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://github.com/fupengfei/Sean-Blog)",
       "Bash(git config *)",
       "mcp__plugin_context7_context7__resolve-library-id",
-      "mcp__plugin_context7_context7__query-docs"
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(mvn dependency:tree -Dincludes=com.mysql:mysql-connector-j -q)",
+      "Bash(mvn help:effective-pom -q)",
+      "Bash(curl -s http://localhost:8880/api/v1/blog/articles)",
+      "Bash(curl -sI http://localhost:3000)"
     ],
     "additionalDirectories": [
       "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/blog",
