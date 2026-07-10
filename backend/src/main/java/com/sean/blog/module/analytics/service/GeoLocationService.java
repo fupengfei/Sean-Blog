@@ -155,9 +155,9 @@ public class GeoLocationService {
     @SuppressWarnings("unchecked")
     private GeoInfo callIpWhoIs(String ip) {
         try {
-            String url = "https://ipwho.is/" + ip + "?fields=status,country,region,city";
+            String url = "https://ipwho.is/" + ip;
             Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-            if (response != null && "success".equals(response.get("status"))) {
+            if (response != null && Boolean.TRUE.equals(response.get("success"))) {
                 String country = (String) response.get("country");
                 String region = (String) response.get("region");
                 String city = (String) response.get("city");

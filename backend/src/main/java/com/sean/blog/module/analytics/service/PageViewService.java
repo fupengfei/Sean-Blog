@@ -111,7 +111,8 @@ public class PageViewService {
             for (String key : keys) {
                 try {
                     Object value = redisTemplate.opsForValue().getAndDelete(key);
-                    if (value instanceof Number num && num.longValue() > 0) {
+                    long delta = toLong(value);
+                    if (delta > 0) {
                         // 解析 key: "pv:pageType:pageKey"
                         String rest = key.substring(PV_KEY_PREFIX.length());
                         int colonIdx = rest.indexOf(':');
@@ -119,7 +120,7 @@ public class PageViewService {
                         String pageType = rest.substring(0, colonIdx);
                         String pageKey = rest.substring(colonIdx + 1);
 
-                        pageViewStatMapper.upsert(pageType, pageKey, today, num.longValue());
+                        pageViewStatMapper.upsert(pageType, pageKey, today, delta);
                     }
                 } catch (Exception e) {
                     log.debug("Flush key {} failed: {}", key, e.getMessage());

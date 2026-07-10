@@ -1,8 +1,7 @@
 import Link from 'next/link';
 
 const socialLinks = [
-  { href: 'https://github.com', label: 'GitHub' },
-  { href: 'https://linkedin.com', label: 'LinkedIn' },
+  { href: 'https://github.com/fupengfei', label: 'GitHub' },
   { href: '/blog', label: 'Blog' },
 ];
 

@@ -25,7 +25,7 @@ public class ProjectAdminController {
 
     @PostMapping
     public Result<Project> create(
-            @RequestParam MultipartFile coverImage,
+            @RequestParam(required = false) MultipartFile coverImage,
             @RequestParam String title,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String url,

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -12,6 +13,37 @@ const navItems = [
 
 export default function NavBar() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // 路由变化时关闭移动端菜单
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // 按 Escape 关闭菜单
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    if (mobileMenuOpen) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [mobileMenuOpen]);
+
+  // 菜单打开时锁定 body 滚动
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -30,7 +62,7 @@ export default function NavBar() {
           Sean&apos;s AI World
         </Link>
 
-        {/* Navigation + Search */}
+        {/* Navigation + Search (desktop) */}
         <div className="hidden md:flex items-center gap-4">
           <nav className="flex items-center space-x-8">
             {navItems.map((item) => (
@@ -67,7 +99,91 @@ export default function NavBar() {
             />
           </div>
         </div>
+
+        {/* Hamburger button (mobile) */}
+        <button
+          type="button"
+          aria-label={mobileMenuOpen ? '关闭菜单' : '打开菜单'}
+          aria-expanded={mobileMenuOpen}
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg text-primary hover:bg-surface-container-low transition-colors duration-200"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className="transition-transform duration-300"
+          >
+            {/* Top bar */}
+            <line
+              x1="3"
+              y1="6"
+              x2="21"
+              y2="6"
+              className={`transition-all duration-300 origin-center ${
+                mobileMenuOpen ? 'translate-y-[6px] rotate-45' : ''
+              }`}
+            />
+            {/* Middle bar */}
+            <line
+              x1="3"
+              y1="12"
+              x2="21"
+              y2="12"
+              className={`transition-all duration-300 ${
+                mobileMenuOpen ? 'opacity-0 scale-x-0' : ''
+              }`}
+            />
+            {/* Bottom bar */}
+            <line
+              x1="3"
+              y1="18"
+              x2="21"
+              y2="18"
+              className={`transition-all duration-300 origin-center ${
+                mobileMenuOpen ? '-translate-y-[6px] -rotate-45' : ''
+              }`}
+            />
+          </svg>
+        </button>
       </div>
+
+      {/* Mobile menu panel */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <nav className="border-t border-outline-variant bg-surface px-4 py-4 space-y-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={closeMobileMenu}
+              className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
+                isActive(item.href)
+                  ? 'text-primary bg-surface-container-low'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      {/* Backdrop overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 top-20 bg-black/20 z-[-1]"
+          onClick={closeMobileMenu}
+          aria-hidden="true"
+        />
+      )}
     </header>
   );
 }
