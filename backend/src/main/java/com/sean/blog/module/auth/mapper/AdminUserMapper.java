@@ -8,6 +8,10 @@ import org.apache.ibatis.annotations.Update;
 public interface AdminUserMapper {
     AdminUser findByUsername(String username);
 
+    int insert(AdminUser user);
+
+    int count();
+
     @Update("UPDATE t_admin_user SET password_hash = #{newPassword} WHERE username = #{username}")
     int updatePassword(@Param("username") String username, @Param("newPassword") String newPassword);
 }
