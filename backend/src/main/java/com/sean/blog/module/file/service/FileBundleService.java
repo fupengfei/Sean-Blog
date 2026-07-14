@@ -1,5 +1,6 @@
 package com.sean.blog.module.file.service;
 
+import com.sean.blog.common.BusinessException;
 import com.sean.blog.module.file.dto.FileTreeResponse;
 import com.sean.blog.module.file.entity.FileBundle;
 import com.sean.blog.module.file.entity.FileNode;
@@ -41,6 +42,7 @@ public class FileBundleService {
         bundle.setRootPath("");
         bundle.setType(type);
         bundle.setStatus(STATUS_DRAFT);
+        bundle.setIsFeatured(false);
         bundle.setFileCount(0);
         bundleMapper.insert(bundle);
 
@@ -74,8 +76,15 @@ public class FileBundleService {
                     throw new IOException("Bad zip entry: " + entry.getName());
                 }
 
-                // Skip macOS metadata
-                if (entry.getName().contains("__MACOSX") || entry.getName().contains(".DS_Store")) {
+                // Skip macOS metadata (resource forks, DS_Store, AppleDouble)
+                String entryName = entry.getName();
+                if (entryName.contains("__MACOSX") || entryName.contains(".DS_Store")) {
+                    zis.closeEntry();
+                    continue;
+                }
+                // Also skip AppleDouble files (._ prefix) at any level
+                String fileName = Path.of(entryName).getFileName().toString();
+                if (fileName.startsWith("._")) {
                     zis.closeEntry();
                     continue;
                 }
@@ -109,10 +118,16 @@ public class FileBundleService {
         int sortOrder = 0;
 
         for (File file : files) {
+            // Skip macOS metadata files and directories
+            String fileName = file.getName();
+            if (fileName.equals("__MACOSX") || fileName.equals(".DS_Store") || fileName.startsWith("._")) {
+                continue;
+            }
+
             FileNode node = new FileNode();
             node.setBundleId(bundleId);
             node.setParentId(parentId);
-            node.setName(file.getName());
+            node.setName(fileName);
             node.setSortOrder(sortOrder++);
 
             if (file.isDirectory()) {
@@ -142,7 +157,7 @@ public class FileBundleService {
     public FileTreeResponse getTree(Long bundleId) {
         FileBundle bundle = bundleMapper.findById(bundleId);
         if (bundle == null) {
-            throw new RuntimeException("Bundle not found: " + bundleId);
+            throw new BusinessException(404, "Bundle not found: " + bundleId);
         }
 
         List<FileNode> allNodes = nodeMapper.findByBundleId(bundleId);
@@ -176,7 +191,7 @@ public class FileBundleService {
     public String getFileContent(Long bundleId, String filePath) throws IOException {
         FileBundle bundle = bundleMapper.findById(bundleId);
         if (bundle == null) {
-            throw new RuntimeException("Bundle not found: " + bundleId);
+            throw new BusinessException(404, "Bundle not found: " + bundleId);
         }
 
         // Resolve the actual file path
@@ -185,12 +200,12 @@ public class FileBundleService {
 
         // Security: prevent path traversal
         if (!resolvedPath.startsWith(basePath)) {
-            throw new RuntimeException("Invalid file path");
+            throw new BusinessException(400, "Invalid file path");
         }
 
         File file = resolvedPath.toFile();
         if (!file.exists() || !file.isFile()) {
-            throw new RuntimeException("File not found: " + filePath);
+            throw new BusinessException(404, "File not found: " + filePath);
         }
 
         // Read as text (UTF-8); for binary files, return an error message
@@ -236,10 +251,10 @@ public class FileBundleService {
     public void toggleFeature(Long id) {
         FileBundle bundle = bundleMapper.findById(id);
         if (bundle == null) {
-            throw new RuntimeException("Bundle not found: " + id);
+            throw new BusinessException(404, "Bundle not found: " + id);
         }
         if (!STATUS_PUBLISHED.equals(bundle.getStatus())) {
-            throw new RuntimeException("Only published bundles can be featured");
+            throw new BusinessException(400, "Only published bundles can be featured");
         }
         bundleMapper.toggleFeature(id);
     }
@@ -263,7 +278,7 @@ public class FileBundleService {
     public FileBundle updateBundle(Long id, String name, String description, String type) {
         FileBundle bundle = bundleMapper.findById(id);
         if (bundle == null) {
-            throw new RuntimeException("Bundle not found: " + id);
+            throw new BusinessException(404, "Bundle not found: " + id);
         }
         bundle.setName(name);
         bundle.setDescription(description);
@@ -278,7 +293,7 @@ public class FileBundleService {
     public void delete(Long bundleId) {
         FileBundle bundle = bundleMapper.findById(bundleId);
         if (bundle == null) {
-            throw new RuntimeException("Bundle not found: " + bundleId);
+            throw new BusinessException(404, "Bundle not found: " + bundleId);
         }
 
         // 1. Delete FileNode records
@@ -294,7 +309,7 @@ public class FileBundleService {
                 deleteDirectory(bundleDir);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete bundle directory: " + e.getMessage(), e);
+            throw new BusinessException(500, "Failed to delete bundle directory: " + e.getMessage());
         }
     }
 
