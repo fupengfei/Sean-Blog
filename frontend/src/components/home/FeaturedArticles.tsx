@@ -84,9 +84,19 @@ export default function FeaturedArticles() {
                 className="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:gap-8">
-                  {/* Date */}
-                  <div className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant mb-2 md:mb-0 w-32 shrink-0">
-                    {formatDate(article.createdAt)}
+                  {/* Date + Author */}
+                  <div className="flex flex-col w-32 shrink-0 mb-2 md:mb-0">
+                    <div className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant">
+                      {formatDate(article.createdAt)}
+                    </div>
+                    {article.author && (
+                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-0.5">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        {article.author}
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}

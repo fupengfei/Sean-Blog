@@ -32,7 +32,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       )}
 
       <div className="p-6">
-        {/* Metadata row: category + date */}
+        {/* Metadata row: category + date + author */}
         <div className="flex items-center gap-3 mb-3">
           {article.category && (
             <span className="inline-block px-2 py-0.5 rounded bg-secondary-container text-secondary text-xs font-semibold">
@@ -42,6 +42,14 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           <span className="text-xs text-on-surface-variant/60">
             {formatDate(article.createdAt)}
           </span>
+          {article.author && (
+            <span className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              {article.author}
+            </span>
+          )}
         </div>
 
         {/* Title */}

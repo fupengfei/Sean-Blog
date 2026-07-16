@@ -37,9 +37,17 @@ export default function BundleCard({ bundle }: BundleCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-2">
+        <p className="text-sm text-on-surface-variant leading-relaxed mb-3 line-clamp-2">
           {bundle.description || '暂无描述'}
         </p>
+
+        {/* Author */}
+        <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mb-3">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Sean
+        </div>
 
         {/* File count badge */}
         <div className="flex items-center gap-1.5">

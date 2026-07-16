@@ -183,6 +183,14 @@ export default function FeaturedProjects() {
                             {bundle.description || '暂无描述'}
                           </p>
 
+                          {/* Author */}
+                          <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-1">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Sean
+                          </div>
+
                           <span className="text-secondary text-sm font-medium flex items-center gap-1 mt-auto pt-4">
                             浏览 Skill
                             <svg
@@ -271,6 +279,14 @@ export default function FeaturedProjects() {
                       <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-2 min-h-[2.5rem]">
                         {project.description}
                       </p>
+
+                      {/* Author */}
+                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-1">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Sean
+                      </div>
 
                       {/* Action buttons */}
                       <div className="flex gap-3 mt-auto pt-4">
