@@ -79,7 +79,7 @@ export default function ContactSection() {
                 思想碰撞
               </h2>
               <p className="text-sm leading-relaxed mb-12 opacity-80 max-w-xs">
-                我目前正在寻找令人兴奋的新机会或合作。无论是项目咨询、技术交流还是获取简历，我都非常乐意倾听。
+                我目前正在寻找令人兴奋的新机会或合作。无论您是项目咨询、技术交流还是获取简历，我都非常乐意倾听。
               </p>
             </div>
             <div className="relative z-10 space-y-5 pt-10 border-t border-white/20">
