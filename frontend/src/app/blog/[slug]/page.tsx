@@ -56,7 +56,7 @@ function Skeleton() {
     <div className="min-h-screen pt-32 pb-24 animate-pulse">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          <div className="lg:col-span-8 xl:col-span-9">
+          <div className="lg:col-span-7 xl:col-span-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-5 w-28 bg-surface-container rounded" />
               <div className="h-4 w-24 bg-surface-container rounded" />
@@ -78,7 +78,7 @@ function Skeleton() {
               <div className="h-5 bg-surface-container rounded w-3/4" />
             </div>
           </div>
-          <aside className="hidden lg:block lg:col-span-4 xl:col-span-3">
+          <aside className="hidden lg:block lg:col-span-5 xl:col-span-4">
             <div className="h-4 w-12 bg-surface-container rounded mb-4" />
             <div className="space-y-3">
               <div className="h-3 bg-surface-container rounded w-full" />
@@ -301,7 +301,7 @@ export default function ArticleDetailPage() {
             {/* ================================================================ */}
             {/* Left: Article content                                               */}
             {/* ================================================================ */}
-            <article className="lg:col-span-8 xl:col-span-9 min-w-0">
+            <article className="lg:col-span-7 xl:col-span-8 min-w-0">
               {/* ---- Header ---- */}
               <header className="mb-12">
                 {/* Back link */}
@@ -410,7 +410,7 @@ export default function ArticleDetailPage() {
             {/* ================================================================ */}
             {/* Right: Sidebar                                                       */}
             {/* ================================================================ */}
-            <aside className="hidden lg:block lg:col-span-4 xl:col-span-3">
+            <aside className="hidden lg:block lg:col-span-5 xl:col-span-4">
               <TableOfContents content={article.contentMd || ''} />
             </aside>
           </div>
