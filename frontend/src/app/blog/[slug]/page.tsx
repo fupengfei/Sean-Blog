@@ -30,6 +30,22 @@ function estimateReadingTime(markdown: string): number {
   return Math.max(1, Math.ceil(plainText.length / 500));
 }
 
+function countWords(markdown: string): number {
+  const plainText = markdown
+    .replace(/```[\s\S]*?```/g, '')   // 去除代码块
+    .replace(/`[^`]+`/g, '')          // 去除行内代码
+    .replace(/[#*>\-\[\]()!_|~]/g, '') // 去除 markdown 标记
+    .trim();
+
+  // 中文字符数
+  const chineseChars = (plainText.match(/[一-鿿]/g) || []).length;
+  // 英文单词数（移除中文后按空白分词）
+  const textWithoutChinese = plainText.replace(/[一-鿿]/g, ' ').replace(/\s+/g, ' ').trim();
+  const englishWords = textWithoutChinese ? textWithoutChinese.split(/\s+/).length : 0;
+
+  return chineseChars + englishWords;
+}
+
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
@@ -274,6 +290,7 @@ export default function ArticleDetailPage() {
   if (error || !article) return <ErrorState message={error || '无法找到该文章'} />;
 
   const readingTime = estimateReadingTime(article.contentMd || '');
+  const wordCount = countWords(article.contentMd || '');
 
   return (
     <>
@@ -326,6 +343,16 @@ export default function ArticleDetailPage() {
                     </svg>
                     <span className="font-display text-[13px] text-on-surface-variant">
                       {readingTime} 分钟阅读
+                    </span>
+                  </div>
+
+                  {/* Word count */}
+                  <div className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-on-surface-variant/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="font-display text-[13px] text-on-surface-variant">
+                      {wordCount.toLocaleString()} 字
                     </span>
                   </div>
 
