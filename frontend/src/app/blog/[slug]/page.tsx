@@ -21,21 +21,22 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function stripMarkdown(markdown: string): string {
+  return markdown
+    .replace(/```[\s\S]*?```/g, '')   // 代码块
+    .replace(/`[^`]+`/g, '')          // 行内代码
+    .replace(/\$\$[\s\S]*?\$\$/g, '') // 块级数学公式
+    .replace(/\$[^$\n]+?\$/g, '')     // 行内数学公式
+    .replace(/[#*>\-\[\]()!_|~]/g, ''); // markdown 标记
+}
+
 function estimateReadingTime(markdown: string): number {
-  const plainText = markdown
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/`[^`]+`/g, '')
-    .replace(/[#*>\-\[\]()!_|~]/g, '')
-    .replace(/\s+/g, '');
+  const plainText = stripMarkdown(markdown).replace(/\s+/g, '');
   return Math.max(1, Math.ceil(plainText.length / 500));
 }
 
 function countWords(markdown: string): number {
-  const plainText = markdown
-    .replace(/```[\s\S]*?```/g, '')   // 去除代码块
-    .replace(/`[^`]+`/g, '')          // 去除行内代码
-    .replace(/[#*>\-\[\]()!_|~]/g, '') // 去除 markdown 标记
-    .trim();
+  const plainText = stripMarkdown(markdown).trim();
 
   // 中文字符数
   const chineseChars = (plainText.match(/[一-鿿]/g) || []).length;
