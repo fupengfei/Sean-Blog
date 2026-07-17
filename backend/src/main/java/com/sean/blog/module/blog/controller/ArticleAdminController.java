@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/articles")
@@ -52,6 +53,33 @@ public class ArticleAdminController {
     @PutMapping("/{id}/feature")
     public Result<?> toggleFeature(@PathVariable Long id) {
         articleService.toggleFeatured(id);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}/related")
+    public Result<Map<String, Object>> getRelations(@PathVariable Long id) {
+        return Result.success(articleService.getRelations(id));
+    }
+
+    @PutMapping("/{id}/prerequisite")
+    public Result<?> setPrerequisite(@PathVariable Long id,
+                                      @RequestBody Map<String, Long> body) {
+        Long prerequisiteId = body.get("prerequisiteId");
+        articleService.setPrerequisite(id, prerequisiteId);
+        return Result.success();
+    }
+
+    @DeleteMapping("/{id}/prerequisite")
+    public Result<?> removePrerequisite(@PathVariable Long id) {
+        articleService.removePrerequisite(id);
+        return Result.success();
+    }
+
+    @PutMapping("/{id}/related")
+    public Result<?> setRelated(@PathVariable Long id,
+                                 @RequestBody Map<String, List<Long>> body) {
+        List<Long> relatedIds = body.get("relatedIds");
+        articleService.setRelated(id, relatedIds);
         return Result.success();
     }
 }

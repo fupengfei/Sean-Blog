@@ -37,4 +37,15 @@ public class ArticlePublicController {
     public Result<Article> getBySlug(@PathVariable String slug) {
         return Result.success(articleService.getBySlug(slug));
     }
+
+    @GetMapping("/articles/{slug}/prerequisite")
+    public Result<Article> getPrerequisite(@PathVariable String slug) {
+        Article prerequisite = articleService.getPrerequisite(slug);
+        return Result.success(prerequisite);
+    }
+
+    @GetMapping("/articles/{slug}/related")
+    public Result<List<Article>> getRelated(@PathVariable String slug) {
+        return Result.success(articleService.getRelated(slug));
+    }
 }

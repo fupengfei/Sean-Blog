@@ -14,6 +14,7 @@ public class Article {
     private String author;
     private String coverImage;
     private Long categoryId;
+    private Long prerequisiteId;
     private String status;
     private Boolean isFeatured;
     private Long viewCount;

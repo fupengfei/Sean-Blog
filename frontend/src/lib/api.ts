@@ -4,6 +4,8 @@ import {
   Category,
   Tag,
   Article,
+  ArticleSummary,
+  ArticleRelations,
   ArticleListParams,
   Project,
   FileBundle,
@@ -167,6 +169,24 @@ export async function getAdjacentArticles(
   };
 }
 
+/** 获取前置文章 */
+export async function getPrerequisiteArticle(
+  slug: string,
+): Promise<ArticleSummary | null> {
+  return request<ArticleSummary | null>(
+    publicUrl(`/articles/${slug}/prerequisite`),
+  );
+}
+
+/** 获取相关文章 */
+export async function getRelatedArticles(
+  slug: string,
+): Promise<ArticleSummary[]> {
+  return request<ArticleSummary[]>(
+    publicUrl(`/articles/${slug}/related`),
+  );
+}
+
 // 项目
 export async function getProjects(): Promise<Project[]> {
   return request<Project[]>(publicUrl('/projects'));
@@ -282,6 +302,42 @@ export async function adminToggleArticleFeature(id: number): Promise<void> {
 export async function adminDeleteArticle(id: number): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}`), {
     method: 'DELETE',
+  });
+}
+
+/** Admin: 查询文章关联关系 */
+export async function adminGetArticleRelations(
+  id: number,
+): Promise<ArticleRelations> {
+  return requestWithAuth<ArticleRelations>(adminUrl(`/articles/${id}/related`));
+}
+
+/** Admin: 设置前置文章 */
+export async function adminSetPrerequisite(
+  id: number,
+  prerequisiteId: number | null,
+): Promise<void> {
+  await requestWithAuth<void>(adminUrl(`/articles/${id}/prerequisite`), {
+    method: 'PUT',
+    body: JSON.stringify({ prerequisiteId }),
+  });
+}
+
+/** Admin: 移除前置文章 */
+export async function adminRemovePrerequisite(id: number): Promise<void> {
+  await requestWithAuth<void>(adminUrl(`/articles/${id}/prerequisite`), {
+    method: 'DELETE',
+  });
+}
+
+/** Admin: 全量替换相关文章 */
+export async function adminSetRelated(
+  id: number,
+  relatedIds: number[],
+): Promise<void> {
+  await requestWithAuth<void>(adminUrl(`/articles/${id}/related`), {
+    method: 'PUT',
+    body: JSON.stringify({ relatedIds }),
   });
 }
 

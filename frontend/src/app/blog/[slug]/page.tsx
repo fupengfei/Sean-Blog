@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getArticleBySlug, getAdjacentArticles, getFeaturedArticles } from '@/lib/api';
-import type { Article } from '@/types';
+import { getArticleBySlug, getAdjacentArticles, getPrerequisiteArticle, getRelatedArticles } from '@/lib/api';
+import type { Article, ArticleSummary } from '@/types';
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
 
@@ -115,6 +115,35 @@ function ErrorState({ message }: { message: string }) {
   );
 }
 
+function PrerequisiteBanner({ article }: { article: ArticleSummary }) {
+  return (
+    <div className="mb-8 p-5 rounded-xl bg-secondary/5 border-l-4 border-secondary">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3 min-w-0">
+          <span className="text-lg flex-shrink-0 mt-0.5">💡</span>
+          <div className="min-w-0">
+            <p className="font-display text-[14px] font-semibold text-primary mb-1">
+              推荐先读：{article.title}
+            </p>
+            <p className="text-[13px] text-on-surface-variant leading-relaxed">
+              这篇文章是本文的基础，先读它能更好地理解下面的内容
+            </p>
+          </div>
+        </div>
+        <Link
+          href={`/blog/${article.slug}`}
+          className="flex-shrink-0 inline-flex items-center gap-1 px-4 py-2 rounded bg-secondary text-white text-[13px] font-medium hover:opacity-90 transition-opacity"
+        >
+          去阅读
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function PrevNextNav({
   prev,
   next,
@@ -167,24 +196,28 @@ function PrevNextNav({
   );
 }
 
-function RelatedArticles({ articles }: { articles: Article[] }) {
+function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
+  const [showAll, setShowAll] = useState(false);
+
   if (articles.length === 0) return null;
+
+  const displayed = showAll ? articles : articles.slice(0, 3);
+  const hasMore = articles.length > 3;
 
   return (
     <section className="mt-24 bg-surface-container-low py-20 border-t border-outline-variant">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
         <h2 className="font-display text-[28px] sm:text-[32px] font-bold text-primary mb-12">
-          推荐阅读
+          相关文章
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {articles.slice(0, 3).map((article) => (
+          {displayed.map((article) => (
             <Link
               key={article.id}
               href={`/blog/${article.slug}`}
               className="group block"
             >
-              {/* Thumbnail */}
               {article.coverImage && (
                 <div className="aspect-video rounded-lg overflow-hidden border border-outline-variant mb-4">
                   <img
@@ -196,7 +229,6 @@ function RelatedArticles({ articles }: { articles: Article[] }) {
                 </div>
               )}
 
-              {/* Metadata */}
               <div className="flex items-center gap-2 mb-2">
                 {article.category && (
                   <>
@@ -211,12 +243,10 @@ function RelatedArticles({ articles }: { articles: Article[] }) {
                 </span>
               </div>
 
-              {/* Title */}
               <h3 className="font-display text-[15px] font-medium text-primary group-hover:text-secondary transition-colors mb-2 line-clamp-2">
                 {article.title}
               </h3>
 
-              {/* Excerpt */}
               {article.excerpt && (
                 <p className="text-[14px] leading-[20px] text-on-surface-variant line-clamp-2">
                   {article.excerpt}
@@ -225,6 +255,23 @@ function RelatedArticles({ articles }: { articles: Article[] }) {
             </Link>
           ))}
         </div>
+
+        {hasMore && (
+          <div className="mt-10 text-center">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded border border-outline-variant text-[14px] font-medium text-primary hover:bg-surface-container transition-colors"
+            >
+              {showAll ? '收起' : `查看更多（+${articles.length - 3}）`}
+              <svg
+                className={`w-4 h-4 transition-transform ${showAll ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -244,7 +291,8 @@ export default function ArticleDetailPage() {
 
   const [prevArticle, setPrevArticle] = useState<Article | null>(null);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+  const [prerequisite, setPrerequisite] = useState<ArticleSummary | null>(null);
+  const [relatedArticles, setRelatedArticles] = useState<ArticleSummary[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -271,12 +319,19 @@ export default function ArticleDetailPage() {
         // Non-critical; silently ignore
       });
 
-    // Fetch related (featured) articles
-    getFeaturedArticles(6)
+    // Fetch prerequisite article
+    getPrerequisiteArticle(slug)
+      .then((article) => {
+        setPrerequisite(article);
+      })
+      .catch(() => {
+        // Non-critical; silently ignore
+      });
+
+    // Fetch related articles
+    getRelatedArticles(slug)
       .then((articles) => {
-        // Exclude current article and limit to 3
-        const filtered = articles.filter((a) => a.slug !== slug).slice(0, 3);
-        setRelatedArticles(filtered);
+        setRelatedArticles(articles);
       })
       .catch(() => {
         // Non-critical; silently ignore
@@ -322,6 +377,9 @@ export default function ArticleDetailPage() {
                 <h1 className="font-display text-[28px] sm:text-[32px] md:text-[36px] font-bold text-primary leading-tight tracking-[-0.01em] mb-6">
                   {article.title}
                 </h1>
+
+                {/* Prerequisite banner */}
+                {prerequisite && <PrerequisiteBanner article={prerequisite} />}
 
                 {/* Metadata row: avatar+author / reading time / date — evenly spread */}
                 <div className="flex items-center justify-between flex-wrap gap-4 mb-5">
@@ -411,7 +469,10 @@ export default function ArticleDetailPage() {
             {/* Right: Sidebar                                                       */}
             {/* ================================================================ */}
             <aside className="hidden lg:block lg:col-span-5 xl:col-span-4">
-              <TableOfContents content={article.contentMd || ''} />
+              <TableOfContents
+                content={article.contentMd || ''}
+                prerequisite={prerequisite}
+              />
             </aside>
           </div>
         </div>

@@ -13,6 +13,7 @@
         <result property="author" column="author"/>
         <result property="coverImage" column="cover_image"/>
         <result property="categoryId" column="category_id"/>
+        <result property="prerequisiteId" column="prerequisite_id"/>
         <result property="status" column="status"/>
         <result property="isFeatured" column="is_featured"/>
         <result property="viewCount" column="view_count"/>
@@ -143,4 +144,28 @@
     <delete id="deleteArticleTags">
         DELETE FROM t_article_tag WHERE article_id = #{articleId}
     </delete>
+
+    <update id="setPrerequisite">
+        UPDATE t_article SET prerequisite_id = #{prerequisiteId}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearPrerequisite">
+        UPDATE t_article SET prerequisite_id = NULL, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="findSummaryByIds" resultType="com.sean.blog.module.blog.entity.Article">
+        SELECT a.id, a.title, a.slug, a.cover_image AS coverImage, a.excerpt,
+               a.created_at AS createdAt,
+               c.id AS `category.id`, c.name AS `category.name`, c.slug AS `category.slug`
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        WHERE a.id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND a.status = 'PUBLISHED'
+        ORDER BY a.created_at DESC
+    </select>
 </mapper>

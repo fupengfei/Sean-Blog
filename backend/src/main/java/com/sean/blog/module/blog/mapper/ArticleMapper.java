@@ -21,4 +21,8 @@ public interface ArticleMapper {
     long countAll(Map<String, Object> params);
     int insertArticleTag(@Param("articleId") Long articleId, @Param("tagId") Long tagId);
     int deleteArticleTags(Long articleId);
+
+    int setPrerequisite(@Param("id") Long id, @Param("prerequisiteId") Long prerequisiteId);
+    int clearPrerequisite(@Param("id") Long id);
+    List<Article> findSummaryByIds(@Param("ids") List<Long> ids);
 }
