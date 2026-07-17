@@ -13,6 +13,7 @@
         <result property="author" column="author"/>
         <result property="coverImage" column="cover_image"/>
         <result property="categoryId" column="category_id"/>
+        <result property="prerequisiteId" column="prerequisite_id"/>
         <result property="status" column="status"/>
         <result property="isFeatured" column="is_featured"/>
         <result property="viewCount" column="view_count"/>
