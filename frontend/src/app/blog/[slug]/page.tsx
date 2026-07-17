@@ -216,42 +216,47 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
             <Link
               key={article.id}
               href={`/blog/${article.slug}`}
-              className="group block"
+              className="group rounded-lg border border-outline-variant bg-white overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
             >
               {article.coverImage && (
-                <div className="aspect-video rounded-lg overflow-hidden border border-outline-variant mb-4">
+                <div className="aspect-[16/9] overflow-hidden">
                   <img
                     src={article.coverImage}
                     alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
                   />
                 </div>
               )}
 
-              <div className="flex items-center gap-2 mb-2">
-                {article.category && (
-                  <>
-                    <span className="font-display text-[12px] tracking-[0.05em] font-semibold text-secondary uppercase">
+              <div className="p-6">
+                {/* Category + Date */}
+                <div className="flex items-center gap-3 mb-3">
+                  {article.category && (
+                    <span className="inline-block px-2 py-0.5 rounded bg-secondary-container text-secondary text-xs font-semibold">
                       {article.category.name}
                     </span>
-                    <span className="text-outline-variant">·</span>
-                  </>
-                )}
-                <span className="font-display text-[12px] tracking-[0.05em] font-semibold text-on-surface-variant">
-                  {formatDate(article.createdAt)}
+                  )}
+                  <span className="text-xs text-on-surface-variant/60">
+                    {formatDate(article.createdAt)}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h3 className="font-display text-xl font-semibold text-primary mb-2 group-hover:text-secondary transition-colors line-clamp-2">
+                  {article.title}
+                </h3>
+
+                {/* Excerpt */}
+                <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-3">
+                  {article.excerpt || '暂无摘要'}
+                </p>
+
+                {/* CTA */}
+                <span className="text-sm font-medium text-secondary group-hover:underline">
+                  阅读全文 →
                 </span>
               </div>
-
-              <h3 className="font-display text-[15px] font-medium text-primary group-hover:text-secondary transition-colors mb-2 line-clamp-2">
-                {article.title}
-              </h3>
-
-              {article.excerpt && (
-                <p className="text-[14px] leading-[20px] text-on-surface-variant line-clamp-2">
-                  {article.excerpt}
-                </p>
-              )}
             </Link>
           ))}
         </div>
