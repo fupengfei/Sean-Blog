@@ -3,7 +3,9 @@ package com.sean.blog.module.blog.service;
 import com.sean.blog.common.BusinessException;
 import com.sean.blog.common.PageResult;
 import com.sean.blog.module.blog.entity.Article;
+import com.sean.blog.module.blog.entity.ArticleRelated;
 import com.sean.blog.module.blog.mapper.ArticleMapper;
+import com.sean.blog.module.blog.mapper.ArticleRelatedMapper;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
@@ -27,6 +29,7 @@ import static java.util.regex.Pattern.MULTILINE;
 public class ArticleService {
 
     private final ArticleMapper articleMapper;
+    private final ArticleRelatedMapper articleRelatedMapper;
     private final String articlesPath;
     private final Parser parser;
     private final HtmlRenderer renderer;
@@ -35,8 +38,10 @@ public class ArticleService {
     private static final Pattern MARKDOWN_PATTERN = Pattern.compile("[#*>`\\-\\[\\]()!~_]");
 
     public ArticleService(ArticleMapper articleMapper,
+                          ArticleRelatedMapper articleRelatedMapper,
                           @Value("${file.upload.articles}") String articlesPath) {
         this.articleMapper = articleMapper;
+        this.articleRelatedMapper = articleRelatedMapper;
         this.articlesPath = articlesPath;
         this.parser = Parser.builder().build();
         this.renderer = HtmlRenderer.builder().build();
@@ -157,6 +162,125 @@ public class ArticleService {
             throw new BusinessException(404, "文章不存在");
         }
         articleMapper.updateFeatured(id, !Boolean.TRUE.equals(article.getIsFeatured()));
+    }
+
+    // ========== 公开接口：文章关联查询 ==========
+
+    public Article getPrerequisite(String slug) {
+        Article article = articleMapper.findBySlug(slug);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        if (article.getPrerequisiteId() == null) {
+            return null;
+        }
+        List<Article> results = articleMapper.findSummaryByIds(List.of(article.getPrerequisiteId()));
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    public List<Article> getRelated(String slug) {
+        Article article = articleMapper.findBySlug(slug);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        List<Long> relatedIds = articleRelatedMapper.findRelatedArticleIds(article.getId());
+        if (relatedIds.isEmpty()) {
+            return List.of();
+        }
+        return articleMapper.findSummaryByIds(relatedIds);
+    }
+
+    // ========== Admin 接口：文章关联管理 ==========
+
+    public Map<String, Object> getRelations(Long id) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+
+        Article prerequisite = null;
+        if (article.getPrerequisiteId() != null) {
+            prerequisite = articleMapper.findById(article.getPrerequisiteId());
+        }
+
+        List<Long> relatedIds = articleRelatedMapper.findRelatedArticleIds(id);
+        List<Article> related = relatedIds.isEmpty()
+                ? List.of()
+                : articleMapper.findSummaryByIds(relatedIds);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("prerequisite", prerequisite != null
+                ? Map.of("id", prerequisite.getId(), "title", prerequisite.getTitle())
+                : null);
+        result.put("related", related.stream()
+                .map(a -> Map.of("id", a.getId(), "title", a.getTitle()))
+                .toList());
+        return result;
+    }
+
+    public void setPrerequisite(Long id, Long prerequisiteId) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        // 防止循环引用
+        if (prerequisiteId != null && prerequisiteId.equals(id)) {
+            throw new BusinessException("不能将文章自身设为前置文章");
+        }
+        if (prerequisiteId != null) {
+            Article prereq = articleMapper.findById(prerequisiteId);
+            if (prereq == null) {
+                throw new BusinessException(404, "前置文章不存在");
+            }
+        }
+        articleMapper.setPrerequisite(id, prerequisiteId);
+    }
+
+    public void removePrerequisite(Long id) {
+        articleMapper.clearPrerequisite(id);
+    }
+
+    public void setRelated(Long id, List<Long> relatedIds) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        // 防止自引用
+        relatedIds = relatedIds != null
+                ? relatedIds.stream().filter(rid -> !rid.equals(id)).toList()
+                : List.of();
+        // 防止重复
+        relatedIds = relatedIds.stream().distinct().toList();
+
+        // 查询当前关联
+        List<Long> existingIds = articleRelatedMapper.findRelatedArticleIds(id);
+
+        // 删除已移除的关系
+        String currentUser = "admin"; // 单用户 blog，固定 admin
+        for (Long existingId : existingIds) {
+            if (!relatedIds.contains(existingId)) {
+                articleRelatedMapper.softDeletePair(id, existingId, currentUser);
+            }
+        }
+
+        // 插入新关系（双向写入）
+        for (Long relatedId : relatedIds) {
+            if (!existingIds.contains(relatedId)) {
+                ArticleRelated record = new ArticleRelated();
+                record.setArticleId(id);
+                record.setRelatedArticleId(relatedId);
+                record.setCreatedBy(currentUser);
+                record.setUpdatedBy(currentUser);
+                articleRelatedMapper.insert(record);
+
+                ArticleRelated reverse = new ArticleRelated();
+                reverse.setArticleId(relatedId);
+                reverse.setRelatedArticleId(id);
+                reverse.setCreatedBy(currentUser);
+                reverse.setUpdatedBy(currentUser);
+                articleRelatedMapper.insert(reverse);
+            }
+        }
     }
 
     String extractTitle(String contentMd) {
