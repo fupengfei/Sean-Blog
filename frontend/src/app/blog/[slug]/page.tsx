@@ -120,13 +120,13 @@ function PrerequisiteBanner({ article }: { article: ArticleSummary }) {
     <div className="mb-8 p-5 rounded-xl bg-secondary/5 border-l-4 border-secondary">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
-          <span className="text-lg flex-shrink-0 mt-0.5">📖</span>
+          <span className="text-lg flex-shrink-0 mt-0.5">💡</span>
           <div className="min-w-0">
             <p className="font-display text-[14px] font-semibold text-primary mb-1">
-              建议先阅读：{article.title}
+              推荐先读：{article.title}
             </p>
             <p className="text-[13px] text-on-surface-variant leading-relaxed">
-              这篇文章基于上文，建议先阅读以更好理解
+              这篇文章是本文的基础，先读它能更好地理解下面的内容
             </p>
           </div>
         </div>
