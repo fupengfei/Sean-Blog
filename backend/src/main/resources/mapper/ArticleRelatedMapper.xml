@@ -6,6 +6,7 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO t_article_related (article_id, related_article_id, created_by, created_at, updated_by, updated_at)
         VALUES (#{articleId}, #{relatedArticleId}, #{createdBy}, NOW(), #{updatedBy}, NOW())
+        ON DUPLICATE KEY UPDATE is_deleted = 0, updated_by = VALUES(updated_by), updated_at = NOW()
     </insert>
 
     <update id="softDeletePair">
