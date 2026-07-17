@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getArticleBySlug, getAdjacentArticles, getPrerequisiteArticle, getRelatedArticles } from '@/lib/api';
+import { getArticleById, getNextArticle, getPrerequisiteArticle, getRelatedArticles } from '@/lib/api';
 import type { Article, ArticleSummary } from '@/types';
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
@@ -131,7 +131,7 @@ function PrerequisiteBanner({ article }: { article: ArticleSummary }) {
           </div>
         </div>
         <Link
-          href={`/blog/${article.slug}`}
+          href={`/blog/${article.id}`}
           className="flex-shrink-0 inline-flex items-center gap-1 px-4 py-2 rounded bg-secondary text-white text-[13px] font-medium hover:opacity-90 transition-opacity"
         >
           去阅读
@@ -144,42 +144,17 @@ function PrerequisiteBanner({ article }: { article: ArticleSummary }) {
   );
 }
 
-function PrevNextNav({
-  prev,
-  next,
-}: {
-  prev: Article | null;
-  next: Article | null;
-}) {
-  if (!prev && !next) return null;
+function NextArticleNav({ next }: { next: ArticleSummary | null }) {
+  if (!next) return null;
 
   return (
-    <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-4">
-      {prev ? (
-        <Link
-          href={`/blog/${prev.slug}`}
-          className="group p-6 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors"
-        >
+    <div className="mt-16">
+      <Link
+        href={`/blog/${next.id}`}
+        className="group p-6 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors flex items-center justify-between"
+      >
+        <div>
           <span className="flex items-center gap-2 font-display text-[12px] tracking-[0.05em] font-semibold text-outline mb-2">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            上一篇
-          </span>
-          <p className="font-display text-[15px] font-medium text-primary group-hover:text-secondary transition-colors line-clamp-1">
-            {prev.title}
-          </p>
-        </Link>
-      ) : (
-        <div />
-      )}
-
-      {next ? (
-        <Link
-          href={`/blog/${next.slug}`}
-          className="group p-6 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors text-right"
-        >
-          <span className="flex items-center justify-end gap-2 font-display text-[12px] tracking-[0.05em] font-semibold text-outline mb-2">
             下一篇
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -188,10 +163,11 @@ function PrevNextNav({
           <p className="font-display text-[15px] font-medium text-primary group-hover:text-secondary transition-colors line-clamp-1">
             {next.title}
           </p>
-        </Link>
-      ) : (
-        <div />
-      )}
+        </div>
+        <svg className="w-5 h-5 text-outline flex-shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </Link>
     </div>
   );
 }
@@ -215,7 +191,7 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
           {displayed.map((article) => (
             <Link
               key={article.id}
-              href={`/blog/${article.slug}`}
+              href={`/blog/${article.id}`}
               className="group rounded-lg border border-outline-variant bg-white overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
             >
               {article.coverImage && (
@@ -238,7 +214,7 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
                     </span>
                   )}
                   <span className="text-xs text-on-surface-variant/60">
-                    {formatDate(article.createdAt)}
+                    {formatDate(article.publishDate || article.createdAt)}
                   </span>
                 </div>
 
@@ -288,24 +264,23 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
 
 export default function ArticleDetailPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const articleId = Number(params.id);
 
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [prevArticle, setPrevArticle] = useState<Article | null>(null);
-  const [nextArticle, setNextArticle] = useState<Article | null>(null);
+  const [nextArticle, setNextArticle] = useState<ArticleSummary | null>(null);
   const [prerequisite, setPrerequisite] = useState<ArticleSummary | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<ArticleSummary[]>([]);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!articleId) return;
 
     setLoading(true);
     setError(null);
 
-    getArticleBySlug(slug)
+    getArticleById(articleId)
       .then(setArticle)
       .catch((err) => {
         const message = err instanceof Error ? err.message : '加载文章失败';
@@ -314,10 +289,9 @@ export default function ArticleDetailPage() {
       })
       .finally(() => setLoading(false));
 
-    // Fetch adjacent articles
-    getAdjacentArticles(slug)
-      .then(({ prev, next }) => {
-        setPrevArticle(prev);
+    // Fetch next article（管理员手动配置）
+    getNextArticle(articleId)
+      .then((next) => {
         setNextArticle(next);
       })
       .catch(() => {
@@ -325,7 +299,7 @@ export default function ArticleDetailPage() {
       });
 
     // Fetch prerequisite article
-    getPrerequisiteArticle(slug)
+    getPrerequisiteArticle(articleId)
       .then((article) => {
         setPrerequisite(article);
       })
@@ -334,14 +308,14 @@ export default function ArticleDetailPage() {
       });
 
     // Fetch related articles
-    getRelatedArticles(slug)
+    getRelatedArticles(articleId)
       .then((articles) => {
         setRelatedArticles(articles);
       })
       .catch(() => {
         // Non-critical; silently ignore
       });
-  }, [slug]);
+  }, [articleId]);
 
   // ------------------------------------------------------------------
   // States: loading / error
@@ -426,7 +400,7 @@ export default function ArticleDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span className="font-display text-[13px] text-on-surface-variant">
-                      {formatDate(article.createdAt)}
+                      {formatDate(article.publishDate || article.createdAt)}
                     </span>
                   </div>
                 </div>
@@ -466,8 +440,8 @@ export default function ArticleDetailPage() {
               {/* ---- Article Body ---- */}
               <MarkdownRenderer content={article.contentMd || ''} />
 
-              {/* ---- Prev / Next Navigation ---- */}
-              <PrevNextNav prev={prevArticle} next={nextArticle} />
+              {/* ---- Next Article Navigation（管理员配置） ---- */}
+              <NextArticleNav next={nextArticle} />
             </article>
 
             {/* ================================================================ */}

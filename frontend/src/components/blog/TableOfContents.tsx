@@ -238,7 +238,7 @@ export default function TableOfContents({ content, prerequisite, relatedArticles
             前置阅读
           </p>
           <Link
-            href={`/blog/${prerequisite.slug}`}
+            href={`/blog/${prerequisite.id}`}
             className="flex items-center gap-2 text-[13px] text-secondary hover:text-secondary/80 transition-colors group"
           >
             <span className="flex-shrink-0">📖</span>
@@ -259,7 +259,7 @@ export default function TableOfContents({ content, prerequisite, relatedArticles
             {relatedArticles.slice(0, 5).map((a) => (
               <li key={a.id}>
                 <Link
-                  href={`/blog/${a.slug}`}
+                  href={`/blog/${a.id}`}
                   className="flex items-center gap-2 text-[13px] text-on-surface-variant hover:text-secondary transition-colors group"
                 >
                   <span className="flex-shrink-0 text-[11px]">🔗</span>

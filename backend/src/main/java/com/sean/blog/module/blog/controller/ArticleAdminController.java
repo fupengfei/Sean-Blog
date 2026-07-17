@@ -37,13 +37,60 @@ public class ArticleAdminController {
     public Result<Article> create(
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) List<Long> tagIds,
+            @RequestParam(value = "tags", required = false) String tagsStr,
             @RequestParam(defaultValue = "false") boolean isFeatured,
-            @RequestParam(required = false, defaultValue = "") String author) {
-        return Result.success(articleService.createFromMd(file, categoryId, tagIds, isFeatured, author));
+            @RequestParam(required = false, defaultValue = "") String author,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String publishDate) {
+        List<Long> tagIds = parseTagIds(tagsStr);
+        java.time.LocalDate pd = parsePublishDate(publishDate);
+        return Result.success(articleService.createFromMd(file, categoryId, tagIds, isFeatured, author, title, description, pd));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public Result<Article> update(
+            @PathVariable Long id,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(value = "tags", required = false) String tagsStr,
+            @RequestParam(defaultValue = "false") boolean isFeatured,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String publishDate) {
+        List<Long> tagIds = parseTagIds(tagsStr);
+        java.time.LocalDate pd = parsePublishDate(publishDate);
+        return Result.success(articleService.updateArticle(id, file, categoryId, tagIds, isFeatured, author, title, description, pd));
+    }
+
+    private java.time.LocalDate parsePublishDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return java.time.LocalDate.parse(dateStr);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private List<Long> parseTagIds(String tagsStr) {
+        if (tagsStr == null || tagsStr.trim().isEmpty()) {
+            return List.of();
+        }
+        try {
+            return java.util.Arrays.stream(tagsStr.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(Long::parseLong)
+                    .toList();
+        } catch (NumberFormatException e) {
+            return List.of();
+        }
+    }
+
+    @PutMapping("/{id}/status")
     public Result<?> updateStatus(@PathVariable Long id, @RequestParam String status) {
         articleService.updateStatus(id, status);
         return Result.success();
@@ -85,6 +132,20 @@ public class ArticleAdminController {
                                  @RequestBody Map<String, List<Long>> body) {
         List<Long> relatedIds = body.get("relatedIds");
         articleService.setRelated(id, relatedIds);
+        return Result.success();
+    }
+
+    @PutMapping("/{id}/next-article")
+    public Result<?> setNextArticle(@PathVariable Long id,
+                                     @RequestBody Map<String, Long> body) {
+        Long nextArticleId = body.get("nextArticleId");
+        articleService.setNextArticle(id, nextArticleId);
+        return Result.success();
+    }
+
+    @DeleteMapping("/{id}/next-article")
+    public Result<?> removeNextArticle(@PathVariable Long id) {
+        articleService.removeNextArticle(id);
         return Result.success();
     }
 }

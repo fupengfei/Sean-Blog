@@ -14,9 +14,9 @@
     <select id="findById" resultType="com.sean.blog.module.project.entity.Project">
         SELECT * FROM t_project WHERE id = #{id}
     </select>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_project (title, description, url, github_url, cover_image, tags, is_featured, sort_order, status)
-        VALUES (#{title}, #{description}, #{url}, #{githubUrl}, #{coverImage}, #{tags}, #{isFeatured}, #{sortOrder}, #{status})
+    <insert id="insert">
+        INSERT INTO t_project (id, title, description, url, github_url, cover_image, tags, is_featured, sort_order, status)
+        VALUES (#{id}, #{title}, #{description}, #{url}, #{githubUrl}, #{coverImage}, #{tags}, #{isFeatured}, #{sortOrder}, #{status})
     </insert>
     <update id="update">
         UPDATE t_project SET title = #{title}, description = #{description}, url = #{url},

@@ -1,6 +1,7 @@
 package com.sean.blog.module.contact.service;
 
 import com.sean.blog.common.PageResult;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.contact.entity.ContactRecord;
 import com.sean.blog.module.contact.mapper.ContactRecordMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,14 +15,17 @@ import java.util.Map;
 public class ContactService {
 
     private final ContactRecordMapper contactRecordMapper;
+    private final SnowflakeIdGenerator idGenerator;
 
-    public ContactService(ContactRecordMapper contactRecordMapper) {
+    public ContactService(ContactRecordMapper contactRecordMapper, SnowflakeIdGenerator idGenerator) {
         this.contactRecordMapper = contactRecordMapper;
+        this.idGenerator = idGenerator;
     }
 
     /** 首页商务合作 */
     public void recordBusiness(HttpServletRequest request, String companyName, String email, String content) {
         ContactRecord record = new ContactRecord();
+        record.setId(idGenerator.nextId());
         record.setType("BUSINESS");
         record.setContent(content);
         record.setCompanyName(companyName);
@@ -33,6 +37,7 @@ public class ContactService {
     /** 关于我 - 发送邮件 */
     public void recordMail(HttpServletRequest request, String email, String content) {
         ContactRecord record = new ContactRecord();
+        record.setId(idGenerator.nextId());
         record.setType("MAIL");
         record.setContent(content);
         record.setEmail(email);
@@ -43,6 +48,7 @@ public class ContactService {
     /** 获取简历 */
     public void recordResume(HttpServletRequest request, String companyName, String email) {
         ContactRecord record = new ContactRecord();
+        record.setId(idGenerator.nextId());
         record.setType("RESUME");
         record.setCompanyName(companyName);
         record.setEmail(email);
@@ -53,6 +59,7 @@ public class ContactService {
     /** 订阅 */
     public void recordSubscribe(HttpServletRequest request, String email) {
         ContactRecord record = new ContactRecord();
+        record.setId(idGenerator.nextId());
         record.setType("SUBSCRIBE");
         record.setEmail(email);
         record.setIpAddress(getIpAddress(request));

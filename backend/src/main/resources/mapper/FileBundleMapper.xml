@@ -14,9 +14,9 @@
     <select id="findById" resultType="com.sean.blog.module.file.entity.FileBundle">
         SELECT * FROM t_file_bundle WHERE id = #{id}
     </select>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_file_bundle (name, description, root_path, type, status, is_featured, file_count)
-        VALUES (#{name}, #{description}, #{rootPath}, #{type}, #{status}, #{isFeatured}, #{fileCount})
+    <insert id="insert">
+        INSERT INTO t_file_bundle (id, name, description, root_path, type, status, is_featured, file_count)
+        VALUES (#{id}, #{name}, #{description}, #{rootPath}, #{type}, #{status}, #{isFeatured}, #{fileCount})
     </insert>
     <update id="updateStatus">
         UPDATE t_file_bundle SET status = #{status} WHERE id = #{id}

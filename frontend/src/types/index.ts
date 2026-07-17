@@ -24,6 +24,7 @@ export interface Article {
   contentHtml: string;
   excerpt: string;
   author: string;
+  publishDate: string;
   coverImage: string;
   categoryId: number | null;
   status: string;
@@ -40,6 +41,7 @@ export interface ArticleSummary {
   id: number;
   title: string;
   slug: string;
+  publishDate: string;
   coverImage: string;
   excerpt: string;
   createdAt: string;
@@ -49,6 +51,7 @@ export interface ArticleSummary {
 /** 文章关联关系（Admin 编辑页初始化用） */
 export interface ArticleRelations {
   prerequisite: { id: number; title: string } | null;
+  nextArticle: { id: number; title: string } | null;
   related: { id: number; title: string }[];
 }
 

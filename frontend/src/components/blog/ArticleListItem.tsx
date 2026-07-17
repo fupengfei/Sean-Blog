@@ -17,12 +17,12 @@ function formatDate(dateStr: string): string {
 export default function ArticleListItem({ article }: ArticleListItemProps) {
   return (
     <Link
-      href={`/blog/${article.slug}`}
+      href={`/blog/${article.id}`}
       className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 p-6 rounded-lg border border-outline-variant bg-white hover:bg-surface-container-low transition-colors"
     >
       {/* Date — left column on desktop */}
       <div className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant sm:w-32 shrink-0">
-        {formatDate(article.createdAt)}
+        {formatDate(article.publishDate || article.createdAt)}
       </div>
 
       {/* Content — center */}

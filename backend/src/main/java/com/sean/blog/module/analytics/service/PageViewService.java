@@ -1,6 +1,7 @@
 package com.sean.blog.module.analytics.service;
 
 import com.sean.blog.common.BusinessException;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.analytics.dto.*;
 import com.sean.blog.module.analytics.entity.PageVisitLog;
 import com.sean.blog.module.analytics.mapper.PageViewStatMapper;
@@ -33,15 +34,18 @@ public class PageViewService {
     private final PageViewStatMapper pageViewStatMapper;
     private final PageVisitLogMapper pageVisitLogMapper;
     private final GeoLocationService geoLocationService;
+    private final SnowflakeIdGenerator idGenerator;
 
     public PageViewService(RedisTemplate<String, Object> redisTemplate,
                            PageViewStatMapper pageViewStatMapper,
                            PageVisitLogMapper pageVisitLogMapper,
-                           GeoLocationService geoLocationService) {
+                           GeoLocationService geoLocationService,
+                           SnowflakeIdGenerator idGenerator) {
         this.redisTemplate = redisTemplate;
         this.pageViewStatMapper = pageViewStatMapper;
         this.pageVisitLogMapper = pageVisitLogMapper;
         this.geoLocationService = geoLocationService;
+        this.idGenerator = idGenerator;
     }
 
     // -----------------------------------------------------------------------
@@ -64,6 +68,7 @@ public class PageViewService {
 
         // 异步插入访问日志 + 地理位置解析
         PageVisitLog logEntry = new PageVisitLog();
+        logEntry.setId(idGenerator.nextId());
         logEntry.setPageType(pageType);
         logEntry.setPageKey(pageKey);
         logEntry.setIp(ip != null ? ip : "unknown");
@@ -120,7 +125,7 @@ public class PageViewService {
                         String pageType = rest.substring(0, colonIdx);
                         String pageKey = rest.substring(colonIdx + 1);
 
-                        pageViewStatMapper.upsert(pageType, pageKey, today, delta);
+                        pageViewStatMapper.upsert(idGenerator.nextId(), pageType, pageKey, today, delta);
                     }
                 } catch (Exception e) {
                     log.debug("Flush key {} failed: {}", key, e.getMessage());

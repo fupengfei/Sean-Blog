@@ -10,7 +10,8 @@ import java.util.Map;
 @Mapper
 public interface PageViewStatMapper {
 
-    int upsert(@Param("pageType") String pageType,
+    int upsert(@Param("id") Long id,
+               @Param("pageType") String pageType,
                @Param("pageKey") String pageKey,
                @Param("day") String day,
                @Param("delta") Long delta);

@@ -1,6 +1,7 @@
 package com.sean.blog.module.file.service;
 
 import com.sean.blog.common.BusinessException;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.file.dto.FileTreeResponse;
 import com.sean.blog.module.file.entity.FileBundle;
 import com.sean.blog.module.file.entity.FileNode;
@@ -24,6 +25,7 @@ public class FileBundleService {
 
     private final FileBundleMapper bundleMapper;
     private final FileNodeMapper nodeMapper;
+    private final SnowflakeIdGenerator idGenerator;
 
     @Value("${file.upload.skills}")
     private String skillsPath;
@@ -35,8 +37,10 @@ public class FileBundleService {
 
     @Transactional
     public FileBundle uploadBundle(MultipartFile zipFile, String name, String description, String type) throws IOException {
-        // 1. Create bundle record (rootPath depends on auto-generated ID, set temporary value first)
+        // 1. Create bundle record (rootPath depends on ID, pre-generate via Snowflake)
         FileBundle bundle = new FileBundle();
+        Long bundleId = idGenerator.nextId();
+        bundle.setId(bundleId);
         bundle.setName(name);
         bundle.setDescription(description);
         bundle.setRootPath("");
@@ -45,8 +49,6 @@ public class FileBundleService {
         bundle.setIsFeatured(false);
         bundle.setFileCount(0);
         bundleMapper.insert(bundle);
-
-        Long bundleId = bundle.getId();
         String bundleDir = skillsPath + "/" + bundleId;
         bundle.setRootPath(bundleDir);
         bundleMapper.updateRootPath(bundleId, bundleDir);
@@ -125,6 +127,7 @@ public class FileBundleService {
             }
 
             FileNode node = new FileNode();
+            node.setId(idGenerator.nextId());
             node.setBundleId(bundleId);
             node.setParentId(parentId);
             node.setName(fileName);

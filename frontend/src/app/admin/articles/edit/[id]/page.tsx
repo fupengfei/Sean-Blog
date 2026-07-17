@@ -10,8 +10,11 @@ import {
   adminSetPrerequisite,
   adminRemovePrerequisite,
   adminSetRelated,
+  adminSetNextArticle,
+  adminRemoveNextArticle,
 } from '@/lib/api';
 import type { Article, ArticleRelations } from '@/types';
+import ArticleEditor from '@/components/admin/ArticleEditor';
 
 // ---------------------------------------------------------------------------
 // Article search dropdown hook
@@ -56,6 +59,8 @@ export default function AdminArticleEditPage() {
   // Relations
   const [prerequisiteId, setPrerequisiteId] = useState<number | null>(null);
   const [prerequisiteTitle, setPrerequisiteTitle] = useState('');
+  const [nextArticleId, setNextArticleId] = useState<number | null>(null);
+  const [nextArticleTitle, setNextArticleTitle] = useState('');
   const [relatedIds, setRelatedIds] = useState<number[]>([]);
   const [relatedTitles, setRelatedTitles] = useState<Map<number, string>>(
     new Map(),
@@ -73,8 +78,20 @@ export default function AdminArticleEditPage() {
 
   // Save states
   const [savingPrereq, setSavingPrereq] = useState(false);
+  const [savingNext, setSavingNext] = useState(false);
   const [savingRelated, setSavingRelated] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
+
+  // Next article search
+  const nextSearch = useArticleSearch();
+  const [nextOpen, setNextOpen] = useState(false);
+  const [nextQuery, setNextQuery] = useState('');
+  const nextFiltered = nextSearch.results.filter(
+    (a) => a.id !== id,
+  );
+
+  // Tab: content vs relations
+  const [activeTab, setActiveTab] = useState<'content' | 'relations'>('content');
 
   // Pre-filtered dropdown results
   const prereqFiltered = prereqSearch.results.filter((a) => a.id !== id);
@@ -102,6 +119,11 @@ export default function AdminArticleEditPage() {
         if (rels.prerequisite) {
           setPrerequisiteId(rels.prerequisite.id);
           setPrerequisiteTitle(rels.prerequisite.title);
+        }
+        // Next article
+        if (rels.nextArticle) {
+          setNextArticleId(rels.nextArticle.id);
+          setNextArticleTitle(rels.nextArticle.title);
         }
         // Related
         const ids = rels.related.map((r) => r.id);
@@ -137,6 +159,23 @@ export default function AdminArticleEditPage() {
     }
   };
 
+  const handleSaveNextArticle = async () => {
+    setSavingNext(true);
+    setSaveMsg('');
+    try {
+      if (nextArticleId) {
+        await adminSetNextArticle(id, nextArticleId);
+      } else {
+        await adminRemoveNextArticle(id);
+      }
+      setSaveMsg('下一篇已保存');
+    } catch (err) {
+      setSaveMsg(err instanceof Error ? err.message : '保存失败');
+    } finally {
+      setSavingNext(false);
+    }
+  };
+
   const handleSaveRelated = async () => {
     setSavingRelated(true);
     setSaveMsg('');
@@ -154,6 +193,7 @@ export default function AdminArticleEditPage() {
   useEffect(() => {
     const handler = () => {
       setPrereqOpen(false);
+      setNextOpen(false);
       setRelatedOpen(false);
     };
     document.addEventListener('click', handler);
@@ -201,227 +241,357 @@ export default function AdminArticleEditPage() {
           文章管理
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-on-surface">编辑关联</span>
+        <span className="text-on-surface">编辑文章</span>
       </div>
 
       <h1 className="text-2xl font-display font-semibold text-on-surface mb-8">
-        编辑文章关联
+        编辑文章
       </h1>
 
-      {/* Article info card */}
-      <div className="mb-8 p-5 rounded-xl border border-outline-variant bg-surface-container-low">
-        <p className="font-display text-[15px] font-semibold text-primary mb-2">
-          {article.title}
-        </p>
-        <div className="flex items-center gap-3 text-[13px] text-on-surface-variant">
-          <span>{article.author || 'Sean'}</span>
-          <span>·</span>
-          <span>{article.status}</span>
-          <span>·</span>
-          <span>{article.category?.name || '未分类'}</span>
-        </div>
+      {/* Tab switcher */}
+      <div className="mb-8 flex gap-0 border-b border-outline-variant">
+        <button
+          onClick={() => setActiveTab('content')}
+          className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'content'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-on-surface-variant hover:text-on-surface'
+          }`}
+        >
+          文章内容
+        </button>
+        <button
+          onClick={() => setActiveTab('relations')}
+          className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'relations'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-on-surface-variant hover:text-on-surface'
+          }`}
+        >
+          文章关联
+        </button>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Prerequisite                                                   */}
-      {/* ------------------------------------------------------------------ */}
+      {/* Content Tab */}
+      {activeTab === 'content' && (
+        <div className="bg-white rounded-lg p-6 border border-outline-variant">
+          <ArticleEditor
+            onSuccess={() => {
+              // Refresh the page to show updated data
+              router.refresh();
+              window.location.reload();
+            }}
+            article={article}
+          />
+        </div>
+      )}
 
-      <section className="mb-10 p-6 rounded-xl border border-outline-variant">
-        <h2 className="font-display text-[16px] font-semibold text-primary mb-4">
-          前置文章
-        </h2>
-        <p className="text-[13px] text-on-surface-variant mb-4">
-          设置后，文章详情页顶部将提示读者先阅读前置文章。留空则不显示。
-        </p>
-
-        {/* Current / selected */}
-        {prerequisiteId && prerequisiteTitle ? (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-primary font-medium">
-              📖 {prerequisiteTitle}
-            </span>
-            <button
-              onClick={() => {
-                setPrerequisiteId(null);
-                setPrerequisiteTitle('');
-                setPrereqQuery('');
-              }}
-              className="text-xs text-red-500 hover:text-red-600 ml-2"
-            >
-              清除
-            </button>
+      {/* Relations Tab */}
+      {activeTab === 'relations' && (
+        <>
+          {/* Article info card */}
+          <div className="mb-8 p-5 rounded-xl border border-outline-variant bg-surface-container-low">
+            <p className="font-display text-[15px] font-semibold text-primary mb-2">
+              {article.title}
+            </p>
+            <div className="flex items-center gap-3 text-[13px] text-on-surface-variant">
+              <span>{article.author || 'Sean'}</span>
+              <span>·</span>
+              <span>{article.status === 'PUBLISHED' ? '已发布' : '草稿'}</span>
+              <span>·</span>
+              <span>{article.category?.name || '未分类'}</span>
+            </div>
           </div>
-        ) : (
-          <p className="text-[13px] text-on-surface-variant/60 mb-3">
-            未设置前置文章
-          </p>
-        )}
 
-        {/* Search dropdown */}
-        {!prerequisiteId && (
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <input
-              type="text"
-              value={prereqQuery}
-              onChange={(e) => {
-                setPrereqQuery(e.target.value);
-                prereqSearch.search(e.target.value);
-                setPrereqOpen(true);
-              }}
-              onFocus={() => setPrereqOpen(true)}
-              placeholder="搜索文章..."
-              className="w-full border border-outline-variant rounded px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-            />
-            {prereqOpen &&
-              (prereqSearch.results.length > 0 || prereqSearch.searching) && (
-                <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                  {prereqSearch.searching ? (
-                    <p className="px-4 py-2 text-sm text-on-surface-variant/60">
-                      搜索中...
-                    </p>
-                  ) : (
-                    prereqFiltered.map((a) => (
-                      <button
-                        key={a.id}
-                        onClick={() => {
-                          setPrerequisiteId(a.id);
-                          setPrerequisiteTitle(a.title);
-                          setPrereqQuery('');
-                          setPrereqOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                      >
-                        {a.title}
-                      </button>
-                    )))}
-                </div>
-              )}
-          </div>
-        )}
+          {/* ------------------------------------------------------------------ */}
+          {/* Prerequisite                                                   */}
+          {/* ------------------------------------------------------------------ */}
 
-        {/* Save button */}
-        <button
-          onClick={handleSavePrerequisite}
-          disabled={savingPrereq}
-          className="mt-4 px-5 py-2 rounded bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          {savingPrereq ? '保存中...' : '保存前置文章'}
-        </button>
-      </section>
+          <section className="mb-10 p-6 rounded-xl border border-outline-variant">
+            <h2 className="font-display text-[16px] font-semibold text-primary mb-4">
+              前置文章
+            </h2>
+            <p className="text-[13px] text-on-surface-variant mb-4">
+              设置后，文章详情页顶部将提示读者先阅读前置文章。留空则不显示。
+            </p>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Related Articles                                               */}
-      {/* ------------------------------------------------------------------ */}
-
-      <section className="mb-10 p-6 rounded-xl border border-outline-variant">
-        <h2 className="font-display text-[16px] font-semibold text-primary mb-4">
-          相关文章
-        </h2>
-        <p className="text-[13px] text-on-surface-variant mb-4">
-          关联文章会显示在文章详情页底部的「相关文章」区域。关系是双向的。
-        </p>
-
-        {/* Current related */}
-        {relatedIds.length > 0 ? (
-          <div className="space-y-2 mb-4">
-            {relatedIds.map((rid) => (
-              <div
-                key={rid}
-                className="flex items-center justify-between px-3 py-2 rounded border border-outline-variant bg-surface-container-low"
-              >
-                <span className="text-sm text-primary">
-                  {relatedTitles.get(rid) || `文章 #${rid}`}
+            {/* Current / selected */}
+            {prerequisiteId && prerequisiteTitle ? (
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm text-primary font-medium">
+                  📖 {prerequisiteTitle}
                 </span>
                 <button
                   onClick={() => {
-                    setRelatedIds((prev) => prev.filter((x) => x !== rid));
-                    setRelatedTitles((prev) => {
-                      const next = new Map(prev);
-                      next.delete(rid);
-                      return next;
-                    });
+                    setPrerequisiteId(null);
+                    setPrerequisiteTitle('');
+                    setPrereqQuery('');
                   }}
-                  className="text-xs text-red-500 hover:text-red-600"
+                  className="text-xs text-red-500 hover:text-red-600 ml-2"
                 >
-                  移除
+                  清除
                 </button>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-[13px] text-on-surface-variant/60 mb-3">
-            未设置相关文章
-          </p>
-        )}
+            ) : (
+              <p className="text-[13px] text-on-surface-variant/60 mb-3">
+                未设置前置文章
+              </p>
+            )}
 
-        {/* Search + add */}
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <input
-            type="text"
-            value={relatedQuery}
-            onChange={(e) => {
-              setRelatedQuery(e.target.value);
-              relatedSearch.search(e.target.value);
-              setRelatedOpen(true);
-            }}
-            onFocus={() => setRelatedOpen(true)}
-            placeholder="搜索文章并添加..."
-            className="w-full border border-outline-variant rounded px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-          />
-          {relatedOpen &&
-            (relatedSearch.results.length > 0 || relatedSearch.searching) && (
-              <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                {relatedSearch.searching ? (
-                  <p className="px-4 py-2 text-sm text-on-surface-variant/60">
-                    搜索中...
-                  </p>
-                ) : (
-                    relatedFiltered.map((a) => (
-                      <button
-                        key={a.id}
-                        onClick={() => {
-                          setRelatedIds((prev) => [...prev, a.id]);
-                          setRelatedTitles((prev) => {
-                            const next = new Map(prev);
-                            next.set(a.id, a.title);
-                            return next;
-                          });
-                          setRelatedQuery('');
-                          setRelatedOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                      >
-                        {a.title}
-                      </button>
-                    )))}
+            {/* Search dropdown */}
+            {!prerequisiteId && (
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="text"
+                  value={prereqQuery}
+                  onChange={(e) => {
+                    setPrereqQuery(e.target.value);
+                    prereqSearch.search(e.target.value);
+                    setPrereqOpen(true);
+                  }}
+                  onFocus={() => setPrereqOpen(true)}
+                  placeholder="搜索文章..."
+                  className="w-full border border-outline-variant rounded px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+                {prereqOpen &&
+                  (prereqSearch.results.length > 0 || prereqSearch.searching) && (
+                    <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      {prereqSearch.searching ? (
+                        <p className="px-4 py-2 text-sm text-on-surface-variant/60">
+                          搜索中...
+                        </p>
+                      ) : (
+                        prereqFiltered.map((a) => (
+                          <button
+                            key={a.id}
+                            onClick={() => {
+                              setPrerequisiteId(a.id);
+                              setPrerequisiteTitle(a.title);
+                              setPrereqQuery('');
+                              setPrereqOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
+                          >
+                            {a.title}
+                          </button>
+                        )))}
+                    </div>
+                  )}
               </div>
             )}
-        </div>
 
-        {/* Save button */}
-        <button
-          onClick={handleSaveRelated}
-          disabled={savingRelated}
-          className="mt-4 px-5 py-2 rounded bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          {savingRelated ? '保存中...' : '保存相关文章'}
-        </button>
-      </section>
+            {/* Save button */}
+            <button
+              onClick={handleSavePrerequisite}
+              disabled={savingPrereq}
+              className="mt-4 px-5 py-2 rounded bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {savingPrereq ? '保存中...' : '保存前置文章'}
+            </button>
+          </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Save message                                                   */}
-      {/* ------------------------------------------------------------------ */}
+          {/* ------------------------------------------------------------------ */}
+          {/* Next Article                                                  */}
+          {/* ------------------------------------------------------------------ */}
 
-      {saveMsg && (
-        <div
-          className={`text-sm px-4 py-3 rounded mb-6 ${
-            saveMsg.includes('失败')
-              ? 'text-red-600 bg-red-50 border border-red-200'
-              : 'text-green-700 bg-green-50 border border-green-200'
-          }`}
-        >
-          {saveMsg}
-        </div>
+          <section className="mb-10 p-6 rounded-xl border border-outline-variant">
+            <h2 className="font-display text-[16px] font-semibold text-primary mb-4">
+              下一篇
+            </h2>
+            <p className="text-[13px] text-on-surface-variant mb-4">
+              设置后，文章详情页底部将显示「下一篇」导航链接。留空则不显示。
+            </p>
+
+            {/* Current / selected */}
+            {nextArticleId && nextArticleTitle ? (
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm text-primary font-medium">
+                  📄 {nextArticleTitle}
+                </span>
+                <button
+                  onClick={() => {
+                    setNextArticleId(null);
+                    setNextArticleTitle('');
+                    setNextQuery('');
+                  }}
+                  className="text-xs text-red-500 hover:text-red-600 ml-2"
+                >
+                  清除
+                </button>
+              </div>
+            ) : (
+              <p className="text-[13px] text-on-surface-variant/60 mb-3">
+                未设置下一篇
+              </p>
+            )}
+
+            {/* Search dropdown */}
+            {!nextArticleId && (
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="text"
+                  value={nextQuery}
+                  onChange={(e) => {
+                    setNextQuery(e.target.value);
+                    nextSearch.search(e.target.value);
+                    setNextOpen(true);
+                  }}
+                  onFocus={() => setNextOpen(true)}
+                  placeholder="搜索文章..."
+                  className="w-full border border-outline-variant rounded px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+                {nextOpen &&
+                  (nextSearch.results.length > 0 || nextSearch.searching) && (
+                    <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      {nextSearch.searching ? (
+                        <p className="px-4 py-2 text-sm text-on-surface-variant/60">
+                          搜索中...
+                        </p>
+                      ) : (
+                        nextFiltered.map((a) => (
+                          <button
+                            key={a.id}
+                            onClick={() => {
+                              setNextArticleId(a.id);
+                              setNextArticleTitle(a.title);
+                              setNextQuery('');
+                              setNextOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
+                          >
+                            {a.title}
+                          </button>
+                        )))}
+                    </div>
+                  )}
+              </div>
+            )}
+
+            {/* Save button */}
+            <button
+              onClick={handleSaveNextArticle}
+              disabled={savingNext}
+              className="mt-4 px-5 py-2 rounded bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {savingNext ? '保存中...' : '保存下一篇'}
+            </button>
+          </section>
+
+          {/* ------------------------------------------------------------------ */}
+          {/* Related Articles                                               */}
+          {/* ------------------------------------------------------------------ */}
+
+          <section className="mb-10 p-6 rounded-xl border border-outline-variant">
+            <h2 className="font-display text-[16px] font-semibold text-primary mb-4">
+              相关文章
+            </h2>
+            <p className="text-[13px] text-on-surface-variant mb-4">
+              关联文章会显示在文章详情页底部的「相关文章」区域。关系是双向的。
+            </p>
+
+            {/* Current related */}
+            {relatedIds.length > 0 ? (
+              <div className="space-y-2 mb-4">
+                {relatedIds.map((rid) => (
+                  <div
+                    key={rid}
+                    className="flex items-center justify-between px-3 py-2 rounded border border-outline-variant bg-surface-container-low"
+                  >
+                    <span className="text-sm text-primary">
+                      {relatedTitles.get(rid) || `文章 #${rid}`}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setRelatedIds((prev) => prev.filter((x) => x !== rid));
+                        setRelatedTitles((prev) => {
+                          const next = new Map(prev);
+                          next.delete(rid);
+                          return next;
+                        });
+                      }}
+                      className="text-xs text-red-500 hover:text-red-600"
+                    >
+                      移除
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[13px] text-on-surface-variant/60 mb-3">
+                未设置相关文章
+              </p>
+            )}
+
+            {/* Search + add */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <input
+                type="text"
+                value={relatedQuery}
+                onChange={(e) => {
+                  setRelatedQuery(e.target.value);
+                  relatedSearch.search(e.target.value);
+                  setRelatedOpen(true);
+                }}
+                onFocus={() => setRelatedOpen(true)}
+                placeholder="搜索文章并添加..."
+                className="w-full border border-outline-variant rounded px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+              {relatedOpen &&
+                (relatedSearch.results.length > 0 || relatedSearch.searching) && (
+                  <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {relatedSearch.searching ? (
+                      <p className="px-4 py-2 text-sm text-on-surface-variant/60">
+                        搜索中...
+                      </p>
+                    ) : (
+                        relatedFiltered.map((a) => (
+                          <button
+                            key={a.id}
+                            onClick={() => {
+                              setRelatedIds((prev) => [...prev, a.id]);
+                              setRelatedTitles((prev) => {
+                                const next = new Map(prev);
+                                next.set(a.id, a.title);
+                                return next;
+                              });
+                              setRelatedQuery('');
+                              setRelatedOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
+                          >
+                            {a.title}
+                          </button>
+                        )))}
+                  </div>
+                )}
+            </div>
+
+            {/* Save button */}
+            <button
+              onClick={handleSaveRelated}
+              disabled={savingRelated}
+              className="mt-4 px-5 py-2 rounded bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {savingRelated ? '保存中...' : '保存相关文章'}
+            </button>
+          </section>
+
+          {/* ------------------------------------------------------------------ */}
+          {/* Save message                                                   */}
+          {/* ------------------------------------------------------------------ */}
+
+          {saveMsg && (
+            <div
+              className={`text-sm px-4 py-3 rounded mb-6 ${
+                saveMsg.includes('失败')
+                  ? 'text-red-600 bg-red-50 border border-red-200'
+                  : 'text-green-700 bg-green-50 border border-green-200'
+              }`}
+            >
+              {saveMsg}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

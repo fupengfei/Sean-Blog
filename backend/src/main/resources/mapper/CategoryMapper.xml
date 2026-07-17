@@ -11,8 +11,8 @@
     <select id="findBySlug" resultType="com.sean.blog.module.blog.entity.Category">
         SELECT id, name, slug, created_at, updated_at FROM t_category WHERE slug = #{slug}
     </select>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_category (name, slug) VALUES (#{name}, #{slug})
+    <insert id="insert">
+        INSERT INTO t_category (id, name, slug) VALUES (#{id}, #{name}, #{slug})
     </insert>
     <update id="update">
         UPDATE t_category SET name = #{name}, slug = #{slug} WHERE id = #{id}

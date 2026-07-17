@@ -33,19 +33,29 @@ public class ArticlePublicController {
         return Result.success(articleService.getFeatured(limit));
     }
 
-    @GetMapping("/articles/{slug}")
-    public Result<Article> getBySlug(@PathVariable String slug) {
-        return Result.success(articleService.getBySlug(slug));
+    @GetMapping("/articles/{id}")
+    public Result<Article> getById(@PathVariable Long id) {
+        return Result.success(articleService.getPublishedById(id));
     }
 
-    @GetMapping("/articles/{slug}/prerequisite")
-    public Result<Article> getPrerequisite(@PathVariable String slug) {
-        Article prerequisite = articleService.getPrerequisite(slug);
+    @GetMapping("/articles/{id}/prerequisite")
+    public Result<Article> getPrerequisite(@PathVariable Long id) {
+        Article article = articleService.getPublishedById(id);
+        if (article.getPrerequisiteId() == null) {
+            return Result.success(null);
+        }
+        Article prerequisite = articleService.getPrerequisiteByArticleId(article.getPrerequisiteId());
         return Result.success(prerequisite);
     }
 
-    @GetMapping("/articles/{slug}/related")
-    public Result<List<Article>> getRelated(@PathVariable String slug) {
-        return Result.success(articleService.getRelated(slug));
+    @GetMapping("/articles/{id}/related")
+    public Result<List<Article>> getRelated(@PathVariable Long id) {
+        return Result.success(articleService.getRelatedById(id));
+    }
+
+    @GetMapping("/articles/{id}/next")
+    public Result<Article> getNext(@PathVariable Long id) {
+        Article next = articleService.getNextArticle(id);
+        return Result.success(next);
     }
 }

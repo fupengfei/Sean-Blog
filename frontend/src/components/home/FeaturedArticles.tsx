@@ -87,7 +87,7 @@ export default function FeaturedArticles() {
                   {/* Date + Author */}
                   <div className="flex flex-col w-32 shrink-0 mb-2 md:mb-0">
                     <div className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant">
-                      {formatDate(article.createdAt)}
+                      {formatDate(article.publishDate || article.createdAt)}
                     </div>
                     {article.author && (
                       <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-0.5">
@@ -102,7 +102,7 @@ export default function FeaturedArticles() {
                   {/* Content */}
                   <div className="flex-grow">
                     <h3 className="text-xl font-semibold text-primary group-hover:text-secondary transition-colors mb-2">
-                      <Link href={`/blog/${article.slug}`}>
+                      <Link href={`/blog/${article.id}`}>
                         {article.title}
                       </Link>
                     </h3>

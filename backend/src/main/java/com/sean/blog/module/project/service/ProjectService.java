@@ -1,6 +1,7 @@
 package com.sean.blog.module.project.service;
 
 import com.sean.blog.common.BusinessException;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.project.entity.Project;
 import com.sean.blog.module.project.mapper.ProjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,11 +19,14 @@ import java.util.UUID;
 public class ProjectService {
 
     private final ProjectMapper projectMapper;
+    private final SnowflakeIdGenerator idGenerator;
     private final String imagesPath;
 
     public ProjectService(ProjectMapper projectMapper,
+                          SnowflakeIdGenerator idGenerator,
                           @Value("${file.upload.images}") String imagesPath) {
         this.projectMapper = projectMapper;
+        this.idGenerator = idGenerator;
         this.imagesPath = imagesPath;
     }
 
@@ -54,6 +58,7 @@ public class ProjectService {
         }
 
         Project project = new Project();
+        project.setId(idGenerator.nextId());
         project.setTitle(title);
         project.setDescription(description);
         project.setUrl(url);

@@ -212,7 +212,9 @@
       "Bash(curl -s \"http://localhost:3000/api/v1/articles\")",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Articles: {d[\\\\\"data\\\\\"][\\\\\"total\\\\\"]}'\\)\")",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Article: {d[\\\\\"data\\\\\"][\\\\\"title\\\\\"]}'\\)\")",
-      "Bash(open \"http://localhost:3000/admin/articles/edit/1\")"
+      "Bash(open \"http://localhost:3000/admin/articles/edit/1\")",
+      "Bash(open \"http://localhost:3000/blog/spring-security-%E5%AE%9E%E6%88%98-1784263216860\")",
+      "Bash(mv /Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/blog/\\\\[slug\\\\] /Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/blog/\\\\[id\\\\])"
     ],
     "additionalDirectories": [
       "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/blog",
@@ -222,7 +224,8 @@
       "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/resources/db/migration",
       "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/resources",
       "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/java/com/sean/blog/module/blog/mapper",
-      "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/admin/articles/edit"
+      "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/admin/articles/edit",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/blog/[slug]"
     ]
   }
 }

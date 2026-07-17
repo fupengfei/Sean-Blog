@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sean.blog.module.contact.mapper.ContactRecordMapper">
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_contact_record (type, content, company_name, email, ip_address)
-        VALUES (#{type}, #{content}, #{companyName}, #{email}, #{ipAddress})
+    <insert id="insert">
+        INSERT INTO t_contact_record (id, type, content, company_name, email, ip_address)
+        VALUES (#{id}, #{type}, #{content}, #{companyName}, #{email}, #{ipAddress})
     </insert>
     <select id="findAll" resultType="com.sean.blog.module.contact.entity.ContactRecord">
         SELECT * FROM t_contact_record

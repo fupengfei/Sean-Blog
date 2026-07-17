@@ -17,7 +17,7 @@ function formatDate(dateStr: string): string {
 export default function ArticleCard({ article }: ArticleCardProps) {
   return (
     <Link
-      href={`/blog/${article.slug}`}
+      href={`/blog/${article.id}`}
       className="group rounded-lg border border-outline-variant bg-white overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
     >
       {/* Optional cover image */}
@@ -40,7 +40,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             </span>
           )}
           <span className="text-xs text-on-surface-variant/60">
-            {formatDate(article.createdAt)}
+            {formatDate(article.publishDate || article.createdAt)}
           </span>
           {article.author && (
             <span className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50">

@@ -22,10 +22,6 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
     label: "已发布",
     className: "bg-green-100 text-green-800 border border-green-200",
   },
-  DELETED: {
-    label: "已删除",
-    className: "bg-red-100 text-red-800 border border-red-200",
-  },
 };
 
 function formatDate(dateStr: string): string {
@@ -168,7 +164,7 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
                     )}
                   </td>
                   <td className="py-3 px-4 text-sm font-ui text-on-surface-variant">
-                    {formatDate(article.createdAt)}
+                    {formatDate(article.publishDate || article.createdAt)}
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
@@ -205,15 +201,13 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
                             : "精选"}
                       </button>
 
-                      {article.status !== "DELETED" && (
-                        <button
-                          onClick={() => setDeleteConfirm(article.id)}
-                          disabled={isLoading}
-                          className="text-xs px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          删除
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setDeleteConfirm(article.id)}
+                        disabled={isLoading}
+                        className="text-xs px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        删除
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -238,7 +232,7 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
               确认删除
             </h3>
             <p className="text-sm text-on-surface-variant font-ui mb-6">
-              删除后文章将标记为已删除状态，确定要删除吗？
+              删除后文章将被逻辑删除，不可再访问。关联的文件资源将被物理删除，此操作不可恢复。
             </p>
             <div className="flex justify-end gap-3">
               <button

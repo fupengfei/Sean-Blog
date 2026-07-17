@@ -3,9 +3,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sean.blog.module.blog.mapper.ArticleRelatedMapper">
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_article_related (article_id, related_article_id, created_by, created_at, updated_by, updated_at)
-        VALUES (#{articleId}, #{relatedArticleId}, #{createdBy}, NOW(), #{updatedBy}, NOW())
+    <insert id="insert">
+        INSERT INTO t_article_related (id, article_id, related_article_id, created_by, created_at, updated_by, updated_at)
+        VALUES (#{id}, #{articleId}, #{relatedArticleId}, #{createdBy}, NOW(), #{updatedBy}, NOW())
         ON DUPLICATE KEY UPDATE is_deleted = 0, updated_by = VALUES(updated_by), updated_at = NOW()
     </insert>
 

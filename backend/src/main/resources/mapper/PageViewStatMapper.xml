@@ -4,8 +4,8 @@
 <mapper namespace="com.sean.blog.module.analytics.mapper.PageViewStatMapper">
 
     <insert id="upsert">
-        INSERT INTO t_page_view_stat (page_type, page_key, day, cnt)
-        VALUES (#{pageType}, #{pageKey}, #{day}, #{delta})
+        INSERT INTO t_page_view_stat (id, page_type, page_key, day, cnt)
+        VALUES (#{id}, #{pageType}, #{pageKey}, #{day}, #{delta})
         ON DUPLICATE KEY UPDATE cnt = cnt + #{delta}
     </insert>
 

@@ -11,9 +11,11 @@
         <result property="contentHtml" column="content_html"/>
         <result property="excerpt" column="excerpt"/>
         <result property="author" column="author"/>
+        <result property="publishDate" column="publish_date"/>
         <result property="coverImage" column="cover_image"/>
         <result property="categoryId" column="category_id"/>
         <result property="prerequisiteId" column="prerequisite_id"/>
+        <result property="nextArticleId" column="next_article_id"/>
         <result property="status" column="status"/>
         <result property="isFeatured" column="is_featured"/>
         <result property="viewCount" column="view_count"/>
@@ -31,15 +33,15 @@
         </collection>
     </resultMap>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_article (title, slug, content_md, content_html, excerpt, author, cover_image, category_id, status, is_featured)
-        VALUES (#{title}, #{slug}, #{contentMd}, #{contentHtml}, #{excerpt}, #{author}, #{coverImage}, #{categoryId}, #{status}, #{isFeatured})
+    <insert id="insert">
+        INSERT INTO t_article (id, title, slug, content_md, content_html, excerpt, author, publish_date, cover_image, category_id, status, is_featured)
+        VALUES (#{id}, #{title}, #{slug}, #{contentMd}, #{contentHtml}, #{excerpt}, #{author}, #{publishDate}, #{coverImage}, #{categoryId}, #{status}, #{isFeatured})
     </insert>
 
     <update id="update">
         UPDATE t_article SET title = #{title}, slug = #{slug}, content_md = #{contentMd},
-            content_html = #{contentHtml}, excerpt = #{excerpt}, author = #{author}, cover_image = #{coverImage},
-            category_id = #{categoryId}, is_featured = #{isFeatured}, updated_at = NOW()
+            content_html = #{contentHtml}, excerpt = #{excerpt}, author = #{author}, publish_date = #{publishDate},
+            cover_image = #{coverImage}, category_id = #{categoryId}, is_featured = #{isFeatured}, updated_at = NOW()
         WHERE id = #{id}
     </update>
 
@@ -73,6 +75,16 @@
         LEFT JOIN t_article_tag at ON a.id = at.article_id
         LEFT JOIN t_tag t ON at.tag_id = t.id
         WHERE a.id = #{id}
+    </select>
+
+    <select id="findPublishedById" resultMap="articleDetail">
+        SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+               t.id as tag_id, t.name as tag_name, t.slug as tag_slug
+        FROM t_article a
+        LEFT JOIN t_category c ON a.category_id = c.id
+        LEFT JOIN t_article_tag at ON a.id = at.article_id
+        LEFT JOIN t_tag t ON at.tag_id = t.id
+        WHERE a.id = #{id} AND a.status = 'PUBLISHED'
     </select>
 
     <select id="findPublished" resultMap="articleDetail">
@@ -120,8 +132,9 @@
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
         <where>
+            a.status != 'DELETED'
             <if test="keyword != null and keyword != ''">
-                (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+                AND (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
         ORDER BY a.created_at DESC
@@ -131,8 +144,9 @@
     <select id="countAll" resultType="long">
         SELECT COUNT(DISTINCT a.id) FROM t_article a
         <where>
+            a.status != 'DELETED'
             <if test="keyword != null and keyword != ''">
-                (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+                AND (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
     </select>
@@ -152,6 +166,16 @@
 
     <update id="clearPrerequisite">
         UPDATE t_article SET prerequisite_id = NULL, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="setNextArticle">
+        UPDATE t_article SET next_article_id = #{nextArticleId}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearNextArticle">
+        UPDATE t_article SET next_article_id = NULL, updated_at = NOW()
         WHERE id = #{id}
     </update>
 

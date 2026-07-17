@@ -2,6 +2,7 @@ package com.sean.blog.config;
 
 import com.sean.blog.module.auth.entity.AdminUser;
 import com.sean.blog.module.auth.mapper.AdminUserMapper;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final AdminUserMapper adminUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SnowflakeIdGenerator idGenerator;
 
     @Value("${admin.username:admin}")
     private String adminUsername;
@@ -28,9 +30,11 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${admin.password:}")
     private String adminPassword;
 
-    public DataInitializer(AdminUserMapper adminUserMapper, PasswordEncoder passwordEncoder) {
+    public DataInitializer(AdminUserMapper adminUserMapper, PasswordEncoder passwordEncoder,
+                           SnowflakeIdGenerator idGenerator) {
         this.adminUserMapper = adminUserMapper;
         this.passwordEncoder = passwordEncoder;
+        this.idGenerator = idGenerator;
     }
 
     @Override
@@ -51,6 +55,7 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         AdminUser admin = new AdminUser();
+        admin.setId(idGenerator.nextId());
         admin.setUsername(adminUsername);
         admin.setPasswordHash(passwordEncoder.encode(adminPassword));
         adminUserMapper.insert(admin);

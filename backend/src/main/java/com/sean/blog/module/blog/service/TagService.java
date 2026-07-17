@@ -1,5 +1,6 @@
 package com.sean.blog.module.blog.service;
 import com.sean.blog.common.BusinessException;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.blog.entity.Tag;
 import com.sean.blog.module.blog.mapper.TagMapper;
 import org.springframework.stereotype.Service;
@@ -8,12 +9,17 @@ import java.util.List;
 @Service
 public class TagService {
     private final TagMapper tagMapper;
-    public TagService(TagMapper tagMapper) { this.tagMapper = tagMapper; }
+    private final SnowflakeIdGenerator idGenerator;
+    public TagService(TagMapper tagMapper, SnowflakeIdGenerator idGenerator) {
+        this.tagMapper = tagMapper;
+        this.idGenerator = idGenerator;
+    }
     public List<Tag> findAll() { return tagMapper.findAll(); }
 
     public Tag create(String name, String slug) {
         if (tagMapper.existsByName(name)) throw new BusinessException("标签已存在");
         Tag tag = new Tag();
+        tag.setId(idGenerator.nextId());
         tag.setName(name); tag.setSlug(slug);
         tagMapper.insert(tag);
         return tag;

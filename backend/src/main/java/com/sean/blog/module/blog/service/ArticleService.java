@@ -2,6 +2,7 @@ package com.sean.blog.module.blog.service;
 
 import com.sean.blog.common.BusinessException;
 import com.sean.blog.common.PageResult;
+import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.blog.entity.Article;
 import com.sean.blog.module.blog.entity.ArticleRelated;
 import com.sean.blog.module.blog.mapper.ArticleMapper;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ public class ArticleService {
 
     private final ArticleMapper articleMapper;
     private final ArticleRelatedMapper articleRelatedMapper;
+    private final SnowflakeIdGenerator idGenerator;
     private final String articlesPath;
     private final Parser parser;
     private final HtmlRenderer renderer;
@@ -40,15 +43,19 @@ public class ArticleService {
 
     public ArticleService(ArticleMapper articleMapper,
                           ArticleRelatedMapper articleRelatedMapper,
+                          SnowflakeIdGenerator idGenerator,
                           @Value("${file.upload.articles}") String articlesPath) {
         this.articleMapper = articleMapper;
         this.articleRelatedMapper = articleRelatedMapper;
+        this.idGenerator = idGenerator;
         this.articlesPath = articlesPath;
         this.parser = Parser.builder().build();
         this.renderer = HtmlRenderer.builder().build();
     }
 
-    public Article createFromMd(MultipartFile file, Long categoryId, List<Long> tagIds, boolean isFeatured, String author) {
+    public Article createFromMd(MultipartFile file, Long categoryId, List<Long> tagIds,
+                                  boolean isFeatured, String author, String title, String description,
+                                  LocalDate publishDate) {
         String contentMd;
         try {
             contentMd = new String(file.getBytes(), StandardCharsets.UTF_8);
@@ -56,7 +63,10 @@ public class ArticleService {
             throw new BusinessException("读取文件失败");
         }
 
-        String title = extractTitle(contentMd);
+        // 如果没填标题，从 MD 中提取
+        if (title == null || title.trim().isEmpty()) {
+            title = extractTitle(contentMd);
+        }
         if (title == null) {
             title = file.getOriginalFilename();
             if (title != null && title.toLowerCase().endsWith(".md")) {
@@ -67,16 +77,25 @@ public class ArticleService {
         Node document = parser.parse(contentMd);
         String contentHtml = renderer.render(document);
 
-        String excerpt = extractExcerpt(contentMd);
+        // 如果没填描述，从 MD 中自动生成
+        String excerpt;
+        if (description != null && !description.trim().isEmpty()) {
+            excerpt = description.trim();
+        } else {
+            excerpt = extractExcerpt(contentMd);
+        }
+
         String slug = generateSlug(title);
 
         Article article = new Article();
+        article.setId(idGenerator.nextId());
         article.setTitle(title);
         article.setSlug(slug);
         article.setContentMd(contentMd);
         article.setContentHtml(contentHtml);
         article.setExcerpt(excerpt);
         article.setAuthor(author);
+        article.setPublishDate(publishDate != null ? publishDate : LocalDate.now());
         article.setCategoryId(categoryId);
         article.setStatus("DRAFT");
         article.setIsFeatured(isFeatured);
@@ -102,8 +121,93 @@ public class ArticleService {
         return article;
     }
 
+    @Transactional
+    public Article updateArticle(Long id, MultipartFile file, Long categoryId, List<Long> tagIds,
+                                  boolean isFeatured, String author, String title, String description,
+                                  LocalDate publishDate) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+
+        String contentMd = article.getContentMd();
+        String contentHtml = article.getContentHtml();
+
+        // 如果上传了新 MD 文件，替换内容并物理删除旧文件
+        if (file != null && !file.isEmpty()) {
+            try {
+                contentMd = new String(file.getBytes(), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new BusinessException("读取文件失败");
+            }
+
+            Node document = parser.parse(contentMd);
+            contentHtml = renderer.render(document);
+
+            // 物理删除旧文件
+            Path articleDir = Paths.get(articlesPath, id.toString());
+            Path oldMdFile = articleDir.resolve("article.md");
+            try {
+                Files.deleteIfExists(oldMdFile);
+            } catch (IOException e) {
+                // 删除失败不阻塞，日志记录
+            }
+
+            // 写入新文件
+            try {
+                Files.createDirectories(articleDir);
+                Files.writeString(oldMdFile, contentMd, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new BusinessException("保存文件失败");
+            }
+        }
+
+        // 更新标题
+        if (title != null && !title.trim().isEmpty()) {
+            article.setTitle(title.trim());
+        }
+
+        // 更新描述
+        if (description != null && !description.trim().isEmpty()) {
+            article.setExcerpt(description.trim());
+        } else if (file != null && !file.isEmpty()) {
+            // 重新上传了 MD 但没有填描述，重新自动生成
+            article.setExcerpt(extractExcerpt(contentMd));
+        }
+
+        article.setContentMd(contentMd);
+        article.setContentHtml(contentHtml);
+        article.setAuthor(author);
+        if (publishDate != null) {
+            article.setPublishDate(publishDate);
+        }
+        article.setCategoryId(categoryId);
+        article.setIsFeatured(isFeatured);
+
+        articleMapper.update(article);
+
+        // 更新标签
+        if (tagIds != null) {
+            articleMapper.deleteArticleTags(id);
+            for (Long tagId : tagIds) {
+                articleMapper.insertArticleTag(id, tagId);
+            }
+        }
+
+        return articleMapper.findById(id);
+    }
+
     public Article getBySlug(String slug) {
         Article article = articleMapper.findBySlug(slug);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        articleMapper.incrementViewCount(article.getId());
+        return article;
+    }
+
+    public Article getPublishedById(Long id) {
+        Article article = articleMapper.findPublishedById(id);
         if (article == null) {
             throw new BusinessException(404, "文章不存在");
         }
@@ -155,6 +259,22 @@ public class ArticleService {
 
     public void updateStatus(Long id, String status) {
         articleMapper.updateStatus(id, status);
+        // 逻辑删除时物理删除文件
+        if ("DELETED".equals(status)) {
+            Path articleDir = Paths.get(articlesPath, id.toString());
+            try {
+                if (Files.exists(articleDir)) {
+                    try (var files = Files.walk(articleDir)) {
+                        files.sorted(java.util.Comparator.reverseOrder())
+                             .forEach(p -> {
+                                 try { Files.deleteIfExists(p); } catch (IOException ignored) {}
+                             });
+                    }
+                }
+            } catch (IOException e) {
+                // 删除文件失败不阻塞数据库操作
+            }
+        }
     }
 
     public Article getById(Long id) {
@@ -187,6 +307,11 @@ public class ArticleService {
         return results.isEmpty() ? null : results.get(0);
     }
 
+    public Article getPrerequisiteByArticleId(Long prerequisiteId) {
+        List<Article> results = articleMapper.findSummaryByIds(List.of(prerequisiteId));
+        return results.isEmpty() ? null : results.get(0);
+    }
+
     public List<Article> getRelated(String slug) {
         Article article = articleMapper.findBySlug(slug);
         if (article == null) {
@@ -197,6 +322,28 @@ public class ArticleService {
             return List.of();
         }
         return articleMapper.findSummaryByIds(relatedIds);
+    }
+
+    public List<Article> getRelatedById(Long id) {
+        List<Long> relatedIds = articleRelatedMapper.findRelatedArticleIds(id);
+        if (relatedIds.isEmpty()) {
+            return List.of();
+        }
+        return articleMapper.findSummaryByIds(relatedIds);
+    }
+
+    // ========== 公开接口：下一篇 ==========
+
+    public Article getNextArticle(Long id) {
+        Article article = articleMapper.findPublishedById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        if (article.getNextArticleId() == null) {
+            return null;
+        }
+        Article next = articleMapper.findPublishedById(article.getNextArticleId());
+        return next;
     }
 
     // ========== Admin 接口：文章关联管理 ==========
@@ -212,6 +359,11 @@ public class ArticleService {
             prerequisite = articleMapper.findById(article.getPrerequisiteId());
         }
 
+        Article nextArticle = null;
+        if (article.getNextArticleId() != null) {
+            nextArticle = articleMapper.findById(article.getNextArticleId());
+        }
+
         List<Long> relatedIds = articleRelatedMapper.findRelatedArticleIds(id);
         List<Article> related = relatedIds.isEmpty()
                 ? List.of()
@@ -221,10 +373,38 @@ public class ArticleService {
         result.put("prerequisite", prerequisite != null
                 ? Map.of("id", prerequisite.getId(), "title", prerequisite.getTitle())
                 : null);
+        result.put("nextArticle", nextArticle != null
+                ? Map.of("id", nextArticle.getId(), "title", nextArticle.getTitle())
+                : null);
         result.put("related", related.stream()
                 .map(a -> Map.of("id", a.getId(), "title", a.getTitle()))
                 .toList());
         return result;
+    }
+
+    public void setNextArticle(Long id, Long nextArticleId) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        if (nextArticleId != null && nextArticleId.equals(id)) {
+            throw new BusinessException("不能将文章自身设为下一篇");
+        }
+        if (nextArticleId != null) {
+            Article next = articleMapper.findById(nextArticleId);
+            if (next == null) {
+                throw new BusinessException(404, "目标文章不存在");
+            }
+        }
+        articleMapper.setNextArticle(id, nextArticleId);
+    }
+
+    public void removeNextArticle(Long id) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        articleMapper.clearNextArticle(id);
     }
 
     public void setPrerequisite(Long id, Long prerequisiteId) {
@@ -289,6 +469,7 @@ public class ArticleService {
         for (Long relatedId : relatedIds) {
             if (!existingIds.contains(relatedId)) {
                 ArticleRelated record = new ArticleRelated();
+                record.setId(idGenerator.nextId());
                 record.setArticleId(id);
                 record.setRelatedArticleId(relatedId);
                 record.setCreatedBy(currentUser);
@@ -296,6 +477,7 @@ public class ArticleService {
                 articleRelatedMapper.insert(record);
 
                 ArticleRelated reverse = new ArticleRelated();
+                reverse.setId(idGenerator.nextId());
                 reverse.setArticleId(relatedId);
                 reverse.setRelatedArticleId(id);
                 reverse.setCreatedBy(currentUser);

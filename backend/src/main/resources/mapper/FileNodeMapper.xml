@@ -5,9 +5,9 @@
     <select id="findByBundleId" resultType="com.sean.blog.module.file.entity.FileNode">
         SELECT * FROM t_file_node WHERE bundle_id = #{bundleId} ORDER BY node_type ASC, sort_order ASC, name ASC
     </select>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_file_node (bundle_id, parent_id, name, node_type, file_path, file_size, sort_order)
-        VALUES (#{bundleId}, #{parentId}, #{name}, #{nodeType}, #{filePath}, #{fileSize}, #{sortOrder})
+    <insert id="insert">
+        INSERT INTO t_file_node (id, bundle_id, parent_id, name, node_type, file_path, file_size, sort_order)
+        VALUES (#{id}, #{bundleId}, #{parentId}, #{name}, #{nodeType}, #{filePath}, #{fileSize}, #{sortOrder})
     </insert>
     <delete id="deleteByBundleId">
         DELETE FROM t_file_node WHERE bundle_id = #{bundleId}

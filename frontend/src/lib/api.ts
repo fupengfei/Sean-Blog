@@ -154,36 +154,26 @@ export async function getArticleBySlug(slug: string): Promise<Article> {
   return request<Article>(publicUrl(`/articles/${slug}`));
 }
 
-/** Fetch previous and next articles relative to the given slug */
-export async function getAdjacentArticles(
-  slug: string,
-): Promise<{ prev: Article | null; next: Article | null }> {
-  // Fetch a large page of articles to find adjacent ones; for a personal blog this is fine
-  const result = await getArticles({ page: 1, size: 100 });
-  const articles = result.list;
-  const idx = articles.findIndex((a) => a.slug === slug);
-  if (idx === -1) return { prev: null, next: null };
-  return {
-    prev: idx > 0 ? articles[idx - 1] : null,
-    next: idx < articles.length - 1 ? articles[idx + 1] : null,
-  };
+/** 公开：根据 ID 获取文章（替代 slug 访问） */
+export async function getArticleById(id: number): Promise<Article> {
+  return request<Article>(publicUrl(`/articles/${id}`));
 }
 
 /** 获取前置文章 */
 export async function getPrerequisiteArticle(
-  slug: string,
+  id: number,
 ): Promise<ArticleSummary | null> {
   return request<ArticleSummary | null>(
-    publicUrl(`/articles/${slug}/prerequisite`),
+    publicUrl(`/articles/${id}/prerequisite`),
   );
 }
 
 /** 获取相关文章 */
 export async function getRelatedArticles(
-  slug: string,
+  id: number,
 ): Promise<ArticleSummary[]> {
   return request<ArticleSummary[]>(
-    publicUrl(`/articles/${slug}/related`),
+    publicUrl(`/articles/${id}/related`),
   );
 }
 
@@ -287,8 +277,16 @@ export async function adminCreateArticle(formData: FormData): Promise<Article> {
   });
 }
 
+export async function adminUpdateArticle(id: number, formData: FormData): Promise<Article> {
+  return requestWithAuth<Article>(adminUrl(`/articles/${id}`), {
+    method: 'PUT',
+    body: formData,
+    headers: {} as Record<string, string>,
+  });
+}
+
 export async function adminUpdateArticleStatus(id: number, status: string): Promise<void> {
-  await requestWithAuth<void>(adminUrl(`/articles/${id}?status=${status}`), {
+  await requestWithAuth<void>(adminUrl(`/articles/${id}/status?status=${status}`), {
     method: 'PUT',
   });
 }
@@ -331,6 +329,33 @@ export async function adminSetPrerequisite(
 /** Admin: 移除前置文章 */
 export async function adminRemovePrerequisite(id: number): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/prerequisite`), {
+    method: 'DELETE',
+  });
+}
+
+/** 公开：获取下一篇（由管理员配置） */
+export async function getNextArticle(
+  id: number,
+): Promise<ArticleSummary | null> {
+  return request<ArticleSummary | null>(
+    publicUrl(`/articles/${id}/next`),
+  );
+}
+
+/** Admin: 设置下一篇 */
+export async function adminSetNextArticle(
+  id: number,
+  nextArticleId: number | null,
+): Promise<void> {
+  await requestWithAuth<void>(adminUrl(`/articles/${id}/next-article`), {
+    method: 'PUT',
+    body: JSON.stringify({ nextArticleId }),
+  });
+}
+
+/** Admin: 移除下一篇 */
+export async function adminRemoveNextArticle(id: number): Promise<void> {
+  await requestWithAuth<void>(adminUrl(`/articles/${id}/next-article`), {
     method: 'DELETE',
   });
 }

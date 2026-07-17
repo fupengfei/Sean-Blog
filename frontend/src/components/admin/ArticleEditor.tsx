@@ -1,24 +1,35 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { getCategories, getTags, adminCreateArticle } from "@/lib/api";
-import type { Category, Tag } from "@/types";
+import { getCategories, getTags, adminCreateArticle, adminUpdateArticle } from "@/lib/api";
+import type { Category, Tag, Article } from "@/types";
 
 interface Props {
   onSuccess: () => void;
+  /** 编辑模式：传入现有文章数据 */
+  article?: Article;
 }
 
-export default function ArticleEditor({ onSuccess }: Props) {
+export default function ArticleEditor({ onSuccess, article }: Props) {
+  const isEdit = !!article;
+
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null,
+    article?.categoryId ?? null,
   );
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
-  const [author, setAuthor] = useState('');
-  const [isFeatured, setIsFeatured] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
+    article?.tags?.map((t) => t.id) ?? [],
+  );
+  const [author, setAuthor] = useState(article?.author ?? '');
+  const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
+  const [title, setTitle] = useState(article?.title ?? '');
+  const [description, setDescription] = useState(article?.excerpt ?? '');
+  const [publishDate, setPublishDate] = useState(
+    article?.publishDate ?? new Date().toISOString().slice(0, 10),
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,7 +107,7 @@ export default function ArticleEditor({ onSuccess }: Props) {
     e.preventDefault();
     setError("");
 
-    if (!file) {
+    if (!isEdit && !file) {
       setError("请上传 .md 文件");
       return;
     }
@@ -109,19 +120,32 @@ export default function ArticleEditor({ onSuccess }: Props) {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      if (file) {
+        formData.append("file", file);
+      }
       formData.append("categoryId", String(selectedCategoryId));
       formData.append("tags", selectedTagIds.join(","));
       formData.append("isFeatured", String(isFeatured));
       formData.append("author", author.trim());
+      formData.append("publishDate", publishDate);
+      if (title.trim()) {
+        formData.append("title", title.trim());
+      }
+      if (description.trim()) {
+        formData.append("description", description.trim());
+      }
 
-      await adminCreateArticle(formData);
+      if (isEdit) {
+        await adminUpdateArticle(article!.id, formData);
+      } else {
+        await adminCreateArticle(formData);
+      }
       onSuccess();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message || "创建失败");
+        setError(err.message || (isEdit ? "更新失败" : "创建失败"));
       } else {
-        setError("创建失败");
+        setError(isEdit ? "更新失败" : "创建失败");
       }
     } finally {
       setLoading(false);
@@ -130,10 +154,66 @@ export default function ArticleEditor({ onSuccess }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 文章标题 */}
+      <div>
+        <label
+          htmlFor="title"
+          className="block text-sm font-ui font-medium text-on-surface mb-2"
+        >
+          文章标题
+        </label>
+        <input
+          id="title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="留空则自动从 MD 中提取"
+          className="border border-outline-variant rounded px-4 py-2 w-full text-on-surface bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-on-surface-variant/50"
+        />
+      </div>
+
+      {/* 文章描述 */}
+      <div>
+        <label
+          htmlFor="description"
+          className="block text-sm font-ui font-medium text-on-surface mb-2"
+        >
+          文章描述
+        </label>
+        <textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="留空则自动从文章内容中生成（用于卡片展示）"
+          rows={3}
+          className="border border-outline-variant rounded px-4 py-2 w-full text-on-surface bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-on-surface-variant/50 resize-none"
+        />
+      </div>
+
+      {/* 发布日期 */}
+      <div>
+        <label
+          htmlFor="publishDate"
+          className="block text-sm font-ui font-medium text-on-surface mb-2"
+        >
+          发布日期
+        </label>
+        <input
+          id="publishDate"
+          type="date"
+          value={publishDate}
+          onChange={(e) => setPublishDate(e.target.value)}
+          className="border border-outline-variant rounded px-4 py-2 w-full max-w-xs text-on-surface bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+        />
+        <p className="text-xs text-on-surface-variant/60 mt-1">
+          页面展示的文章发布日期，默认当天
+        </p>
+      </div>
+
       {/* 文件拖拽上传区 */}
       <div>
         <label className="block text-sm font-ui font-medium text-on-surface mb-2">
-          文章文件 (.md)
+          文章文件 (.md) {isEdit ? "（可选，上传新文件将替换旧内容）" : ""}
         </label>
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer
@@ -169,7 +249,9 @@ export default function ArticleEditor({ onSuccess }: Props) {
             <div>
               <span className="text-3xl">📁</span>
               <p className="mt-2 text-sm font-ui text-on-surface-variant">
-                拖拽 .md 文件到此处，或点击选择
+                {isEdit
+                  ? "拖拽新 .md 文件到此处替换，或点击选择"
+                  : "拖拽 .md 文件到此处，或点击选择"}
               </p>
               <p className="text-xs text-on-surface-variant/70 mt-1">
                 仅支持 Markdown (.md) 文件
@@ -298,7 +380,7 @@ export default function ArticleEditor({ onSuccess }: Props) {
           disabled={loading}
           className="bg-primary text-white rounded px-6 py-2.5 font-ui font-medium hover:bg-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "提交中..." : "创建文章"}
+          {loading ? "提交中..." : isEdit ? "更新文章" : "创建文章"}
         </button>
       </div>
     </form>

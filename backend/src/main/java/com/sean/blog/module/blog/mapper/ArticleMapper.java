@@ -13,6 +13,7 @@ public interface ArticleMapper {
     int updateFeatured(@Param("id") Long id, @Param("featured") boolean featured);
     int incrementViewCount(Long id);
     Article findById(Long id);
+    Article findPublishedById(Long id);
     Article findBySlug(String slug);
     List<Article> findPublished(Map<String, Object> params);
     long countPublished(Map<String, Object> params);
@@ -24,5 +25,7 @@ public interface ArticleMapper {
 
     int setPrerequisite(@Param("id") Long id, @Param("prerequisiteId") Long prerequisiteId);
     int clearPrerequisite(@Param("id") Long id);
+    int setNextArticle(@Param("id") Long id, @Param("nextArticleId") Long nextArticleId);
+    int clearNextArticle(@Param("id") Long id);
     List<Article> findSummaryByIds(@Param("ids") List<Long> ids);
 }
