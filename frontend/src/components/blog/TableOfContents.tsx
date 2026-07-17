@@ -13,6 +13,7 @@ interface TocItem {
 interface TableOfContentsProps {
   content: string;
   prerequisite?: ArticleSummary | null;
+  relatedArticles?: ArticleSummary[];
 }
 
 function slugify(text: string): string {
@@ -80,7 +81,7 @@ function buildTocTree(items: TocItem[]): TocTreeNode[] {
   return roots;
 }
 
-export default function TableOfContents({ content, prerequisite }: TableOfContentsProps) {
+export default function TableOfContents({ content, prerequisite, relatedArticles }: TableOfContentsProps) {
   const tocItems = useMemo(() => extractToc(content), [content]);
   const tocTree = useMemo(() => buildTocTree(tocItems), [tocItems]);
 
@@ -245,6 +246,30 @@ export default function TableOfContents({ content, prerequisite }: TableOfConten
               {prerequisite.title}
             </span>
           </Link>
+        </div>
+      )}
+
+      {/* Related articles */}
+      {relatedArticles && relatedArticles.length > 0 && (
+        <div className={`mt-4 ${!prerequisite ? 'pt-4 border-t border-outline-variant/60' : ''}`}>
+          <p className="font-display text-[11px] tracking-[0.05em] font-semibold text-on-surface-variant/60 uppercase mb-2">
+            相关文章
+          </p>
+          <ul className="space-y-1.5">
+            {relatedArticles.slice(0, 5).map((a) => (
+              <li key={a.id}>
+                <Link
+                  href={`/blog/${a.slug}`}
+                  className="flex items-center gap-2 text-[13px] text-on-surface-variant hover:text-secondary transition-colors group"
+                >
+                  <span className="flex-shrink-0 text-[11px]">🔗</span>
+                  <span className="group-hover:underline line-clamp-1">
+                    {a.title}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </nav>

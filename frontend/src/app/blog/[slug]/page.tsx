@@ -472,6 +472,7 @@ export default function ArticleDetailPage() {
               <TableOfContents
                 content={article.contentMd || ''}
                 prerequisite={prerequisite}
+                relatedArticles={relatedArticles}
               />
             </aside>
           </div>
