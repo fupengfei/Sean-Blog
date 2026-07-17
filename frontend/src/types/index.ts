@@ -35,6 +35,23 @@ export interface Article {
   tags: Tag[];
 }
 
+/** 精简文章摘要（用于关联文章展示，不含 contentMd/contentHtml/tags） */
+export interface ArticleSummary {
+  id: number;
+  title: string;
+  slug: string;
+  coverImage: string;
+  excerpt: string;
+  createdAt: string;
+  category: Category | null;
+}
+
+/** 文章关联关系（Admin 编辑页初始化用） */
+export interface ArticleRelations {
+  prerequisite: { id: number; title: string } | null;
+  related: { id: number; title: string }[];
+}
+
 export interface Project {
   id: number;
   title: string;
