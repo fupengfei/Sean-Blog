@@ -17,10 +17,6 @@ public interface ArticleRelatedMapper {
                        @Param("relatedArticleId") Long relatedArticleId,
                        @Param("updatedBy") String updatedBy);
 
-    /** 软删除某篇文章的所有关联 */
-    int softDeleteAllByArticleId(@Param("articleId") Long articleId,
-                                 @Param("updatedBy") String updatedBy);
-
     /** 查询某篇文章的所有关联文章 ID（未删除） */
     List<Long> findRelatedArticleIds(@Param("articleId") Long articleId);
 }

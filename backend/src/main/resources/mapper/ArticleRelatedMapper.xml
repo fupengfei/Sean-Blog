@@ -17,13 +17,6 @@
             OR (article_id = #{relatedArticleId} AND related_article_id = #{articleId}))
     </update>
 
-    <update id="softDeleteAllByArticleId">
-        UPDATE t_article_related
-        SET is_deleted = 1, updated_by = #{updatedBy}, updated_at = NOW()
-        WHERE is_deleted = 0
-          AND (article_id = #{articleId} OR related_article_id = #{articleId})
-    </update>
-
     <select id="findRelatedArticleIds" resultType="long">
         SELECT related_article_id
         FROM t_article_related

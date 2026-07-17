@@ -154,15 +154,6 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findSummaryBySlug" resultType="com.sean.blog.module.blog.entity.Article">
-        SELECT a.id, a.title, a.slug, a.cover_image AS coverImage, a.excerpt,
-               a.created_at AS createdAt,
-               c.id AS `category.id`, c.name AS `category.name`, c.slug AS `category.slug`
-        FROM t_article a
-        LEFT JOIN t_category c ON a.category_id = c.id
-        WHERE a.slug = #{slug} AND a.status = 'PUBLISHED'
-    </select>
-
     <select id="findSummaryByIds" resultType="com.sean.blog.module.blog.entity.Article">
         SELECT a.id, a.title, a.slug, a.cover_image AS coverImage, a.excerpt,
                a.created_at AS createdAt,

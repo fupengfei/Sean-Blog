@@ -24,6 +24,5 @@ public interface ArticleMapper {
 
     int setPrerequisite(@Param("id") Long id, @Param("prerequisiteId") Long prerequisiteId);
     int clearPrerequisite(@Param("id") Long id);
-    Article findSummaryBySlug(@Param("slug") String slug);
     List<Article> findSummaryByIds(@Param("ids") List<Long> ids);
 }

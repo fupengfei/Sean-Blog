@@ -238,6 +238,10 @@ public class ArticleService {
     }
 
     public void removePrerequisite(Long id) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
         articleMapper.clearPrerequisite(id);
     }
 
