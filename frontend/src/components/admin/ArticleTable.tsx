@@ -172,6 +172,13 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
+                      <a
+                        href={`/admin/articles/edit/${article.id}`}
+                        className="text-xs px-2 py-1 rounded border border-outline-variant text-secondary hover:bg-secondary-container transition-colors"
+                      >
+                        编辑
+                      </a>
+
                       <button
                         onClick={() =>
                           handleStatusChange(article.id, article.status)

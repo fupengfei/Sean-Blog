@@ -157,6 +157,14 @@ public class ArticleService {
         articleMapper.updateStatus(id, status);
     }
 
+    public Article getById(Long id) {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            throw new BusinessException(404, "文章不存在");
+        }
+        return article;
+    }
+
     public void toggleFeatured(Long id) {
         Article article = articleMapper.findById(id);
         if (article == null) {

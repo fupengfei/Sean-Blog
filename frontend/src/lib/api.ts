@@ -305,6 +305,11 @@ export async function adminDeleteArticle(id: number): Promise<void> {
   });
 }
 
+/** Admin: 根据 ID 获取单篇文章 */
+export async function adminGetArticleById(id: number): Promise<Article> {
+  return requestWithAuth<Article>(adminUrl(`/articles/${id}`));
+}
+
 /** Admin: 查询文章关联关系 */
 export async function adminGetArticleRelations(
   id: number,

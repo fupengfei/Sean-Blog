@@ -206,7 +206,13 @@
       "Bash(/Users/fupengfei/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.0/skills/subagent-driven-development/scripts/review-package ad69eee *)",
       "Bash(mvn -f backend/pom.xml compile)",
       "Bash(git -C /Users/fupengfei/coding-vibe/Sean-Blog/.claude/worktrees/worktree-feature-article-related add -A)",
-      "Bash(git -C /Users/fupengfei/coding-vibe/Sean-Blog/.claude/worktrees/worktree-feature-article-related commit -m 'fix\\(blog\\): 最终审查修复 — removePrerequisite 加存在性校验，移除未使用代码 *)"
+      "Bash(git -C /Users/fupengfei/coding-vibe/Sean-Blog/.claude/worktrees/worktree-feature-article-related commit -m 'fix\\(blog\\): 最终审查修复 — removePrerequisite 加存在性校验，移除未使用代码 *)",
+      "Bash(mkdir -p /Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/admin/articles/edit/\\\\[id\\\\])",
+      "Bash(mvn -f /Users/fupengfei/coding-vibe/Sean-Blog/backend/pom.xml compile -q)",
+      "Bash(curl -s \"http://localhost:3000/api/v1/articles\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Articles: {d[\\\\\"data\\\\\"][\\\\\"total\\\\\"]}'\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Article: {d[\\\\\"data\\\\\"][\\\\\"title\\\\\"]}'\\)\")",
+      "Bash(open \"http://localhost:3000/admin/articles/edit/1\")"
     ],
     "additionalDirectories": [
       "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/blog",
@@ -215,7 +221,8 @@
       "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/admin/projects/edit",
       "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/resources/db/migration",
       "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/resources",
-      "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/java/com/sean/blog/module/blog/mapper"
+      "/Users/fupengfei/coding-vibe/Sean-Blog/backend/src/main/java/com/sean/blog/module/blog/mapper",
+      "/Users/fupengfei/coding-vibe/Sean-Blog/frontend/src/app/admin/articles/edit"
     ]
   }
 }

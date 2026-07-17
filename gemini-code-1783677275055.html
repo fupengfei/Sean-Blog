@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GateBus Global Airport Bus Cover</title>
+    <style>
+        /* 基础重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* 容器排版 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f4f7f6; /* 极轻、清爽的浅灰底色 */
+            color: #2b3a4a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow-x: hidden;
+            padding: 60px 40px;
+        }
+        
+        /* 浅色、轻量化的柔和半透明渐变，呼应机场与全球航线天空意象 */
+        .bg-gradient-top {
+            position: absolute;
+            width: 100%;
+            height: 45%;
+            background: linear-gradient(135deg, rgba(224, 242, 254, 0.7) 0%, rgba(244, 247, 256, 0) 100%);
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .bg-gradient-bottom {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(204, 251, 241, 0.5) 0%, rgba(244, 247, 246, 0) 70%);
+            bottom: -200px;
+            right: -200px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* 精细轻量的装饰几何线条，模拟机场航线网络 */
+        .grid-line {
+            position: absolute;
+            width: 150%;
+            height: 100%;
+            border-top: 1px dashed rgba(14, 165, 233, 0.12);
+            transform: rotate(-12deg);
+            top: 25%;
+            left: -20%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .grid-line-2 {
+            position: absolute;
+            width: 1px;
+            height: 400px;
+            border-left: 1px dashed rgba(20, 184, 166, 0.15);
+            top: 10%;
+            right: 15%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* 布局容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+        
+        .header-section {
+            margin-bottom: 40px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background-color: rgba(14, 165, 233, 0.08);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            color: #0369a1;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 14px;
+            border-radius: 4px;
+        }
+        
+        .middle-section {
+            margin: auto 0;
+            padding: 40px 0;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #0ea5e9;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0 0 25px 0;
+            color: #0f172a; /* 极深灰（替代纯黑），更境优雅 */
+            letter-spacing: -0.5px;
+        }
+        
+        h1 span {
+            color: #0d9488; /* 柔和的清爽青色 */
+        }
+        
+        .divider {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #14b8a6);
+            border-radius: 2px;
+            margin-bottom: 30px;
+        }
+        
+        .description {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #475569;
+            max-width: 580px;
+            font-weight: 400;
+        }
+        
+        .footer-section {
+            margin-top: 60px;
+        }
+        
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .meta-cell {
+            width: 50%;
+            padding: 24px 0 0 0;
+            vertical-align: top;
+        }
+        
+        .meta-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+        
+        .meta-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        /* 适配移动端 */
+        @media (max-width: 600px) {
+            body { padding: 40px 20px; }
+            h1 { font-size: 32px; }
+            .meta-cell { width: 100%; display: block; }
+            .meta-cell:last-child { text-align: left !important; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景流光装饰 -->
+    <div class="bg-gradient-top"></div>
+    <div class="bg-gradient-bottom"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line-2"></div>
+    
+    <div class="container">
+        <!-- 顶部徽章区 -->
+        <div class="header-section">
+
+                            <div class="subtitle">GateBus Network Platform</div>
+
+        </div>
+        
+        <!-- 主体标题区 -->
+        <div class="middle-section">
+            <div class="title-container">
+            <span class="badge">GLOBAL AIRPORT BUS FULLSTACK SYSTEM</span>                <h1>基于 Vibe Coding 实现的<br><span>全球机场巴士信息平台</span></h1>
+                <div class="divider"></div>
+                <div class="description">
+一个由 AI 自主研发 ( TDD + SDD 模式) 的生产级全栈工程, 配合 Hermes Agent 调度任务 通过 “全球巴士线路Skill” 每周自动获取数据并上传至服务器, 保证数据的实时性和准确性, 全自动化流程, 无需人工干预。                </div>
+            </div>
+        </div>
+        
+        <!-- 底部元数据区 -->
+        <div class="footer-section">
+            <table class="meta-table">
+                <tr>
+                    <td class="meta-cell">
+                        <div class="meta-label">REPOSITORY & LINK</div>
+                        <div class="meta-value">gatebus.fpfos.com</div>
+                    </td>
+                    <td class="meta-cell" style="text-align: right;">
+                        <div class="meta-label">DOCUMENT TYPE</div>
+                        <div class="meta-value">Architecture Design & Technical Brief</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

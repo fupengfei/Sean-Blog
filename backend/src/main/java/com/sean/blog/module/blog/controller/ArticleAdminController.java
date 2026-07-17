@@ -20,6 +20,11 @@ public class ArticleAdminController {
         this.articleService = articleService;
     }
 
+    @GetMapping("/{id}")
+    public Result<Article> getById(@PathVariable Long id) {
+        return Result.success(articleService.getById(id));
+    }
+
     @GetMapping
     public Result<PageResult<Article>> list(
             @RequestParam(defaultValue = "1") Integer page,
