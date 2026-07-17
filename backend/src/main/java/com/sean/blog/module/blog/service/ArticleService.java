@@ -11,6 +11,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -240,6 +241,7 @@ public class ArticleService {
         articleMapper.clearPrerequisite(id);
     }
 
+    @Transactional
     public void setRelated(Long id, List<Long> relatedIds) {
         Article article = articleMapper.findById(id);
         if (article == null) {
@@ -251,6 +253,14 @@ public class ArticleService {
                 : List.of();
         // 防止重复
         relatedIds = relatedIds.stream().distinct().toList();
+
+        // Validate all related article IDs exist
+        if (!relatedIds.isEmpty()) {
+            List<Article> foundArticles = articleMapper.findSummaryByIds(relatedIds);
+            if (foundArticles.size() != relatedIds.size()) {
+                throw new BusinessException("部分关联文章不存在");
+            }
+        }
 
         // 查询当前关联
         List<Long> existingIds = articleRelatedMapper.findRelatedArticleIds(id);
