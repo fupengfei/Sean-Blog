@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import Link from 'next/link';
+import type { ArticleSummary } from '@/types';
 
 interface TocItem {
   id: string;
@@ -10,6 +12,7 @@ interface TocItem {
 
 interface TableOfContentsProps {
   content: string;
+  prerequisite?: ArticleSummary | null;
 }
 
 function slugify(text: string): string {
@@ -77,7 +80,7 @@ function buildTocTree(items: TocItem[]): TocTreeNode[] {
   return roots;
 }
 
-export default function TableOfContents({ content }: TableOfContentsProps) {
+export default function TableOfContents({ content, prerequisite }: TableOfContentsProps) {
   const tocItems = useMemo(() => extractToc(content), [content]);
   const tocTree = useMemo(() => buildTocTree(tocItems), [tocItems]);
 
@@ -226,6 +229,24 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
         onItemClick={handleClick}
         onToggleExpand={toggleExpand}
       />
+
+      {/* Prerequisite badge */}
+      {prerequisite && (
+        <div className="mt-6 pt-4 border-t border-outline-variant/60">
+          <p className="font-display text-[11px] tracking-[0.05em] font-semibold text-on-surface-variant/60 uppercase mb-2">
+            前置阅读
+          </p>
+          <Link
+            href={`/blog/${prerequisite.slug}`}
+            className="flex items-center gap-2 text-[13px] text-secondary hover:text-secondary/80 transition-colors group"
+          >
+            <span className="flex-shrink-0">📖</span>
+            <span className="group-hover:underline line-clamp-1">
+              {prerequisite.title}
+            </span>
+          </Link>
+        </div>
+      )}
     </nav>
   );
 }

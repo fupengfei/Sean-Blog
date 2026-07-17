@@ -469,7 +469,10 @@ export default function ArticleDetailPage() {
             {/* Right: Sidebar                                                       */}
             {/* ================================================================ */}
             <aside className="hidden lg:block lg:col-span-5 xl:col-span-4">
-              <TableOfContents content={article.contentMd || ''} />
+              <TableOfContents
+                content={article.contentMd || ''}
+                prerequisite={prerequisite}
+              />
             </aside>
           </div>
         </div>
