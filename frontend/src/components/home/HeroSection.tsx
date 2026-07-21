@@ -57,7 +57,7 @@ export default function HeroSection() {
                 </svg>
               </div>
               <div>
-                <div className="text-sm font-bold text-primary">10+年Java开发经验</div>
+                <div className="text-sm font-bold text-primary">Java 后端工程师</div>
                 <div className="text-xs text-on-surface-variant">AI 应用探索者</div>
               </div>
             </div>
