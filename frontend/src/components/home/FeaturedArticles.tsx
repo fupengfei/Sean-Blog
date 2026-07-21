@@ -84,13 +84,18 @@ export default function FeaturedArticles() {
                 className="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:gap-8">
-                  {/* Date + Author */}
+                  {/* Date + Category + Author */}
                   <div className="flex flex-col w-32 shrink-0 mb-2 md:mb-0">
                     <div className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant">
                       {formatDate(article.publishDate || article.createdAt)}
                     </div>
+                    {article.category && (
+                      <span className="inline-block mt-1.5 px-2 py-0.5 rounded bg-secondary-container text-secondary text-[11px] font-semibold w-fit">
+                        {article.category.name}
+                      </span>
+                    )}
                     {article.author && (
-                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-0.5">
+                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-1">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -106,9 +111,22 @@ export default function FeaturedArticles() {
                         {article.title}
                       </Link>
                     </h3>
-                    <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-1">
+                    <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-1 mb-2">
                       {article.excerpt || '暂无摘要'}
                     </p>
+                    {/* Tags */}
+                    {article.tags && article.tags.length > 0 && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {article.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="px-2 py-0.5 rounded font-display text-[11px] tracking-[0.03em] font-medium text-on-surface-variant bg-surface-container-low border border-outline-variant/60"
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Arrow */}

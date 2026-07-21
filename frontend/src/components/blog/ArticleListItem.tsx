@@ -40,9 +40,22 @@ export default function ArticleListItem({ article }: ArticleListItemProps) {
         <h3 className="font-display text-lg font-semibold text-primary group-hover:text-secondary transition-colors line-clamp-1 mb-1">
           {article.title}
         </h3>
-        <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-2">
+        <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-2 mb-2">
           {article.excerpt || '暂无摘要'}
         </p>
+        {/* Tags */}
+        {article.tags && article.tags.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {article.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="px-2 py-0.5 rounded font-display text-[11px] tracking-[0.03em] font-medium text-on-surface-variant bg-surface-container-low border border-outline-variant/60"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Arrow — right */}

@@ -6,6 +6,7 @@ import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import MermaidBlock from './MermaidBlock';
 
 interface MarkdownRendererProps {
   content: string;
@@ -187,8 +188,16 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             </pre>
           ),
           code: ({ className, children, ...props }) => {
+            // Mermaid diagram block — render via dynamic-imported component (ssr: false)
+            if (className && className.includes('language-mermaid')) {
+              const rawCode = extractTextFromChildren(children).trim();
+              return <MermaidBlock code={rawCode} />;
+            }
+
+            const codeString = String(children).replace(/\n$/, '');
+
             // Block code: either has hljs class (language specified) or contains newlines
-            const isBlock = className !== undefined || String(children).includes('\n');
+            const isBlock = className !== undefined || codeString.includes('\n');
             if (isBlock) {
               // Fallback styling when no language is specified (no hljs class)
               const blockClass = className || 'block bg-[#282c34] text-[#abb2bf] text-[14px] leading-relaxed p-6 font-mono';

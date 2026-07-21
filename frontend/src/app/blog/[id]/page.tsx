@@ -264,7 +264,7 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
 
 export default function ArticleDetailPage() {
   const params = useParams();
-  const articleId = Number(params.id);
+  const articleId = params.id as string;
 
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -405,22 +405,26 @@ export default function ArticleDetailPage() {
                   </div>
                 </div>
 
-                {/* Category + Tags row */}
+                {/* Category + Tags */}
                 {(article.category || (article.tags && article.tags.length > 0)) && (
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="space-y-2">
                     {article.category && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded font-display text-[12px] tracking-[0.05em] font-semibold text-secondary bg-secondary-container">
                         {article.category.name}
                       </span>
                     )}
-                    {article.tags && article.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="px-2.5 py-0.5 rounded font-display text-[12px] tracking-[0.05em] font-semibold text-on-surface-variant bg-surface-container-low border border-outline-variant/60"
-                      >
-                        {tag.name}
-                      </span>
-                    ))}
+                    {article.tags && article.tags.length > 0 && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {article.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="px-2.5 py-0.5 rounded font-display text-[12px] tracking-[0.05em] font-semibold text-on-surface-variant bg-surface-container-low border border-outline-variant/60"
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </header>

@@ -58,9 +58,23 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         </h3>
 
         {/* Excerpt */}
-        <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-3">
+        <p className="text-sm text-on-surface-variant leading-relaxed mb-3 line-clamp-3">
           {article.excerpt || '暂无摘要'}
         </p>
+
+        {/* Tags */}
+        {article.tags && article.tags.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap mb-3">
+            {article.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="px-2 py-0.5 rounded font-display text-[11px] tracking-[0.03em] font-medium text-on-surface-variant bg-surface-container-low border border-outline-variant/60"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Read more */}
         <span className="text-sm font-medium text-secondary group-hover:underline">

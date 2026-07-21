@@ -88,9 +88,12 @@
     </select>
 
     <select id="findPublished" resultMap="articleDetail">
-        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug
+        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+               t.id as tag_id, t.name as tag_name, t.slug as tag_slug
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
+        LEFT JOIN t_article_tag at ON a.id = at.article_id
+        LEFT JOIN t_tag t ON at.tag_id = t.id
         <where>
             a.status = 'PUBLISHED'
             <if test="categoryId != null">AND a.category_id = #{categoryId}</if>
@@ -120,17 +123,23 @@
     </select>
 
     <select id="findFeatured" resultMap="articleDetail">
-        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug
+        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+               t.id as tag_id, t.name as tag_name, t.slug as tag_slug
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
+        LEFT JOIN t_article_tag at ON a.id = at.article_id
+        LEFT JOIN t_tag t ON at.tag_id = t.id
         WHERE a.status = 'PUBLISHED' AND a.is_featured = 1
         ORDER BY a.created_at DESC LIMIT #{limit}
     </select>
 
     <select id="findAll" resultMap="articleDetail">
-        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug
+        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+               t.id as tag_id, t.name as tag_name, t.slug as tag_slug
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
+        LEFT JOIN t_article_tag at ON a.id = at.article_id
+        LEFT JOIN t_tag t ON at.tag_id = t.id
         <where>
             a.status != 'DELETED'
             <if test="keyword != null and keyword != ''">
