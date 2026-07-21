@@ -45,11 +45,11 @@ export default function ArticleListItem({ article }: ArticleListItemProps) {
         </p>
         {/* Tags */}
         {article.tags && article.tags.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 overflow-hidden">
             {article.tags.map((tag) => (
               <span
                 key={tag.id}
-                className="px-2 py-0.5 rounded font-display text-[11px] tracking-[0.03em] font-medium text-on-surface-variant bg-surface-container-low border border-outline-variant/60"
+                className="px-2 py-0.5 rounded font-display text-[11px] tracking-[0.03em] font-medium text-on-surface-variant bg-surface-container-low border border-outline-variant/60 whitespace-nowrap"
               >
                 {tag.name}
               </span>
