@@ -187,54 +187,56 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
           相关文章
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {displayed.map((article) => (
-            <Link
-              key={article.id}
-              href={`/blog/${article.id}`}
-              className="group rounded-lg border border-outline-variant bg-white overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
-            >
-              {article.coverImage && (
-                <div className="aspect-[16/9] overflow-hidden">
-                  <img
-                    src={article.coverImage}
-                    alt={article.title}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-              )}
+        {/* Masonry layout — staggered cards for visual rhythm */}
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 lg:gap-8">
+          {displayed.map((article, i) => {
+            const accentBorders = [
+              'border-l-primary/60', 'border-l-secondary/50', 'border-l-primary/35',
+              'border-l-secondary/30', 'border-l-primary/50', 'border-l-secondary/40',
+            ];
+            const accent = accentBorders[i % accentBorders.length];
 
-              <div className="p-6">
-                {/* Category + Date */}
-                <div className="flex items-center gap-3 mb-3">
-                  {article.category && (
-                    <span className="inline-block px-2 py-0.5 rounded bg-secondary-container text-secondary text-xs font-semibold">
-                      {article.category.name}
+            return (
+            <div key={article.id} className="mb-6 lg:mb-8 break-inside-avoid">
+              <Link
+                href={`/blog/${article.id}`}
+                className={`group block rounded-lg border border-outline-variant bg-white overflow-hidden border-l-[2px] ${accent} transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-[0_8px_30px_rgba(0,32,69,0.08)]`}
+              >
+                <div className="p-5 md:p-6">
+                  {/* Category + Date */}
+                  <div className="flex items-center gap-3 mb-3">
+                    {article.category && (
+                      <span className="inline-block px-2 py-0.5 rounded bg-secondary-container text-secondary text-xs font-semibold">
+                        {article.category.name}
+                      </span>
+                    )}
+                    <span className="text-xs text-on-surface-variant/60">
+                      {formatDate(article.publishDate || article.createdAt)}
                     </span>
-                  )}
-                  <span className="text-xs text-on-surface-variant/60">
-                    {formatDate(article.publishDate || article.createdAt)}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-display text-lg md:text-xl font-semibold text-primary mb-2 group-hover:text-secondary transition-colors line-clamp-2">
+                    {article.title}
+                  </h3>
+
+                  {/* Excerpt */}
+                  <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-3">
+                    {article.excerpt || '暂无摘要'}
+                  </p>
+
+                  {/* CTA */}
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-secondary/80 group-hover:text-secondary group-hover:gap-2 transition-all duration-300">
+                    阅读全文
+                    <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
                   </span>
                 </div>
-
-                {/* Title */}
-                <h3 className="font-display text-xl font-semibold text-primary mb-2 group-hover:text-secondary transition-colors line-clamp-2">
-                  {article.title}
-                </h3>
-
-                {/* Excerpt */}
-                <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-3">
-                  {article.excerpt || '暂无摘要'}
-                </p>
-
-                {/* CTA */}
-                <span className="text-sm font-medium text-secondary group-hover:underline">
-                  阅读全文 →
-                </span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            </div>
+            );
+          })}
         </div>
 
         {hasMore && (

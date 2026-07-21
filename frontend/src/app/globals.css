@@ -20,6 +20,29 @@ body {
   box-shadow: 0 12px 24px -12px rgba(0, 32, 69, 0.15);
 }
 
+/* ---- Masonry layout cross-browser hardening ---- */
+
+/* Safari requires explicit column-fill and inline-block-like behavior */
+@supports (column-fill: balance) {
+  .columns-1.md\:columns-2,
+  .columns-1.lg\:columns-3 {
+    column-fill: balance;
+  }
+}
+
+/* Ensure cards don't split across columns in any browser */
+.break-inside-avoid {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Safari-specific: overflow hidden prevents column-break tearing */
+.break-inside-avoid > a,
+.break-inside-avoid > .group {
+  transform: translateZ(0); /* GPU rendering prevents Safari column bugs */
+}
+
 /* ---- Smooth scrolling ---- */
 
 html {

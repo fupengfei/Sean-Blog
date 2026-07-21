@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getArticles, getCategories } from '@/lib/api';
 import type { Article, Category } from '@/types';
 import NavBar from '@/components/layout/NavBar';
@@ -24,7 +24,6 @@ export default function BlogListPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
-  const isFirstLoad = useRef(true);
 
   // Fetch categories once
   useEffect(() => {
@@ -46,10 +45,6 @@ export default function BlogListPage() {
       .then((result) => {
         setArticles(result.list);
         setTotalPages(Math.ceil(result.total / PAGE_SIZE));
-        if (isFirstLoad.current && result.list.length > 2) {
-          setViewMode('list');
-        }
-        isFirstLoad.current = false;
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : '加载文章失败');
@@ -137,30 +132,46 @@ export default function BlogListPage() {
           </div>
         )}
 
-        {/* Loading state */}
+        {/* Loading state — masonry skeleton */}
         {loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-outline-variant bg-white p-6 animate-pulse"
-              >
-                <div className="h-4 bg-surface-container rounded w-1/4 mb-3" />
-                <div className="h-5 bg-surface-container rounded w-3/4 mb-2" />
-                <div className="h-3 bg-surface-container rounded w-full mb-1" />
-                <div className="h-3 bg-surface-container rounded w-2/3" />
+          <div>
+            {/* Featured skeleton */}
+            <div className="rounded-lg border border-outline-variant bg-surface-container-low border-l-[3px] border-l-primary/40 p-6 md:p-10 mb-8 animate-pulse">
+              <div className="h-4 bg-surface-container rounded w-1/4 mb-3" />
+              <div className="h-7 bg-surface-container rounded w-3/4 mb-3" />
+              <div className="h-3 bg-surface-container rounded w-full mb-1" />
+              <div className="h-3 bg-surface-container rounded w-2/3 mb-4" />
+              <div className="flex gap-1.5">
+                <div className="h-5 bg-surface-container rounded w-12" />
+                <div className="h-5 bg-surface-container rounded w-16" />
               </div>
-            ))}
+            </div>
+            {/* Regular skeletons — masonry columns */}
+            <div className="columns-1 md:columns-2 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="rounded-lg border border-outline-variant bg-white p-6 animate-pulse mb-8 break-inside-avoid"
+                  style={{ minHeight: i === 1 ? '200px' : i === 2 ? '260px' : '180px' }}
+                >
+                  <div className="h-4 bg-surface-container rounded w-1/4 mb-3" />
+                  <div className="h-5 bg-surface-container rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-surface-container rounded w-full mb-1" />
+                  <div className="h-3 bg-surface-container rounded w-2/3" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty state — staggered placeholders */}
         {!loading && !error && articles.length === 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="columns-1 md:columns-2 gap-8">
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="rounded-lg border-2 border-dashed border-outline-variant bg-white flex flex-col items-center justify-center p-12 text-center min-h-[200px]"
+                className="rounded-lg border-2 border-dashed border-outline-variant bg-white flex flex-col items-center justify-center p-12 text-center mb-8 break-inside-avoid"
+                style={{ minHeight: i === 1 ? '280px' : '360px' }}
               >
                 <svg
                   className="w-12 h-12 text-outline-variant mb-4"
@@ -183,18 +194,30 @@ export default function BlogListPage() {
           </div>
         )}
 
-        {/* Article grid / list */}
+        {/* Article display */}
         {!loading && !error && articles.length > 0 && (
           <>
             {viewMode === 'card' ? (
-              <div
-                className={`grid grid-cols-1 md:grid-cols-2 gap-8 ${
-                  articles.length < 2 ? 'justify-center' : ''
-                }`}
-              >
-                {articles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
+              <div>
+                {/* Featured first article — spans full width, horizontal layout on desktop */}
+                <div className="mb-8">
+                  <ArticleCard
+                    article={articles[0]}
+                    variant="featured"
+                    index={0}
+                  />
+                </div>
+
+                {/* Remaining articles — CSS columns masonry for staggered layout */}
+                {articles.length > 1 && (
+                  <div className="columns-1 md:columns-2 gap-8">
+                    {articles.slice(1).map((article, i) => (
+                      <div key={article.id} className="mb-8 break-inside-avoid">
+                        <ArticleCard article={article} index={i + 1} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
