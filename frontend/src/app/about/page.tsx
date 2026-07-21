@@ -102,7 +102,7 @@ function ProfileSection() {
               Sean
             </h2>
             <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-4">
-              Java 后端工程师 / AI 应用探索者
+              JAVA 后端工程师 / AI 应用探索者
             </p>
             <p className="text-base text-on-surface-variant leading-relaxed max-w-2xl">
               热爱技术，专注于 Java 后端开发与人工智能应用。拥有多年的企业级软件开发经验，
@@ -237,7 +237,7 @@ export default function AboutPage() {
               关于我
             </h1>
             <p className="text-base text-on-surface-variant max-w-2xl leading-relaxed">
-              一名热爱技术、持续学习的 Java 后端工程师，在 AI 浪潮中探索前行。
+              一名热爱生活、持续成长的 JAVA 后端工程师，在 AI 浪潮中探索前行。
             </p>
           </div>
         </section>
