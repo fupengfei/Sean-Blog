@@ -15,6 +15,9 @@ frontend/.next/
 .DS_Store
 Thumbs.db
 
+# Claude
+.claude/settings.json
+
 # Misc
 *.log
 .env*
