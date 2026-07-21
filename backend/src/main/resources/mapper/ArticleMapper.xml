@@ -88,24 +88,31 @@
     </select>
 
     <select id="findPublished" resultMap="articleDetail">
-        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+        SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
         LEFT JOIN t_article_tag at ON a.id = at.article_id
         LEFT JOIN t_tag t ON at.tag_id = t.id
-        <where>
-            a.status = 'PUBLISHED'
-            <if test="categoryId != null">AND a.category_id = #{categoryId}</if>
-            <if test="tagId != null">
-                AND a.id IN (SELECT article_id FROM t_article_tag WHERE tag_id = #{tagId})
-            </if>
-            <if test="keyword != null and keyword != ''">
-                AND (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-        </where>
+        WHERE a.id IN (
+            SELECT paginated.id FROM (
+                SELECT a2.id
+                FROM t_article a2
+                <where>
+                    a2.status = 'PUBLISHED'
+                    <if test="categoryId != null">AND a2.category_id = #{categoryId}</if>
+                    <if test="tagId != null">
+                        AND a2.id IN (SELECT article_id FROM t_article_tag WHERE tag_id = #{tagId})
+                    </if>
+                    <if test="keyword != null and keyword != ''">
+                        AND (a2.title LIKE CONCAT('%', #{keyword}, '%') OR a2.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+                    </if>
+                </where>
+                ORDER BY a2.created_at DESC
+                LIMIT #{offset}, #{size}
+            ) AS paginated
+        )
         ORDER BY a.created_at DESC
-        LIMIT #{offset}, #{size}
     </select>
 
     <select id="countPublished" resultType="long">
@@ -123,31 +130,46 @@
     </select>
 
     <select id="findFeatured" resultMap="articleDetail">
-        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+        SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
         LEFT JOIN t_article_tag at ON a.id = at.article_id
         LEFT JOIN t_tag t ON at.tag_id = t.id
-        WHERE a.status = 'PUBLISHED' AND a.is_featured = 1
-        ORDER BY a.created_at DESC LIMIT #{limit}
+        WHERE a.id IN (
+            SELECT paginated.id FROM (
+                SELECT a2.id
+                FROM t_article a2
+                WHERE a2.status = 'PUBLISHED' AND a2.is_featured = 1
+                ORDER BY a2.publish_date DESC
+                LIMIT #{limit}
+            ) AS paginated
+        )
+        ORDER BY a.publish_date DESC
     </select>
 
     <select id="findAll" resultMap="articleDetail">
-        SELECT DISTINCT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
+        SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
         FROM t_article a
         LEFT JOIN t_category c ON a.category_id = c.id
         LEFT JOIN t_article_tag at ON a.id = at.article_id
         LEFT JOIN t_tag t ON at.tag_id = t.id
-        <where>
-            a.status != 'DELETED'
-            <if test="keyword != null and keyword != ''">
-                AND (a.title LIKE CONCAT('%', #{keyword}, '%') OR a.excerpt LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-        </where>
+        WHERE a.id IN (
+            SELECT paginated.id FROM (
+                SELECT a2.id
+                FROM t_article a2
+                <where>
+                    a2.status != 'DELETED'
+                    <if test="keyword != null and keyword != ''">
+                        AND (a2.title LIKE CONCAT('%', #{keyword}, '%') OR a2.excerpt LIKE CONCAT('%', #{keyword}, '%'))
+                    </if>
+                </where>
+                ORDER BY a2.created_at DESC
+                LIMIT #{offset}, #{size}
+            ) AS paginated
+        )
         ORDER BY a.created_at DESC
-        LIMIT #{offset}, #{size}
     </select>
 
     <select id="countAll" resultType="long">
