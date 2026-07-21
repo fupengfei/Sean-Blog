@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getArticles, getCategories } from '@/lib/api';
 import type { Article, Category } from '@/types';
 import NavBar from '@/components/layout/NavBar';
@@ -24,6 +24,7 @@ export default function BlogListPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+  const isFirstLoad = useRef(true);
 
   // Fetch categories once
   useEffect(() => {
@@ -45,6 +46,10 @@ export default function BlogListPage() {
       .then((result) => {
         setArticles(result.list);
         setTotalPages(Math.ceil(result.total / PAGE_SIZE));
+        if (isFirstLoad.current && result.list.length > 2) {
+          setViewMode('list');
+        }
+        isFirstLoad.current = false;
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : '加载文章失败');

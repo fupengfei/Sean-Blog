@@ -64,7 +64,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
         {/* Tags */}
         {article.tags && article.tags.length > 0 && (
-          <div className="flex items-center gap-1.5 overflow-hidden mb-3">
+          <div className="flex flex-wrap items-center gap-1.5 overflow-hidden max-h-7 mb-3">
             {article.tags.map((tag) => (
               <span
                 key={tag.id}
