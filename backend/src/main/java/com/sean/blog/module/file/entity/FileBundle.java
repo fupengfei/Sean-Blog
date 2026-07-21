@@ -1,10 +1,11 @@
 package com.sean.blog.module.file.entity;
-
 import lombok.Data;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
 public class FileBundle {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
     private String name;
     private String description;

@@ -25,14 +25,14 @@ export default function AdminCategoriesPage() {
 
   // Modal 相关状态
   const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [modalName, setModalName] = useState("");
   const [modalSlug, setModalSlug] = useState("");
   const [modalError, setModalError] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
 
   // 删除确认
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchCategories = async () => {
@@ -109,7 +109,7 @@ export default function AdminCategoriesPage() {
   };
 
   // 删除
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     setDeleteLoading(true);
     try {
       await adminDeleteCategory(id);

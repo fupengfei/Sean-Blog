@@ -48,7 +48,7 @@ public class ArticleAdminController {
         return Result.success(articleService.createFromMd(file, categoryId, tagIds, isFeatured, author, title, description, pd));
     }
 
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    @PutMapping(value = "/{id}")
     public Result<Article> update(
             @PathVariable Long id,
             @RequestParam(required = false) MultipartFile file,

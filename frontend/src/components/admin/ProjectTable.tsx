@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function ProjectTable({ projects, onRefresh }: Props) {
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   async function handleToggleFeature(project: Project) {
     setActionLoading(project.id);

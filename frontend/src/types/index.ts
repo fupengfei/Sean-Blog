@@ -1,7 +1,7 @@
 // ---------- 基础实体 ----------
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   createdAt: string;
@@ -9,7 +9,7 @@ export interface Category {
 }
 
 export interface Tag {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   createdAt: string;
@@ -17,7 +17,7 @@ export interface Tag {
 }
 
 export interface Article {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   contentMd: string;
@@ -26,7 +26,7 @@ export interface Article {
   author: string;
   publishDate: string;
   coverImage: string;
-  categoryId: number | null;
+  categoryId: string | null;
   status: string;
   isFeatured: boolean;
   viewCount: number;
@@ -38,7 +38,7 @@ export interface Article {
 
 /** 精简文章摘要（用于关联文章展示，不含 contentMd/contentHtml/tags） */
 export interface ArticleSummary {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   publishDate: string;
@@ -50,13 +50,13 @@ export interface ArticleSummary {
 
 /** 文章关联关系（Admin 编辑页初始化用） */
 export interface ArticleRelations {
-  prerequisite: { id: number; title: string } | null;
-  nextArticle: { id: number; title: string } | null;
-  related: { id: number; title: string }[];
+  prerequisite: { id: string; title: string } | null;
+  nextArticle: { id: string; title: string } | null;
+  related: { id: string; title: string }[];
 }
 
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
   url: string;
@@ -71,7 +71,7 @@ export interface Project {
 }
 
 export interface FileBundle {
-  id: number;
+  id: string;
   name: string;
   description: string;
   rootPath: string;
@@ -84,7 +84,7 @@ export interface FileBundle {
 }
 
 export interface FileTreeNode {
-  id: number;
+  id: string;
   name: string;
   nodeType: string; // DIRECTORY | FILE
   filePath: string;
@@ -93,13 +93,13 @@ export interface FileTreeNode {
 }
 
 export interface FileTreeResponse {
-  bundleId: number;
+  bundleId: string;
   bundleName: string;
   tree: FileTreeNode[];
 }
 
 export interface ContactRecord {
-  id: number;
+  id: string;
   type: string; // BUSINESS | MAIL | RESUME | SUBSCRIBE
   content: string;
   companyName: string;
@@ -146,8 +146,8 @@ export interface PageResult<T> {
 // ---------- 请求参数 ----------
 
 export interface ArticleListParams {
-  category?: number;
-  tag?: number;
+  category?: string;
+  tag?: string;
   page?: number;
   size?: number;
   keyword?: string;

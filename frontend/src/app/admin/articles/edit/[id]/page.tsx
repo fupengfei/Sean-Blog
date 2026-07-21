@@ -21,7 +21,7 @@ import ArticleEditor from '@/components/admin/ArticleEditor';
 // ---------------------------------------------------------------------------
 
 function useArticleSearch() {
-  const [results, setResults] = useState<{ id: number; title: string }[]>([]);
+  const [results, setResults] = useState<{ id: string; title: string }[]>([]);
   const [searching, setSearching] = useState(false);
 
   const search = useCallback(async (keyword: string) => {
@@ -50,19 +50,19 @@ function useArticleSearch() {
 export default function AdminArticleEditPage() {
   const params = useParams();
   const router = useRouter();
-  const id = Number(params.id);
+  const id = params.id as string;
 
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Relations
-  const [prerequisiteId, setPrerequisiteId] = useState<number | null>(null);
+  const [prerequisiteId, setPrerequisiteId] = useState<string | null>(null);
   const [prerequisiteTitle, setPrerequisiteTitle] = useState('');
-  const [nextArticleId, setNextArticleId] = useState<number | null>(null);
+  const [nextArticleId, setNextArticleId] = useState<string | null>(null);
   const [nextArticleTitle, setNextArticleTitle] = useState('');
-  const [relatedIds, setRelatedIds] = useState<number[]>([]);
-  const [relatedTitles, setRelatedTitles] = useState<Map<number, string>>(
+  const [relatedIds, setRelatedIds] = useState<string[]>([]);
+  const [relatedTitles, setRelatedTitles] = useState<Map<string, string>>(
     new Map(),
   );
 
@@ -128,7 +128,7 @@ export default function AdminArticleEditPage() {
         // Related
         const ids = rels.related.map((r) => r.id);
         setRelatedIds(ids);
-        const titles = new Map<number, string>();
+        const titles = new Map<string, string>();
         rels.related.forEach((r) => titles.set(r.id, r.title));
         setRelatedTitles(titles);
       })

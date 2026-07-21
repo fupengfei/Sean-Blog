@@ -34,10 +34,10 @@ function formatDate(dateStr: string): string {
 }
 
 export default function ArticleTable({ articles, onRefresh }: Props) {
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const handleStatusChange = async (id: number, currentStatus: string) => {
+  const handleStatusChange = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
     setActionLoading(id);
     try {
@@ -54,7 +54,7 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
     }
   };
 
-  const handleToggleFeature = async (id: number) => {
+  const handleToggleFeature = async (id: string) => {
     setActionLoading(id);
     try {
       await adminToggleArticleFeature(id);
@@ -70,7 +70,7 @@ export default function ArticleTable({ articles, onRefresh }: Props) {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     setActionLoading(id);
     try {
       await adminDeleteArticle(id);

@@ -12,7 +12,7 @@ import Footer from '@/components/layout/Footer';
 
 export default function SkillDetailPage() {
   const params = useParams();
-  const id = Number(params.id);
+  const id = params.id as string;
 
   const [bundle, setBundle] = useState<FileTreeResponse | null>(null);
   const [loadingTree, setLoadingTree] = useState(true);
@@ -23,7 +23,7 @@ export default function SkillDetailPage() {
 
   // Fetch bundle tree
   useEffect(() => {
-    if (!id || isNaN(id)) return;
+    if (!id) return;
 
     setLoadingTree(true);
     getBundleTree(id)

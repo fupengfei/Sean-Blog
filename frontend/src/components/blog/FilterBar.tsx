@@ -5,8 +5,8 @@ import { getCategories } from '@/lib/api';
 import type { Category } from '@/types';
 
 interface FilterBarProps {
-  selectedCategory: number | null;
-  onCategoryChange: (id: number | null) => void;
+  selectedCategory: string | null;
+  onCategoryChange: (id: string | null) => void;
 }
 
 export default function FilterBar({ selectedCategory, onCategoryChange }: FilterBarProps) {

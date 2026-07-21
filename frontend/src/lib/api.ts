@@ -155,13 +155,13 @@ export async function getArticleBySlug(slug: string): Promise<Article> {
 }
 
 /** 公开：根据 ID 获取文章（替代 slug 访问） */
-export async function getArticleById(id: number): Promise<Article> {
+export async function getArticleById(id: string): Promise<Article> {
   return request<Article>(publicUrl(`/articles/${id}`));
 }
 
 /** 获取前置文章 */
 export async function getPrerequisiteArticle(
-  id: number,
+  id: string,
 ): Promise<ArticleSummary | null> {
   return request<ArticleSummary | null>(
     publicUrl(`/articles/${id}/prerequisite`),
@@ -170,7 +170,7 @@ export async function getPrerequisiteArticle(
 
 /** 获取相关文章 */
 export async function getRelatedArticles(
-  id: number,
+  id: string,
 ): Promise<ArticleSummary[]> {
   return request<ArticleSummary[]>(
     publicUrl(`/articles/${id}/related`),
@@ -195,11 +195,11 @@ export async function getFeaturedBundles(limit = 6): Promise<FileBundle[]> {
   return request<FileBundle[]>(publicUrl(`/bundles/featured?limit=${limit}`));
 }
 
-export async function getBundleTree(id: number): Promise<FileTreeResponse> {
+export async function getBundleTree(id: string): Promise<FileTreeResponse> {
   return request<FileTreeResponse>(publicUrl(`/bundles/${id}/tree`));
 }
 
-export async function getBundleFile(id: number, path: string): Promise<string> {
+export async function getBundleFile(id: string, path: string): Promise<string> {
   const qs = new URLSearchParams({ path });
   return request<string>(publicUrl(`/bundles/${id}/file?${qs.toString()}`));
 }
@@ -277,7 +277,7 @@ export async function adminCreateArticle(formData: FormData): Promise<Article> {
   });
 }
 
-export async function adminUpdateArticle(id: number, formData: FormData): Promise<Article> {
+export async function adminUpdateArticle(id: string, formData: FormData): Promise<Article> {
   return requestWithAuth<Article>(adminUrl(`/articles/${id}`), {
     method: 'PUT',
     body: formData,
@@ -285,40 +285,40 @@ export async function adminUpdateArticle(id: number, formData: FormData): Promis
   });
 }
 
-export async function adminUpdateArticleStatus(id: number, status: string): Promise<void> {
+export async function adminUpdateArticleStatus(id: string, status: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/status?status=${status}`), {
     method: 'PUT',
   });
 }
 
-export async function adminToggleArticleFeature(id: number): Promise<void> {
+export async function adminToggleArticleFeature(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/feature`), {
     method: 'PUT',
   });
 }
 
-export async function adminDeleteArticle(id: number): Promise<void> {
+export async function adminDeleteArticle(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}`), {
     method: 'DELETE',
   });
 }
 
 /** Admin: 根据 ID 获取单篇文章 */
-export async function adminGetArticleById(id: number): Promise<Article> {
+export async function adminGetArticleById(id: string): Promise<Article> {
   return requestWithAuth<Article>(adminUrl(`/articles/${id}`));
 }
 
 /** Admin: 查询文章关联关系 */
 export async function adminGetArticleRelations(
-  id: number,
+  id: string,
 ): Promise<ArticleRelations> {
   return requestWithAuth<ArticleRelations>(adminUrl(`/articles/${id}/related`));
 }
 
 /** Admin: 设置前置文章 */
 export async function adminSetPrerequisite(
-  id: number,
-  prerequisiteId: number | null,
+  id: string,
+  prerequisiteId: string | null,
 ): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/prerequisite`), {
     method: 'PUT',
@@ -327,7 +327,7 @@ export async function adminSetPrerequisite(
 }
 
 /** Admin: 移除前置文章 */
-export async function adminRemovePrerequisite(id: number): Promise<void> {
+export async function adminRemovePrerequisite(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/prerequisite`), {
     method: 'DELETE',
   });
@@ -335,7 +335,7 @@ export async function adminRemovePrerequisite(id: number): Promise<void> {
 
 /** 公开：获取下一篇（由管理员配置） */
 export async function getNextArticle(
-  id: number,
+  id: string,
 ): Promise<ArticleSummary | null> {
   return request<ArticleSummary | null>(
     publicUrl(`/articles/${id}/next`),
@@ -344,8 +344,8 @@ export async function getNextArticle(
 
 /** Admin: 设置下一篇 */
 export async function adminSetNextArticle(
-  id: number,
-  nextArticleId: number | null,
+  id: string,
+  nextArticleId: string | null,
 ): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/next-article`), {
     method: 'PUT',
@@ -354,7 +354,7 @@ export async function adminSetNextArticle(
 }
 
 /** Admin: 移除下一篇 */
-export async function adminRemoveNextArticle(id: number): Promise<void> {
+export async function adminRemoveNextArticle(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/next-article`), {
     method: 'DELETE',
   });
@@ -362,8 +362,8 @@ export async function adminRemoveNextArticle(id: number): Promise<void> {
 
 /** Admin: 全量替换相关文章 */
 export async function adminSetRelated(
-  id: number,
-  relatedIds: number[],
+  id: string,
+  relatedIds: string[],
 ): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/articles/${id}/related`), {
     method: 'PUT',
@@ -383,14 +383,14 @@ export async function adminCreateCategory(name: string, slug: string): Promise<C
   });
 }
 
-export async function adminUpdateCategory(id: number, name: string, slug: string): Promise<Category> {
+export async function adminUpdateCategory(id: string, name: string, slug: string): Promise<Category> {
   return requestWithAuth<Category>(adminUrl(`/categories/${id}`), {
     method: 'PUT',
     body: JSON.stringify({ name, slug }),
   });
 }
 
-export async function adminDeleteCategory(id: number): Promise<void> {
+export async function adminDeleteCategory(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/categories/${id}`), {
     method: 'DELETE',
   });
@@ -408,14 +408,14 @@ export async function adminCreateTag(name: string, slug: string): Promise<Tag> {
   });
 }
 
-export async function adminUpdateTag(id: number, name: string, slug: string): Promise<Tag> {
+export async function adminUpdateTag(id: string, name: string, slug: string): Promise<Tag> {
   return requestWithAuth<Tag>(adminUrl(`/tags/${id}`), {
     method: 'PUT',
     body: JSON.stringify({ name, slug }),
   });
 }
 
-export async function adminDeleteTag(id: number): Promise<void> {
+export async function adminDeleteTag(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/tags/${id}`), {
     method: 'DELETE',
   });
@@ -434,7 +434,7 @@ export async function adminCreateProject(formData: FormData): Promise<Project> {
   });
 }
 
-export async function adminUpdateProject(id: number, formData: FormData): Promise<void> {
+export async function adminUpdateProject(id: string, formData: FormData): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/projects/${id}`), {
     method: 'PUT',
     body: formData,
@@ -442,19 +442,19 @@ export async function adminUpdateProject(id: number, formData: FormData): Promis
   });
 }
 
-export async function adminToggleProjectFeature(id: number): Promise<void> {
+export async function adminToggleProjectFeature(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/projects/${id}/feature`), {
     method: 'PUT',
   });
 }
 
-export async function adminUpdateProjectSort(id: number, sortOrder: number): Promise<void> {
+export async function adminUpdateProjectSort(id: string, sortOrder: number): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/projects/${id}/sort?sortOrder=${sortOrder}`), {
     method: 'PUT',
   });
 }
 
-export async function adminDeleteProject(id: number): Promise<void> {
+export async function adminDeleteProject(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/projects/${id}`), {
     method: 'DELETE',
   });
@@ -473,20 +473,20 @@ export async function adminCreateBundle(formData: FormData): Promise<FileBundle>
   });
 }
 
-export async function adminPublishBundle(id: number): Promise<void> {
+export async function adminPublishBundle(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/bundles/${id}/publish`), {
     method: 'PUT',
   });
 }
 
-export async function adminUnpublishBundle(id: number): Promise<void> {
+export async function adminUnpublishBundle(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/bundles/${id}/unpublish`), {
     method: 'PUT',
   });
 }
 
 export async function adminUpdateBundle(
-  id: number,
+  id: string,
   data: { name: string; description: string; type: string },
 ): Promise<FileBundle> {
   return requestWithAuth<FileBundle>(adminUrl(`/bundles/${id}`), {
@@ -495,13 +495,13 @@ export async function adminUpdateBundle(
   });
 }
 
-export async function adminToggleBundleFeature(id: number): Promise<void> {
+export async function adminToggleBundleFeature(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/bundles/${id}/feature`), {
     method: 'PUT',
   });
 }
 
-export async function adminDeleteBundle(id: number): Promise<void> {
+export async function adminDeleteBundle(id: string): Promise<void> {
   await requestWithAuth<void>(adminUrl(`/bundles/${id}`), {
     method: 'DELETE',
   });

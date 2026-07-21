@@ -17,10 +17,10 @@ export default function ArticleEditor({ onSuccess, article }: Props) {
   const [dragActive, setDragActive] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     article?.categoryId ?? null,
   );
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     article?.tags?.map((t) => t.id) ?? [],
   );
   const [author, setAuthor] = useState(article?.author ?? '');
@@ -95,7 +95,7 @@ export default function ArticleEditor({ onSuccess, article }: Props) {
     [],
   );
 
-  const handleToggleTag = (tagId: number) => {
+  const handleToggleTag = (tagId: string) => {
     setSelectedTagIds((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
@@ -123,7 +123,7 @@ export default function ArticleEditor({ onSuccess, article }: Props) {
       if (file) {
         formData.append("file", file);
       }
-      formData.append("categoryId", String(selectedCategoryId));
+      formData.append("categoryId", selectedCategoryId);
       formData.append("tags", selectedTagIds.join(","));
       formData.append("isFeatured", String(isFeatured));
       formData.append("author", author.trim());
@@ -281,7 +281,7 @@ export default function ArticleEditor({ onSuccess, article }: Props) {
           value={selectedCategoryId ?? ""}
           onChange={(e) =>
             setSelectedCategoryId(
-              e.target.value ? Number(e.target.value) : null,
+              e.target.value ? e.target.value : null,
             )
           }
           className="border border-outline-variant rounded px-4 py-2 w-full text-on-surface bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"

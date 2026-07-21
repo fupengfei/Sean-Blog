@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function BundleList({ bundles, onRefresh }: Props) {
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingBundle, setEditingBundle] = useState<FileBundle | null>(null);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");

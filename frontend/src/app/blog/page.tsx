@@ -20,7 +20,7 @@ export default function BlogListPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
@@ -54,7 +54,7 @@ export default function BlogListPage() {
   }, [selectedCategory, page]);
 
   // Reset to page 1 when category changes
-  const handleCategoryChange = (categoryId: number | null) => {
+  const handleCategoryChange = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
     setPage(1);
   };

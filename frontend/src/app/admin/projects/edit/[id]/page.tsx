@@ -10,7 +10,7 @@ import ProjectEditor from "@/components/admin/ProjectEditor";
 export default function AdminProjectEditPage() {
   const router = useRouter();
   const params = useParams();
-  const id = Number(params.id);
+  const id = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
