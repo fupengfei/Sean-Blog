@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import 'highlight.js/styles/atom-one-dark.css'
 import PageViewTracker from '@/components/analytics/PageViewTracker'
+import ChatProviderWrapper from '@/components/chat/ChatProviderWrapper'
 
 /**
  * 全局 SEO 元数据：站点标题、描述、图标
@@ -30,8 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN">
       <body className="font-ui">
-        <PageViewTracker />
-        {children}
+        <ChatProviderWrapper>
+          <PageViewTracker />
+          {children}
+        </ChatProviderWrapper>
       </body>
     </html>
   )
