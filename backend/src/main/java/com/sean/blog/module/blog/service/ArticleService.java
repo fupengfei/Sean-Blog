@@ -290,6 +290,18 @@ public class ArticleService {
     }
 
     /**
+     * 根据 ID 查询已发布的文章（无副作用，不增加浏览次数）。
+     *
+     * <p>供 AI 模块内部加载文章内容使用；前台详情页展示请用 {@link #getPublishedById(Long)}（含浏览计数）。</p>
+     *
+     * @param id 文章 ID
+     * @return 文章对象；不存在或未发布时返回 null
+     */
+    public Article findPublishedById(Long id) {
+        return articleMapper.findPublishedById(id);
+    }
+
+    /**
      * 分页查询已发布文章列表。
      *
      * @param page       页码（从 1 开始）
