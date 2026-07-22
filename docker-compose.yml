@@ -54,6 +54,9 @@ services:
       - REDIS_HOST=redis                # Redis 服务名（Docker DNS 解析）
       - REDIS_PORT=6379                 # Redis 端口
       - REDIS_PASSWORD=${REDIS_PASSWORD:-devsecret}   # Redis 密码，默认 devsecret
+      # ---- AI 模型 API Key（智能客服：聊天 + RAG 向量检索）----
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}                 # DeepSeek 聊天模型密钥
+      - QWEN_EMBEDDING_API_KEY=${QWEN_EMBEDDING_API_KEY:-}     # 通义千问向量 Embedding 密钥
     depends_on:
       mysql:
         condition: service_healthy      # 等待 MySQL 健康检查通过
