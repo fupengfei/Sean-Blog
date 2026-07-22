@@ -1,13 +1,23 @@
 'use client';
 
+import ChatButton from './ChatButton';
+import ChatPanel from './ChatPanel';
+
 /**
- * ChatWidget — 智能客服 UI 入口（暂存桩）
+ * ChatWidget — 智能客服 UI 入口
  *
- * 当前为准许 ChatProviderWrapper 编译通过的最小占位组件。
- * ChatButton 和 ChatPanel 将在后续任务中实现，届时此组件将被完整替换。
+ * 这是 ChatWidget 的顶层组件，组装：
+ * - ChatButton：始终渲染的右下角浮动按钮（点击切换开闭）
+ * - ChatPanel：对话面板（通过 ChatPanel 内部 CSS transition 控制显示/隐藏）
  *
- * TODO: Task 8 实现完整 ChatWidget（组装 ChatButton + ChatPanel）
+ * ChatPanel 始终挂载但通过 opacity + pointer-events 控制可见性，
+ * 保证面板关闭期间对话历史不丢失。
  */
 export default function ChatWidget() {
-  return null;
+  return (
+    <>
+      <ChatButton />
+      <ChatPanel />
+    </>
+  );
 }
