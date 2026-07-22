@@ -25,11 +25,8 @@ export default function MessageList() {
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3">
+    <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2.5">
       {messages.map((msg, index) => {
-        // Skip empty assistant messages (placeholder before streaming starts)
-        if (msg.role === 'assistant' && !msg.content) return null;
-
         const isLastAssistant =
           msg.role === 'assistant' &&
           index === messages.length - 1;

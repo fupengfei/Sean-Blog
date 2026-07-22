@@ -32,10 +32,11 @@ services:
     ports:
       - "8880:8880"                   # 将容器的 8880 端口映射到宿主机 8880
     volumes:
-      # 挂载宿主机目录到容器内，用于持久化存储 MD 文章、Skill 文件、图片
+      # 挂载宿主机目录到容器内，用于持久化存储 MD 文章、Skill 文件、图片、向量索引
       - ./data/articles:/data/articles   # MD 文章文件
       - ./data/skills:/data/skills       # Skill Bundle 文件
       - ./data/images:/data/images       # 图片资源
+      - ./data/lucene-index:/data/lucene-index  # Lucene HNSW 向量索引
     environment:
       # ---- 数据库连接 ----
       - DB_HOST=mysql                   # MySQL 服务名（Docker DNS 解析）

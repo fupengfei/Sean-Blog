@@ -7,8 +7,8 @@
   =============================================================================
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- 继承 Spring Boot 4.0 Parent POM，统一依赖版本管理 -->
@@ -16,7 +16,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.0</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>com.sean</groupId>
@@ -26,8 +26,21 @@
 
     <properties>
         <java.version>21</java.version>                          <!-- JDK 21（LTS） -->
-        <mybatis-spring-boot.version>4.0.0</mybatis-spring-boot.version>  <!-- MyBatis Spring Boot Starter 版本 -->
+        <mybatis-spring-boot.version>4.0.0</mybatis-spring-boot.version>  <!-- MyBatis Spring Boot
+        Starter 版本 -->
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>2.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- ====== Spring Boot Starters ====== -->
@@ -64,7 +77,14 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${mybatis-spring-boot.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-deepseek</artifactId>
+        </dependency>
         <!-- MySQL JDBC 驱动 (mysql-connector-j 是新版 Artifact ID) -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -112,6 +132,13 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-all</artifactId>
             <version>0.64.8</version>
+        </dependency>
+
+        <!-- Lucene: 嵌入式向量检索引擎，HNSW 近似最近邻搜索 -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>9.12.0</version>
         </dependency>
 
         <!-- Lombok: 通过注解减少样板代码（@Data, @Builder, @Slf4j 等） -->

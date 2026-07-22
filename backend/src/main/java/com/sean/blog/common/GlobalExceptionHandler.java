@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.util.stream.Collectors;
 
@@ -65,6 +66,20 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public Result<?> handleAccessDeniedException(AccessDeniedException e) {
         return Result.error(403, "无权限访问");
+    }
+
+    /**
+     * 处理 SSE 流式响应时客户端主动断开连接导致的异常。
+     *
+     * <p>客户端断开（关闭页面、终止按钮）是正常行为，不应记录为错误。
+     * 此处理器必须在 {@link #handleException(Exception)} 之前被 Spring 匹配到，
+     * 因为 {@code AsyncRequestNotUsableException} 继承自 {@link RuntimeException}。</p>
+     *
+     * @param e 异步请求不可用异常
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncRequestNotUsable(AsyncRequestNotUsableException e) {
+        // 安静吞掉，客户端断开 SSE 连接是正常行为
     }
 
     /**

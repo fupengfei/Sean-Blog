@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "stop": "lsof -ti :3000 | xargs kill -9 2>/dev/null; echo '已清理端口 3000'"
   },
   "dependencies": {
     "@headlessui/react": "^2.0.0",

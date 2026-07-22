@@ -16,10 +16,13 @@ export interface ChatMessage {
 interface ChatContextValue {
   messages: ChatMessage[];
   isOpen: boolean;
+  isMinimized: boolean;
   isStreaming: boolean;
   openChat: () => void;
   closeChat: () => void;
+  minimizeChat: () => void;
   sendMessage: (text: string) => Promise<void>;
+  stopStreaming: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -29,12 +32,12 @@ interface ChatContextValue {
 const WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: `👋 你好！我是 **Sean's AI 助手**，可以问我关于：
-- Sean 的技术栈和专业领域
+  content: `👋 您好！我是 **Sean's AI 助手**，可以问我关于：
+- Sean 的技术栈、专业领域和兴趣爱好
 - 博客文章和项目推荐
 - 前端 / 后端 / AI 相关技术问题
 
-有什么可以帮你的？`,
+有什么可以帮您？`,
   timestamp: Date.now(),
 };
 
@@ -66,6 +69,7 @@ export function useChat(): ChatContextValue {
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -76,14 +80,38 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const openChat = useCallback(() => setIsOpen(true), []);
+  /** 打开面板：如果已最小化则恢复，否则正常打开 */
+  const openChat = useCallback(() => {
+    if (isMinimized) {
+      setIsMinimized(false);
+    }
+    setIsOpen(true);
+  }, [isMinimized]);
+
+  /** 关闭面板：中断流、清空对话（重置为欢迎语）、重置最小化 */
   const closeChat = useCallback(() => {
-    // Abort ongoing SSE stream
     if (abortRef.current) {
       abortRef.current.abort();
       abortRef.current = null;
     }
     setIsOpen(false);
+    setIsMinimized(false);
+    setIsStreaming(false);
+    setMessages([WELCOME_MESSAGE]);
+  }, []);
+
+  /** 最小化：隐藏面板但保持流和对话状态 */
+  const minimizeChat = useCallback(() => {
+    setIsOpen(false);
+    setIsMinimized(true);
+  }, []);
+
+  /** 终止生成：中断当前 SSE 流，保留已接收内容 */
+  const stopStreaming = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     setIsStreaming(false);
   }, []);
 
@@ -110,8 +138,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsStreaming(true);
 
-    // 3. Build URL
-    const url = `/api/v1/ai/chat?message=${encodeURIComponent(trimmed)}`;
+    // 3. Build URL — 直连后端避免 Next.js rewrite 代理缓冲 SSE 流
+    const base = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+    const url = base
+      ? `${base}/ai/chat?message=${encodeURIComponent(trimmed)}`
+      : `/api/v1/ai/chat?message=${encodeURIComponent(trimmed)}`;
 
     // 4. Create AbortController
     const controller = new AbortController();
@@ -145,6 +176,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No response body');
       }
 
+      const contentType = response.headers.get('content-type') || '';
+      const isSSE = contentType.includes('text/event-stream');
+
       const decoder = new TextDecoder();
       let buffer = '';
 
@@ -154,33 +188,48 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
         buffer += decoder.decode(value, { stream: true });
 
-        // Parse complete SSE events from buffer (split by double-newline = event boundary)
-        const events = buffer.split('\n\n');
-        buffer = events.pop() || '';
+        if (isSSE) {
+          const events = buffer.split('\n\n');
+          buffer = events.pop() || '';
 
-        let newContent = '';
-        for (const event of events) {
-          if (!event.trim()) continue;
-          const dataLines: string[] = [];
-          for (const line of event.split('\n')) {
-            if (line.startsWith('data: ')) dataLines.push(line.slice(6));
-            else if (line.startsWith('data:')) dataLines.push(line.slice(5));
+          // 本轮 reader.read() 收到的所有 SSE 事件，一次性拼好更新 state
+          let batchContent = '';
+          for (const event of events) {
+            if (!event.trim()) continue;
+            const dataLines: string[] = [];
+            for (const line of event.split('\n')) {
+              if (line.startsWith('data: ')) dataLines.push(line.slice(6));
+              else if (line.startsWith('data:')) dataLines.push(line.slice(5));
+            }
+            if (dataLines.length > 0) {
+              batchContent += dataLines.join('\n');
+            }
           }
-          if (dataLines.length > 0) {
-            newContent += dataLines.join('\n');
-          }
-        }
 
-        if (newContent) {
-          setMessages((prev) => {
-            const updated = [...prev];
-            const last = updated[updated.length - 1];
-            updated[updated.length - 1] = {
-              ...last,
-              content: last.content + newContent,
-            };
-            return updated;
-          });
+          if (batchContent) {
+            setMessages((prev) => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              updated[updated.length - 1] = {
+                ...last,
+                content: last.content + batchContent,
+              };
+              return updated;
+            });
+          }
+        } else {
+          if (buffer) {
+            setMessages((prev) => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              updated[updated.length - 1] = {
+                ...last,
+                content: last.content + buffer,
+              };
+              return updated;
+            });
+            buffer = '';
+          }
         }
       }
     } catch (err: unknown) {
@@ -211,7 +260,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ChatContext.Provider
-      value={{ messages, isOpen, isStreaming, openChat, closeChat, sendMessage }}
+      value={{ messages, isOpen, isMinimized, isStreaming, openChat, closeChat, minimizeChat, sendMessage, stopStreaming }}
     >
       {children}
     </ChatContext.Provider>
