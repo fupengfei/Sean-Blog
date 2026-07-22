@@ -13,11 +13,19 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+/** 用户正在阅读的文章上下文（id 为 string，对应前端 Article.id 的 Long 精度保护） */
+export interface ArticleContext {
+  id: string;
+  title: string;
+}
+
 interface ChatContextValue {
   messages: ChatMessage[];
   isOpen: boolean;
   isMinimized: boolean;
   isStreaming: boolean;
+  articleContext: ArticleContext | null;
+  setArticleContext: (ctx: ArticleContext | null) => void;
   openChat: () => void;
   closeChat: () => void;
   minimizeChat: () => void;
@@ -29,17 +37,20 @@ interface ChatContextValue {
 // Welcome message
 // ---------------------------------------------------------------------------
 
-const WELCOME_MESSAGE: ChatMessage = {
-  id: 'welcome',
-  role: 'assistant',
-  content: `👋 您好！我是 **Sean's AI 助手**，可以问我关于：
+/** 根据文章上下文生成欢迎语：文章页显示文章版，其他页面显示通用版 */
+function buildWelcomeMessage(articleContext: ArticleContext | null): ChatMessage {
+  const content = articleContext
+    ? `📖 你正在阅读 **《${articleContext.title}》**，可以问我任何关于这篇文章的问题，比如「这篇文章讲了什么？」
+
+也可以继续问我关于 Sean 的技术栈、博客文章或技术问题。`
+    : `👋 您好！我是 **Sean's AI 助手**，可以问我关于：
 - Sean 的技术栈、专业领域和兴趣爱好
 - 博客文章和项目推荐
 - 前端 / 后端 / AI 相关技术问题
 
-有什么可以帮您？`,
-  timestamp: Date.now(),
-};
+有什么可以帮您？`;
+  return { id: 'welcome', role: 'assistant', content, timestamp: Date.now() };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -67,10 +78,11 @@ export function useChat(): ChatContextValue {
 // ---------------------------------------------------------------------------
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [buildWelcomeMessage(null)]);
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [articleContext, setArticleContext] = useState<ArticleContext | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Abort any in-flight stream on unmount
@@ -79,6 +91,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       abortRef.current?.abort();
     };
   }, []);
+
+  // 文章上下文变化时：若还没有真实对话，欢迎语联动更新；已有对话则不动（chip 已传达上下文）
+  useEffect(() => {
+    setMessages((prev) => {
+      const hasConversation = prev.some((m) => m.id !== 'welcome');
+      if (hasConversation) return prev;
+      return [buildWelcomeMessage(articleContext)];
+    });
+  }, [articleContext]);
 
   /** 打开面板：如果已最小化则恢复，否则正常打开 */
   const openChat = useCallback(() => {
@@ -97,8 +118,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(false);
     setIsMinimized(false);
     setIsStreaming(false);
-    setMessages([WELCOME_MESSAGE]);
-  }, []);
+    setMessages([buildWelcomeMessage(articleContext)]);
+  }, [articleContext]);
 
   /** 最小化：隐藏面板但保持流和对话状态 */
   const minimizeChat = useCallback(() => {
@@ -138,18 +159,31 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsStreaming(true);
 
-    // 3. Build URL — 直连后端避免 Next.js rewrite 代理缓冲 SSE 流
+    // 3. 构建历史（发送前快照，剔除欢迎语）— 前端轻裁剪，后端兜底校验
+    const history = messages
+      .filter((m) => m.id !== 'welcome')
+      .slice(-10)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+
+    // Build URL — 直连后端避免 Next.js rewrite 代理缓冲 SSE 流
     const base = process.env.NEXT_PUBLIC_BACKEND_URL || '';
-    const url = base
-      ? `${base}/ai/chat?message=${encodeURIComponent(trimmed)}`
-      : `/api/v1/ai/chat?message=${encodeURIComponent(trimmed)}`;
+    const url = base ? `${base}/ai/chat` : '/api/v1/ai/chat';
 
     // 4. Create AbortController
     const controller = new AbortController();
     abortRef.current = controller;
 
     try {
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: trimmed,
+          articleId: articleContext ? articleContext.id : null,
+          history,
+        }),
+        signal: controller.signal,
+      });
 
       if (!response.ok) {
         // HTTP error
@@ -256,11 +290,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setIsStreaming(false);
       abortRef.current = null;
     }
-  }, [isStreaming]);
+  }, [isStreaming, messages, articleContext]);
 
   return (
     <ChatContext.Provider
-      value={{ messages, isOpen, isMinimized, isStreaming, openChat, closeChat, minimizeChat, sendMessage, stopStreaming }}
+      value={{ messages, isOpen, isMinimized, isStreaming, articleContext, setArticleContext, openChat, closeChat, minimizeChat, sendMessage, stopStreaming }}
     >
       {children}
     </ChatContext.Provider>
