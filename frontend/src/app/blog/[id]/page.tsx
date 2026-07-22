@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleById, getNextArticle, getPrerequisiteArticle, getRelatedArticles } from '@/lib/api';
+import { useChat } from '@/components/chat/ChatProvider';
 import type { Article, ArticleSummary } from '@/types';
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
@@ -288,6 +289,7 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
 export default function ArticleDetailPage() {
   const params = useParams();
   const articleId = params.id as string;
+  const { setArticleContext } = useChat();
 
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -339,6 +341,14 @@ export default function ArticleDetailPage() {
         // Non-critical; silently ignore
       });
   }, [articleId]);
+
+  // 将当前文章同步给全局 AI 助手（文章上下文感知）；离开文章页时清除
+  useEffect(() => {
+    if (article) {
+      setArticleContext({ id: article.id, title: article.title });
+    }
+    return () => setArticleContext(null);
+  }, [article, setArticleContext]);
 
   // ------------------------------------------------------------------
   // States: loading / error
