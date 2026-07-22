@@ -1,6 +1,7 @@
 'use client';
 
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from './ChatProvider';
 import { useChat } from './ChatProvider';
 
@@ -45,8 +46,8 @@ export default function MessageBubble({
         {isUser ? (
           <p className="whitespace-pre-wrap break-words">{message.content}</p>
         ) : (
-          <div className="prose prose-sm max-w-none prose-p:my-1 prose-a:text-primary prose-code:text-sm prose-code:bg-surface-container-low prose-code:px-1 prose-code:rounded">
-            <ReactMarkdown>{message.content}</ReactMarkdown>
+          <div className={`prose prose-sm max-w-none prose-p:my-1 prose-a:text-primary prose-code:text-sm prose-code:bg-surface-container-low prose-code:px-1 prose-code:rounded ${message.content.startsWith('⚠️') ? 'text-red-500' : ''}`}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
             {showCursor && (
               <span className="inline-block w-2 h-4 bg-primary animate-pulse align-text-bottom ml-0.5" />
             )}

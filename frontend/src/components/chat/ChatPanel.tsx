@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useChat } from './ChatProvider';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
@@ -21,10 +22,22 @@ import ChatInput from './ChatInput';
 export default function ChatPanel() {
   const { isOpen, closeChat } = useChat();
 
+  // Lock body scroll when mobile panel is open
+  useEffect(() => {
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [isOpen]);
+
   return (
     <>
       {/* Mobile full-screen panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="AI 对话面板"
         className={`
           md:hidden fixed inset-0 z-40 bg-surface flex flex-col
           transition-all duration-300 ease-out
@@ -56,6 +69,9 @@ export default function ChatPanel() {
 
       {/* Desktop floating panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="AI 对话面板"
         className={`
           hidden md:flex fixed bottom-24 right-6 z-40
           w-[380px] h-[520px] flex-col bg-surface

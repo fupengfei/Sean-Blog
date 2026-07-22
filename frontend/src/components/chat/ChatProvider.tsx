@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -68,6 +68,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Abort any in-flight stream on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const openChat = useCallback(() => setIsOpen(true), []);
   const closeChat = useCallback(() => {
@@ -147,16 +154,20 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
         buffer += decoder.decode(value, { stream: true });
 
-        // Parse SSE lines
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        // Parse complete SSE events from buffer (split by double-newline = event boundary)
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || '';
 
         let newContent = '';
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            newContent += line.slice(6);
-          } else if (line.startsWith('data:')) {
-            newContent += line.slice(5);
+        for (const event of events) {
+          if (!event.trim()) continue;
+          const dataLines: string[] = [];
+          for (const line of event.split('\n')) {
+            if (line.startsWith('data: ')) dataLines.push(line.slice(6));
+            else if (line.startsWith('data:')) dataLines.push(line.slice(5));
+          }
+          if (dataLines.length > 0) {
+            newContent += dataLines.join('\n');
           }
         }
 
