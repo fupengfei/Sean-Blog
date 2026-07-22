@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import type { Article } from '@/types';
 
+/** 列表项文章卡片 Props */
 interface ArticleListItemProps {
   article: Article;
 }
 
+/**
+ * 格式化日期为中文长格式（如「2026年7月22日」）
+ */
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString('zh-CN', {
@@ -14,6 +18,16 @@ function formatDate(dateStr: string): string {
   });
 }
 
+/**
+ * 文章列表项组件
+ *
+ * 用于博客列表页的单行布局（桌面端）：
+ * - 左侧：发布日期（固定宽度 128px）
+ * - 中间：分类标签 + 作者 + 标题 + 摘要 + 标签列表
+ * - 右侧：箭头图标（hover 时变色）
+ *
+ * 移动端自动切换为上下堆叠布局。
+ */
 export default function ArticleListItem({ article }: ArticleListItemProps) {
   return (
     <Link

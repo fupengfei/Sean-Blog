@@ -1,40 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  FileBundleMapper: Skill Bundle 文件包数据访问
+  对应 Java 接口：com.sean.blog.module.file.mapper.FileBundleMapper
+  管理 Skill Bundle 的元数据（名称、描述、文件路径、状态）
+-->
 <mapper namespace="com.sean.blog.module.file.mapper.FileBundleMapper">
+
+    <!-- findByStatus: 按状态查询 Bundle（如查询已发布或草稿的 Skill） -->
     <select id="findByStatus" resultType="com.sean.blog.module.file.entity.FileBundle">
         SELECT * FROM t_file_bundle WHERE status = #{status} ORDER BY created_at DESC
     </select>
+
+    <!-- findFeatured: 查询已发布的精选 Bundle（首页展示用） -->
     <select id="findFeatured" resultType="com.sean.blog.module.file.entity.FileBundle">
         SELECT * FROM t_file_bundle WHERE is_featured = 1 AND status = 'PUBLISHED' ORDER BY created_at DESC
     </select>
+
+    <!-- findAll: 查询所有 Bundle（后台管理用） -->
     <select id="findAll" resultType="com.sean.blog.module.file.entity.FileBundle">
         SELECT * FROM t_file_bundle ORDER BY created_at DESC
     </select>
+
+    <!-- findById: 按主键查询单个 Bundle -->
     <select id="findById" resultType="com.sean.blog.module.file.entity.FileBundle">
         SELECT * FROM t_file_bundle WHERE id = #{id}
     </select>
+
+    <!-- insert: 创建新 Bundle（通常在 zip 上传解压后创建） -->
     <insert id="insert">
         INSERT INTO t_file_bundle (id, name, description, root_path, type, status, is_featured, file_count)
         VALUES (#{id}, #{name}, #{description}, #{rootPath}, #{type}, #{status}, #{isFeatured}, #{fileCount})
     </insert>
+
+    <!-- updateStatus: 更改 Bundle 发布状态（草稿 ↔ 已发布） -->
     <update id="updateStatus">
         UPDATE t_file_bundle SET status = #{status} WHERE id = #{id}
     </update>
+
+    <!-- updateFileCount: 更新 Bundle 内的文件数量统计 -->
     <update id="updateFileCount">
         UPDATE t_file_bundle SET file_count = #{count} WHERE id = #{id}
     </update>
+
+    <!-- updateRootPath: 更新 Bundle 的根路径（文件移动后使用） -->
     <update id="updateRootPath">
         UPDATE t_file_bundle SET root_path = #{rootPath} WHERE id = #{id}
     </update>
+
+    <!-- toggleFeature: 切换精选状态（利用 1 - is_featured 实现开关切换） -->
     <update id="toggleFeature">
         UPDATE t_file_bundle SET is_featured = 1 - is_featured WHERE id = #{id}
     </update>
+
+    <!-- update: 更新 Bundle 基本信息 -->
     <update id="update">
         UPDATE t_file_bundle
         SET name = #{name}, description = #{description}, type = #{type}
         WHERE id = #{id}
     </update>
+
+    <!-- deleteById: 删除 Bundle（级联删除关联的文件节点） -->
     <delete id="deleteById">
         DELETE FROM t_file_bundle WHERE id = #{id}
     </delete>

@@ -4,9 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { Article } from '@/types';
 
+/**
+ * 文章卡片 Props
+ */
 interface ArticleCardProps {
   article: Article;
+  /** 卡片变体：featured（首篇突出）| default（普通） */
   variant?: 'featured' | 'default';
+  /** 卡片在列表中的索引，用于交错动画延迟和左侧 accent 颜色 */
   index?: number;
 }
 
@@ -32,6 +37,17 @@ function accentStyle(index: number): string {
   return accents[index % accents.length];
 }
 
+/**
+ * 文章卡片组件
+ *
+ * 用于博客专栏页的瀑布流网格布局。
+ *
+ * 核心设计：
+ * - **渐进入场动画**：使用 IntersectionObserver 检测可见性，每个卡片按 index 依次 delay 80ms 淡入
+ * - **左侧彩色 accent**：非 featured 卡片左侧有 2px 彩色边线（`accentStyle()` 轮换 6 种颜色），增强视觉节奏
+ * - **Featured 变体**：更大的内边距、更大的标题字号、左侧 3px Navy 色边线
+ * - **高度变化来源**：摘要行数不固定（line-clamp-3/4），不同卡片的标签数量也不同
+ */
 export default function ArticleCard({ article, variant = 'default', index = 0 }: ArticleCardProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [isVisible, setIsVisible] = useState(false);

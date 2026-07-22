@@ -9,6 +9,19 @@ interface Stats {
   bundles: number;
 }
 
+/**
+ * Admin 仪表盘（/admin/dashboard）
+ *
+ * 数据获取：客户端 fetch，挂载时并行请求文章总数、项目列表、Bundle 列表（Promise.all）
+ * 使用 cancelled 标志避免组件卸载后的状态更新（cleanup 函数）
+ *
+ * 展示内容：3 个统计卡片（文章总数、项目总数、Bundle 总数）
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error：红色错误提示
+ * - normal：统计卡片网格
+ */
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats>({
     articles: 0,

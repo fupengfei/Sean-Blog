@@ -1,25 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  CategoryMapper: 文章分类数据访问
+  对应 Java 接口：com.sean.blog.module.blog.mapper.CategoryMapper
+  提供分类的增删改查和名称重复校验
+-->
 <mapper namespace="com.sean.blog.module.blog.mapper.CategoryMapper">
+
+    <!-- findAll: 查询所有分类，按 ID 排序（后台管理用） -->
     <select id="findAll" resultType="com.sean.blog.module.blog.entity.Category">
         SELECT id, name, slug, created_at, updated_at FROM t_category ORDER BY id
     </select>
+
+    <!-- findById: 按主键 ID 查询分类 -->
     <select id="findById" resultType="com.sean.blog.module.blog.entity.Category">
         SELECT id, name, slug, created_at, updated_at FROM t_category WHERE id = #{id}
     </select>
+
+    <!-- findBySlug: 按 slug 查询分类（URL 友好标识，用于前端筛选） -->
     <select id="findBySlug" resultType="com.sean.blog.module.blog.entity.Category">
         SELECT id, name, slug, created_at, updated_at FROM t_category WHERE slug = #{slug}
     </select>
+
+    <!-- insert: 创建新分类 -->
     <insert id="insert">
         INSERT INTO t_category (id, name, slug) VALUES (#{id}, #{name}, #{slug})
     </insert>
+
+    <!-- update: 更新分类名称和 slug -->
     <update id="update">
         UPDATE t_category SET name = #{name}, slug = #{slug} WHERE id = #{id}
     </update>
+
+    <!-- deleteById: 删除分类（级联规则：关联文章的分类会被置 NULL） -->
     <delete id="deleteById">
         DELETE FROM t_category WHERE id = #{id}
     </delete>
+
+    <!-- existsByName: 检查分类名称是否已存在（用于创建时的唯一性校验） -->
     <select id="existsByName" resultType="boolean">
         SELECT COUNT(*) > 0 FROM t_category WHERE name = #{name}
     </select>

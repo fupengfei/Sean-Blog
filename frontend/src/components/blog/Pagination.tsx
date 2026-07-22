@@ -1,11 +1,28 @@
 'use client';
 
+/**
+ * 分页器 Props
+ */
 interface PaginationProps {
+  /** 当前页码（从 1 开始） */
   page: number;
+  /** 总页数 */
   totalPages: number;
+  /** 页码变更回调 */
   onPageChange: (page: number) => void;
 }
 
+/**
+ * 分页器组件
+ *
+ * 设计约定：
+ * - 只有 1 页时返回 null（不显示分页器）
+ * - 总页数 <= 7 时显示所有页码
+ * - 总页数 > 7 时使用省略号折行：始终显示首页和末页，中间显示当前页附近的页码
+ *
+ * 包含：首页、上一页、页码（含省略号）、下一页、末页
+ * 首尾页禁用时降低透明度并禁用点击。
+ */
 export default function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) {
     return null;

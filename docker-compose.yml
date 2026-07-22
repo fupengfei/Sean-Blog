@@ -1,60 +1,95 @@
+# =============================================================================
+# Sean's AI World Blog — Docker Compose 编排文件
+# =============================================================================
+# 服务架构：Nginx（宿主机/独立部署）→ Frontend (Next.js) + Backend (Spring Boot)
+# 数据层：MySQL 8.0 + Redis 7
+# 启动方式：docker compose up -d
+# 注意：生产环境请通过环境变量或 .env 文件覆盖默认密码和密钥
+# =============================================================================
+
 services:
+  # ---------------------------------------------------------------------------
+  # Frontend — Next.js 14 前端服务
+  # 通过 BACKEND_URL 环境变量连接后端 API（容器内 DNS 解析 backend:8880）
+  # ---------------------------------------------------------------------------
   frontend:
-    build: ./frontend
+    build: ./frontend                 # 构建上下文：frontend/ 目录
     container_name: sean-blog-frontend
     ports:
-      - "3000:3000"
+      - "3000:3000"                   # 将容器的 3000 端口映射到宿主机 3000
     environment:
-      - BACKEND_URL=http://backend:8880
-    restart: unless-stopped
+      - BACKEND_URL=http://backend:8880  # 后端 API 地址（Docker 内部网络）
+    restart: unless-stopped           # 异常退出时自动重启
 
+  # ---------------------------------------------------------------------------
+  # Backend — Spring Boot 4.x 后端服务
+  # 提供 REST API（公开 /api/v1/* 和 Admin /api/v1/admin/*）
+  # 依赖 MySQL 健康检查通过后才启动，确保数据库就绪
+  # ---------------------------------------------------------------------------
   backend:
-    build: ./backend
+    build: ./backend                  # 构建上下文：backend/ 目录
     container_name: sean-blog-backend
     ports:
-      - "8880:8880"
+      - "8880:8880"                   # 将容器的 8880 端口映射到宿主机 8880
     volumes:
-      - ./data/articles:/data/articles
-      - ./data/skills:/data/skills
-      - ./data/images:/data/images
+      # 挂载宿主机目录到容器内，用于持久化存储 MD 文章、Skill 文件、图片
+      - ./data/articles:/data/articles   # MD 文章文件
+      - ./data/skills:/data/skills       # Skill Bundle 文件
+      - ./data/images:/data/images       # 图片资源
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_NAME=sean_blog
-      - DB_USER=root
-      - DB_PASSWORD=${DB_PASSWORD:-devsecret}
-      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-do-not-use-in-production}
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
-      - FILE_BASE_PATH=/data
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-devsecret}
+      # ---- 数据库连接 ----
+      - DB_HOST=mysql                   # MySQL 服务名（Docker DNS 解析）
+      - DB_PORT=3306                    # MySQL 端口
+      - DB_NAME=sean_blog               # 数据库名
+      - DB_USER=root                    # 数据库用户
+      - DB_PASSWORD=${DB_PASSWORD:-devsecret}  # 数据库密码，默认 devsecret
+      # ---- JWT 认证 ----
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-do-not-use-in-production}  # JWT 签名密钥
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}       # 管理员用户名
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}    # 管理员密码
+      # ---- 文件存储 ----
+      - FILE_BASE_PATH=/data            # 文件存储根路径（容器内）
+      # ---- Redis 缓存 ----
+      - REDIS_HOST=redis                # Redis 服务名（Docker DNS 解析）
+      - REDIS_PORT=6379                 # Redis 端口
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-devsecret}   # Redis 密码，默认 devsecret
     depends_on:
       mysql:
-        condition: service_healthy
+        condition: service_healthy      # 等待 MySQL 健康检查通过
       redis:
-        condition: service_started
+        condition: service_started      # 等待 Redis 启动完成
     restart: unless-stopped
 
+  # ---------------------------------------------------------------------------
+  # Redis — 缓存服务
+  # 用途：访问统计缓存、IP 地理位置缓存等
+  # 版本：Redis 7 Alpine（轻量镜像）
+  # ---------------------------------------------------------------------------
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine              # 使用 Redis 7 Alpine 官方镜像
     container_name: sean-blog-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD:-devsecret}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-devsecret}  # 设置密码
     restart: unless-stopped
 
+  # ---------------------------------------------------------------------------
+  # MySQL — 关系型数据库
+  # 版本：MySQL 8.0
+  # 数据持久化：挂载 ./data/mysql 到容器内 /var/lib/mysql
+  # 健康检查：通过 mysqladmin ping 检测数据库可用性
+  # 宿主机端口 3308 映射到容器 3306（避免与宿主机已有 MySQL 冲突）
+  # ---------------------------------------------------------------------------
   mysql:
-    image: mysql:8.0
+    image: mysql:8.0                   # 使用 MySQL 8.0 官方镜像
     container_name: sean-blog-mysql
     ports:
-      - "3308:3306"
+      - "3308:3306"                    # 宿主机 3308 → 容器 3306
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql    # 数据文件持久化到宿主机
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-devsecret}
-      - MYSQL_DATABASE=sean_blog
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-devsecret}  # root 密码
+      - MYSQL_DATABASE=sean_blog       # 自动创建数据库
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]  # ping 检测
+      timeout: 20s                     # 单次检测超时时间
+      retries: 10                      # 重试次数
     restart: unless-stopped

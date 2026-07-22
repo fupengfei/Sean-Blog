@@ -4,6 +4,15 @@ import { useState } from 'react';
 import ResumeModal from './ResumeModal';
 import MailModal from './MailModal';
 
+/**
+ * 首页 CTA（Call To Action）区域
+ *
+ * Navy 背景的圆角卡片，包含两条 CTA 按钮：
+ * - **发送邮件**：打开 MailModal 弹窗
+ * - **获取简历**：打开 ResumeModal 弹窗
+ *
+ * 装饰元素：两个模糊圆形背景（白色和 secondary 色），营造光影层次感
+ */
 export default function CTASection() {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [mailModalOpen, setMailModalOpen] = useState(false);

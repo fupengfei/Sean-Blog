@@ -4,11 +4,24 @@ import { useEffect, useState } from 'react';
 import { getCategories } from '@/lib/api';
 import type { Category } from '@/types';
 
+/**
+ * 分类筛选栏 Props
+ */
 interface FilterBarProps {
+  /** 当前选中的分类 ID，null 表示「全部」 */
   selectedCategory: string | null;
+  /** 分类切换回调，传入分类 ID 或 null */
   onCategoryChange: (id: string | null) => void;
 }
 
+/**
+ * 博客列表页分类筛选栏
+ *
+ * 渲染一排可点击的分类标签按钮：
+ * - 「全部」按钮始终在首位，选中时高亮为 Navy 背景白色文字
+ * - 从后端加载分类列表，Loading 时显示骨架屏占位
+ * - 无分类数据时返回 null（不渲染任何内容）
+ */
 export default function FilterBar({ selectedCategory, onCategoryChange }: FilterBarProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

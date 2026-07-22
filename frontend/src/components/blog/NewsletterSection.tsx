@@ -3,6 +3,22 @@
 import { useState } from 'react';
 import { postSubscribeContact } from '@/lib/api';
 
+/**
+ * 邮件订阅区域（博客页底部 CTA）
+ *
+ * Primary-container 背景的全宽区域，包含：
+ * - 「定期更新」徽章
+ * - 订阅标题和描述
+ * - 邮箱输入框 + 提交按钮（横向并排，移动端堆叠）
+ *
+ * 状态流转：
+ * - **表单态**：邮箱输入 + 「立即加入」按钮
+ * - **提交中**：按钮显示「提交中...」并禁用
+ * - **成功态**：显示「感谢订阅！」成功提示 + 投递说明
+ * - **错误态**：红色错误提示文字
+ *
+ * 提交后记录到后端 Contact 表（type=SUBSCRIBE）。
+ */
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);

@@ -5,6 +5,13 @@ const socialLinks = [
   { href: '/blog', label: 'Blog' },
 ];
 
+/**
+ * 全局页脚组件
+ *
+ * 左右两栏布局：
+ * - 左侧：Logo 名称 + 版权声明（动态年份）
+ * - 右侧：社交链接（GitHub、Blog 等）
+ */
 export default function Footer() {
   return (
     <footer className="bg-surface-container-low border-t border-outline-variant">

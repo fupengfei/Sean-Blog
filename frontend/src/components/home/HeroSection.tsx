@@ -1,5 +1,16 @@
 import Link from 'next/link';
 
+/**
+ * 首页 Hero 区域
+ *
+ * 双栏布局（桌面端）：
+ * - 左侧：主标题 + 描述文案 + CTA 按钮（查看作品 / 阅读博客）
+ * - 右侧：Hero 配图（带 3° 旋转动效，hover 时回正）+ 浮动身份徽章
+ *
+ * 设计决策：
+ * - 图片使用 `rotate-3 hover:rotate-0` 制造视觉趣味性
+ * - 浮动徽章仅桌面端显示（`hidden sm:block`），内容硬编码为「JAVA 后端工程师 / AI 应用探索者」
+ */
 export default function HeroSection() {
   return (
     <section className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-24 md:py-32">

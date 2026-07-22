@@ -1,9 +1,24 @@
 import type { Project } from '@/types';
 
+/** 项目卡片 Props */
 interface ProjectCardProps {
   project: Project;
 }
 
+/**
+ * 项目展示卡片
+ *
+ * 用于项目列表页的网格布局。
+ *
+ * 卡片结构：
+ * - **封面图**：aspect-video 比例，hover 时放大（scale-105）；无图时显示占位图标
+ * - **标签**：从 `project.tags`（JSON 字符串）解析后展示
+ * - **标题**：单行截断
+ * - **描述**：最多 3 行截断
+ * - **操作按钮**：访问网站（Navy 实色按钮）和 GitHub（ghost 按钮），仅当 URL 存在时显示
+ *
+ * Hover 动效：轻微上浮（-translate-y-1）+ 阴影
+ */
 export default function ProjectCard({ project }: ProjectCardProps) {
   const tagList: string[] = (() => {
     try {

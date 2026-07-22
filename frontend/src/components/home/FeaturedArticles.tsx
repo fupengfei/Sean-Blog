@@ -14,6 +14,18 @@ function formatDate(dateStr: string): string {
   });
 }
 
+/**
+ * 首页精选文章区域
+ *
+ * 展示最多 6 篇精选文章，以列表形式呈现。
+ *
+ * 三种状态：
+ * - **Loading**：骨架屏脉冲动画（3 个占位卡片）
+ * - **Empty**：虚线占位卡片（2 个），提示「文章即将发布」
+ * - **Data**：文章列表 + 「阅读更多文章」按钮
+ *
+ * 每篇文章卡片包含：发布日期、分类标签、作者、标题、摘要、标签列表、箭头图标
+ */
 export default function FeaturedArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);

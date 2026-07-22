@@ -1,25 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  ContactRecordMapper: 联系记录数据访问
+  对应 Java 接口：com.sean.blog.module.contact.mapper.ContactRecordMapper
+  管理用户通过网站提交的联系表单、简历请求等记录
+  支持按类型筛选、分页查询、按类型聚合统计
+-->
 <mapper namespace="com.sean.blog.module.contact.mapper.ContactRecordMapper">
+
+    <!-- insert: 创建新的联系记录（用户提交表单时调用） -->
     <insert id="insert">
         INSERT INTO t_contact_record (id, type, content, company_name, email, ip_address)
         VALUES (#{id}, #{type}, #{content}, #{companyName}, #{email}, #{ipAddress})
     </insert>
+
+    <!-- findAll: 分页查询联系记录，支持按 type 筛选（后台管理用） -->
     <select id="findAll" resultType="com.sean.blog.module.contact.entity.ContactRecord">
         SELECT * FROM t_contact_record
         <where>
-            <if test="type != null and type != ''">AND type = #{type}</if>
+            <if test="type != null and type != ''">AND type = #{type}</if>  <!-- 可选类型筛选 -->
         </where>
         ORDER BY created_at DESC
         LIMIT #{offset}, #{size}
     </select>
+
+    <!-- count: 统计联系记录总数（支持类型筛选，配合分页使用） -->
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM t_contact_record
         <where>
             <if test="type != null and type != ''">AND type = #{type}</if>
         </where>
     </select>
+
+    <!-- countByType: 按类型聚合统计（如 MAIL: 10, RESUME: 5），返回 Map 列表 -->
     <select id="countByType" resultType="java.util.HashMap">
         SELECT type, COUNT(*) AS cnt FROM t_contact_record GROUP BY type
     </select>

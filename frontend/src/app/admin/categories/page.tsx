@@ -9,6 +9,7 @@ import {
 } from "@/lib/api";
 import type { Category } from "@/types";
 
+/** 格式化 ISO 日期为中文短格式（如 "2026/07/22"） */
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString("zh-CN", {
@@ -18,6 +19,22 @@ function formatDate(dateStr: string): string {
   });
 }
 
+/**
+ * 分类管理页（/admin/categories）
+ *
+ * 数据获取：客户端 fetch（adminGetCategories），挂载时一次性加载全部分类
+ *
+ * 功能：
+ * - 表格展示：名称、Slug、创建时间、操作（编辑/删除）
+ * - 新建/编辑 Modal：名称 + Slug 表单，区分新建和编辑模式
+ * - 删除确认 Modal：二次确认弹窗
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - empty：图标 + "暂无分类"
+ * - error：红色错误提示
+ * - normal：表格 + 可能的 Modal
+ */
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

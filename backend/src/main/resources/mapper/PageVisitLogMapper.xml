@@ -1,40 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  PageVisitLogMapper: 页面访问明细日志数据访问
+  对应 Java 接口：com.sean.blog.module.analytics.mapper.PageVisitLogMapper
+  记录每次页面访问的详细信息，支持地理位置回填、独立访客统计、国家排行
+-->
 <mapper namespace="com.sean.blog.module.analytics.mapper.PageVisitLogMapper">
 
+    <!-- insert: 插入新的访问日志（每次页面访问时调用，先记录 IP 和时间，地理位置异步回填） -->
     <insert id="insert">
         INSERT INTO t_page_visit_log (id, page_type, page_key, ip, visited_at)
         VALUES (#{id}, #{pageType}, #{pageKey}, #{ip}, NOW())
     </insert>
 
+    <!-- updateGeo: 回填访问记录的地理位置信息（通过外部 GeoIP 服务解析后更新） -->
     <update id="updateGeo">
         UPDATE t_page_visit_log
         SET country = #{country}, region = #{region}, city = #{city}
         WHERE id = #{id}
     </update>
 
+    <!-- countUniqueIp: 统计指定时间窗口内的独立 IP 数量（UV 指标） -->
     <select id="countUniqueIp" resultType="long">
         SELECT COUNT(DISTINCT ip) FROM t_page_visit_log
         WHERE visited_at >= #{startDay}
     </select>
 
+    <!-- countryRank: 按国家统计独立 IP 数排行（排除本地和空值） -->
     <select id="countryRank" resultType="map">
         SELECT
             country,
-            COUNT(DISTINCT ip) AS cnt
+            COUNT(DISTINCT ip) AS cnt              -- 独立 IP 数量
         FROM t_page_visit_log
         WHERE visited_at >= #{startDay}
-          AND country IS NOT NULL
-          AND country != ''
-          AND country != 'Local'
+          AND country IS NOT NULL                   -- 排除未解析的记录
+          AND country != ''                          -- 排除空字符串
+          AND country != 'Local'                     -- 排除本地开发环境
         GROUP BY country
         ORDER BY cnt DESC
     </select>
 
+    <!-- findWithoutGeo: 查询未解析地理位置的访问记录（批量回填用） -->
     <select id="findWithoutGeo" resultType="com.sean.blog.module.analytics.entity.PageVisitLog">
         SELECT * FROM t_page_visit_log
-        WHERE country IS NULL
+        WHERE country IS NULL                       -- 未解析地理位置的记录
         ORDER BY id ASC
         LIMIT #{limit}
     </select>

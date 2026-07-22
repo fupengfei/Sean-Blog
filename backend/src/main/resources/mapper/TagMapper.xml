@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  TagMapper: 文章标签数据访问
+  对应 Java 接口：com.sean.blog.module.blog.mapper.TagMapper
+  提供标签的增删改查和名称重复校验
+  标签通过 t_article_tag 关联表与文章建立多对多关系
+-->
 <mapper namespace="com.sean.blog.module.blog.mapper.TagMapper">
+
+    <!-- findAll: 查询所有标签，按 ID 排序（后台管理用） -->
     <select id="findAll" resultType="com.sean.blog.module.blog.entity.Tag">
         SELECT id, name, slug, created_at, updated_at FROM t_tag ORDER BY id
     </select>
+
+    <!-- findById: 按主键 ID 查询标签 -->
     <select id="findById" resultType="com.sean.blog.module.blog.entity.Tag">
         SELECT id, name, slug, created_at, updated_at FROM t_tag WHERE id = #{id}
     </select>
+
+    <!-- findBySlug: 按 slug 查询标签（用于前端标签筛选） -->
     <select id="findBySlug" resultType="com.sean.blog.module.blog.entity.Tag">
         SELECT id, name, slug, created_at, updated_at FROM t_tag WHERE slug = #{slug}
     </select>
+
+    <!-- insert: 创建新标签 -->
     <insert id="insert">
         INSERT INTO t_tag (id, name, slug) VALUES (#{id}, #{name}, #{slug})
     </insert>
+
+    <!-- update: 更新标签名称和 slug -->
     <update id="update">
         UPDATE t_tag SET name = #{name}, slug = #{slug} WHERE id = #{id}
     </update>
+
+    <!-- deleteById: 删除标签（级联删除与文章的关联记录） -->
     <delete id="deleteById">
         DELETE FROM t_tag WHERE id = #{id}
     </delete>
+
+    <!-- existsByName: 检查标签名称是否已存在（用于创建时的唯一性校验） -->
     <select id="existsByName" resultType="boolean">
         SELECT COUNT(*) > 0 FROM t_tag WHERE name = #{name}
     </select>

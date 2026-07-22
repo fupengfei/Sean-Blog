@@ -8,6 +8,18 @@ import BundleCard from '@/components/skill/BundleCard';
 import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
 
+/**
+ * Skill 列表页（/blog/skills）
+ *
+ * 数据获取：客户端 fetch（getBundles），挂载时一次性加载
+ *
+ * 页面结构：返回博客链接 + 标题 + BundleCard 网格
+ *
+ * 状态覆盖：
+ * - loading：3 列骨架屏卡片
+ * - empty：虚线占位卡片（"更多 Skill 即将上线"），不足 3 个时补位
+ * - normal：BundleCard 网格，不足 3 时 justify-center + 虚线补位
+ */
 export default function SkillsPage() {
   const [bundles, setBundles] = useState<FileBundle[]>([]);
   const [loading, setLoading] = useState(true);

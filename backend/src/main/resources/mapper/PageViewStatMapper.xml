@@ -1,46 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  PageViewStatMapper: 页面浏览量统计数据访问
+  对应 Java 接口：com.sean.blog.module.analytics.mapper.PageViewStatMapper
+  提供按日的 PV 聚合查询、排行榜、趋势分析等功能
+  upsert 操作利用唯一约束 (page_type, page_key, day) 实现累加
+-->
 <mapper namespace="com.sean.blog.module.analytics.mapper.PageViewStatMapper">
 
+    <!-- upsert: 插入或累加某日某页面的 PV 计数 -->
+    <!-- ON DUPLICATE KEY UPDATE: 如果当日已有记录则累加 delta，否则插入新记录 -->
     <insert id="upsert">
         INSERT INTO t_page_view_stat (id, page_type, page_key, day, cnt)
         VALUES (#{id}, #{pageType}, #{pageKey}, #{day}, #{delta})
         ON DUPLICATE KEY UPDATE cnt = cnt + #{delta}
     </insert>
 
+    <!-- rankByWindow: 按时间窗口统计页面排行（如最近 7 天热门文章） -->
+    <!-- 支持按 pageType 过滤，按 PV 总和降序排列 -->
     <select id="rankByWindow" resultType="map">
         SELECT
             page_type AS pageType,
             page_key AS pageKey,
-            SUM(cnt) AS cnt
+            SUM(cnt) AS cnt                        -- 时间窗口内 PV 总和
         FROM t_page_view_stat
         WHERE day >= #{startDay}
         <if test="pageType != null and pageType != ''">
-            AND page_type = #{pageType}
+            AND page_type = #{pageType}            -- 可选：仅统计指定类型页面
         </if>
         GROUP BY page_type, page_key
         ORDER BY cnt DESC
     </select>
 
+    <!-- trendByDays: 最近 N 天的 PV 趋势（按天+类型聚合） -->
+    <!-- 返回每天各页面类型的 PV 总和，用于折线图展示 -->
     <select id="trendByDays" resultType="map">
         SELECT
             day,
             page_type AS pageType,
             SUM(cnt) AS cnt
         FROM t_page_view_stat
-        WHERE day >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        WHERE day >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)  -- 最近 N 天
         GROUP BY day, page_type
         ORDER BY day ASC
     </select>
 
+    <!-- summaryByWindow: 统计指定时间窗口的 PV 总量（仪表盘总览用） -->
     <select id="summaryByWindow" resultType="map">
         SELECT
-            COALESCE(SUM(cnt), 0) AS totalPv
+            COALESCE(SUM(cnt), 0) AS totalPv       -- 使用 COALESCE 防止 NULL
         FROM t_page_view_stat
         WHERE day >= #{startDay}
     </select>
 
+    <!-- summaryByWindowPrev: 统计上一个周期的 PV 总量（用于环比计算） -->
+    <!-- 与 summaryByWindow 配合使用，对比当前周期和上一周期 -->
     <select id="summaryByWindowPrev" resultType="map">
         SELECT
             COALESCE(SUM(cnt), 0) AS totalPv

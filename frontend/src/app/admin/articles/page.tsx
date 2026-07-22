@@ -6,8 +6,25 @@ import { adminGetArticles } from "@/lib/api";
 import ArticleTable from "@/components/admin/ArticleTable";
 import type { Article } from "@/types";
 
+/** 每页文章数 */
 const PAGE_SIZE = 10;
 
+/**
+ * 文章管理列表页（/admin/articles）
+ *
+ * 数据获取：客户端 fetch，adminGetArticles 支持关键词搜索和分页
+ *
+ * 功能：
+ * - 新建文章按钮 → /admin/articles/new
+ * - 关键词搜索（输入框 + 搜索按钮，支持 Enter 键触发）
+ * - ArticleTable 表格展示（含编辑 / 删除操作）
+ * - 分页器（总页数 > 1 时显示）
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error：红色错误提示
+ * - normal：表格 + 可能的分页器
+ */
 export default function AdminArticlesPage() {
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);

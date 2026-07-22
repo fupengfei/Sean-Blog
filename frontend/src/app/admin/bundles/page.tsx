@@ -6,6 +6,20 @@ import { adminGetBundles } from "@/lib/api";
 import BundleList from "@/components/admin/BundleList";
 import BundleUploader from "@/components/admin/BundleUploader";
 
+/**
+ * 文件目录管理页（/admin/bundles）
+ *
+ * 数据获取：客户端 fetch（adminGetBundles），挂载时加载全部 Bundle 列表
+ *
+ * 功能：
+ * - 上传 Bundle 按钮 → 打开 Modal（内嵌 BundleUploader，支持 zip 上传）
+ * - BundleList 列表展示（含删除操作）
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error：红色错误提示
+ * - normal：BundleList + 可能的上传 Modal
+ */
 export default function AdminBundlesPage() {
   const [bundles, setBundles] = useState<FileBundle[]>([]);
   const [loading, setLoading] = useState(true);

@@ -11,6 +11,17 @@ const navItems = [
   { href: '/about', label: '关于我' },
 ];
 
+/**
+ * 全局顶部导航栏
+ *
+ * 功能特性：
+ * - **桌面端**：Logo + 导航链接 + 搜索框占位
+ * - **移动端**：汉堡菜单按钮 + 下拉菜单面板 + 半透明遮罩层
+ * - **移动端交互**：Escape 键关闭菜单、菜单打开时锁定 body 滚动
+ * - **汉堡图标**：三横线 ↔ X 的 CSS 动画过渡（top bar 旋转 +45°，middle bar 隐藏，bottom bar 旋转 -45°）
+ * - **活跃链接检测**：`isActive()` 函数 —— 根路径精确匹配 `/`，其余路径使用 `startsWith`
+ * - **路由切换**时自动关闭移动端菜单
+ */
 export default function NavBar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

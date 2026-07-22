@@ -10,6 +10,17 @@ import FileContentView from '@/components/skill/FileContentView';
 import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
 
+/**
+ * Skill 详情页 — 项目路由版本（/projects/skills/[id]）
+ *
+ * 与 /blog/skills/[id] 功能完全一致，唯返回链接和页面上下文不同：
+ * - 返回链接指向 /projects（而非 /blog/skills）
+ * - 复用相同的 FileTreeView + FileContentView 组件
+ *
+ * 数据获取：客户端 fetch，挂载拉取文件树，选中文件时按需拉取内容
+ *
+ * 页面布局：左文件树（280px） + 右文件内容
+ */
 export default function SkillDetailPage() {
   const params = useParams();
   const id = params.id as string;

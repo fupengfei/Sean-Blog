@@ -17,6 +17,20 @@ const NAV_ITEMS = [
   { label: "修改密码", href: "/admin/settings", icon: "🔒" },
 ];
 
+/**
+ * Admin 管理后台布局
+ *
+ * 双栏结构：
+ * - **左侧**：固定宽度的深色侧边栏（Navy #002045 背景），包含 Logo、导航菜单、退出登录按钮
+ * - **右侧**：可滚动的内容区，渲染 `children`
+ *
+ * 认证守卫：
+ * - 首次挂载时设置 `mounted=true`，确保 SSR/CSR 一致性
+ * - 未登录用户自动 `router.replace("/admin/login")` 跳转到登录页
+ * - 加载中状态显示「加载中...」防止闪烁
+ *
+ * 活跃链接检测：使用 `pathname.startsWith(item.href)` 匹配当前路由
+ */
 export default function AdminLayout({
   children,
 }: {

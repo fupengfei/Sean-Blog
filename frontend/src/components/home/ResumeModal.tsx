@@ -3,11 +3,22 @@
 import { useState, Fragment } from 'react';
 import { postResumeContact } from '@/lib/api';
 
+/**
+ * 获取简历弹窗 Props
+ */
 interface ResumeModalProps {
   open: boolean;
   onClose: () => void;
 }
 
+/**
+ * 获取简历模态框
+ *
+ * 用户填写公司名称和邮箱后提交请求，记录到后端 Contact 表（type=RESUME）。
+ * 交互逻辑与 MailModal 一致：
+ * - 表单态 → 提交中 → 成功态（2 秒后自动关闭）
+ * - 失败静默处理
+ */
 export default function ResumeModal({ open, onClose }: ResumeModalProps) {
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');

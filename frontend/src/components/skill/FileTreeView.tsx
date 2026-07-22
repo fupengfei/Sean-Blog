@@ -138,6 +138,20 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/**
+ * 文件树视图组件
+ *
+ * Skill 详情页左侧的文件目录树，支持展开/折叠目录，点击文件触发选择回调。
+ *
+ * 核心设计：
+ * - **递归渲染**：`TreeNodeItem` 递归渲染所有层级的目录和文件节点
+ * - **展开/折叠**：通过 `expanded` Set 管理展开状态，点击目录切换
+ * - **缩进层级**：通过 `depth * 16 + 8` px 的 inline style 实现视觉缩进
+ * - **图标区分**：目录显示文件夹图标 + 右箭头（展开时旋转 90°），文件显示文件图标
+ * - **文件大小**：文件节点末尾显示格式化的文件大小（B/KB/MB）
+ * - **空目录提示**：展开的空目录显示「空目录」文字
+ * - **空状态**：无树数据时显示「暂无文件」
+ */
 export default function FileTreeView({ tree, onSelectFile }: FileTreeViewProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 

@@ -7,6 +7,23 @@ interface Props {
   onSuccess: () => void;
 }
 
+/**
+ * Bundle 上传组件
+ *
+ * 创建新 Bundle 的表单，包含：
+ * - **拖拽上传区**：支持拖放或点击选择 .zip 文件，上传前校验文件扩展名
+ * - **名称**：必填
+ * - **描述**：选填，多行文本
+ * - **类型**：默认为 SKILL
+ *
+ * 上传区状态：
+ * - **空状态**：虚线边框，「拖拽 .zip 文件到此处」
+ * - **已选择**：显示文件名 + 大小，「点击重新选择」
+ * - **拖拽中**：高亮边框（border-primary + 浅蓝背景）
+ *
+ * 提交通过 FormData 发送到后端（multipart/form-data）。
+ * 成功后调用 `onSuccess()` 回调。
+ */
 export default function BundleUploader({ onSuccess }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

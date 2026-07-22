@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  FileNodeMapper: 文件节点数据访问（树形结构）
+  对应 Java 接口：com.sean.blog.module.file.mapper.FileNodeMapper
+  管理 Skill Bundle 内的文件和目录节点，支持无限层级树结构
+-->
 <mapper namespace="com.sean.blog.module.file.mapper.FileNodeMapper">
+
+    <!-- findByBundleId: 查询某个 Bundle 下的所有文件节点 -->
+    <!-- 排序规则：目录优先（node_type ASC），再按 sort_order 和名称排序 -->
     <select id="findByBundleId" resultType="com.sean.blog.module.file.entity.FileNode">
         SELECT * FROM t_file_node WHERE bundle_id = #{bundleId} ORDER BY node_type ASC, sort_order ASC, name ASC
     </select>
+
+    <!-- insert: 向 Bundle 中添加文件或目录节点 -->
     <insert id="insert">
         INSERT INTO t_file_node (id, bundle_id, parent_id, name, node_type, file_path, file_size, sort_order)
         VALUES (#{id}, #{bundleId}, #{parentId}, #{name}, #{nodeType}, #{filePath}, #{fileSize}, #{sortOrder})
     </insert>
+
+    <!-- deleteByBundleId: 删除 Bundle 下的所有文件节点（重建文件树前先清理） -->
     <delete id="deleteByBundleId">
         DELETE FROM t_file_node WHERE bundle_id = #{bundleId}
     </delete>

@@ -20,6 +20,23 @@ const CARD_CLASSES =
 /** Shared content area classes — flex-1 to fill remaining card height, mt-auto on footer */
 const CARD_BODY_CLASSES = 'p-6 flex-1 flex flex-col';
 
+/**
+ * 首页精选作品区域
+ *
+ * 同时展示精选项目（Project）和 Skill Bundle，统一为卡片网格布局。
+ *
+ * 核心设计：
+ * - **瀑布流错落**：3 列布局时使用 `STAGGER_CLASSES` 实现交错偏移（`lg:-mt-8`、`lg:-mt-16`）
+ * - **动态列数**：根据实际作品数量动态调整网格列数（1/2/3 列），不足时居中对齐
+ * - **占位卡片**：当实际数量不足 `displaySlots` 时，用虚线边框卡片补足
+ *
+ * 三种状态：
+ * - **Loading**：3 个骨架屏脉冲卡片
+ * - **Empty**：3 个虚线占位卡片，提示「更多项目即将上线」
+ * - **Data**：项目卡片 + Skill 卡片混合排列
+ *
+ * Skill 卡片与 Project 卡片共享统一的 `CARD_CLASSES` 和 `CARD_BODY_CLASSES` 以保证视觉一致。
+ */
 export default function FeaturedProjects() {
   const [items, setItems] = useState<FeaturedItem[]>([]);
   const [loading, setLoading] = useState(true);

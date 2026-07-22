@@ -1,44 +1,66 @@
+# =============================================================================
+# Sean's AI World Blog — Spring Boot 应用配置
+# =============================================================================
+# 数据源、JWT、文件存储、Redis 等配置均通过环境变量注入默认值
+# 生产环境请通过 Docker Compose / K8s ConfigMap 覆盖敏感值
+# =============================================================================
+
+# ---- 服务器端口 ----
 server:
-  port: 8880
+  port: 8880                           # Spring Boot 内嵌 Tomcat 监听端口
 
 spring:
+  # ---- Redis 缓存配置 ----
+  # 用途：访问统计缓存、IP 地理位置缓存
+  # 连接参数通过环境变量注入（Docker 中为 redis 服务名）
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      host: ${REDIS_HOST:localhost}    # Redis 服务地址（Docker: redis）
+      port: ${REDIS_PORT:6379}         # Redis 服务端口
+      password: ${REDIS_PASSWORD:}     # Redis 认证密码
+
+  # ---- MySQL 数据源配置 ----
+  # 使用 MySQL 8.0 JDBC 驱动，字符集 UTF-8，时区亚洲/上海
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:sean_blog}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD}
+    username: ${DB_USER:root}          # 数据库用户名
+    password: ${DB_PASSWORD}           # 数据库密码（无默认值，强制外部配置）
     driver-class-name: com.mysql.cj.jdbc.Driver
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: "7"
-    locations: classpath:db/migration
-    clean-disabled: true
-    validate-on-migrate: true
 
+  # ---- Flyway 数据库版本迁移 ----
+  # 启动时自动执行 db/migration 目录下的 SQL 迁移脚本
+  flyway:
+    enabled: true                      # 启用 Flyway 自动迁移
+    baseline-on-migrate: true          # 非空数据库首次迁移时自动建立基线
+    baseline-version: "7"              # 基线版本号（当前最新版本为 V7）
+    locations: classpath:db/migration  # 迁移脚本路径
+    clean-disabled: true               # 禁止 clean 命令（防止误删所有表）
+    validate-on-migrate: true          # 迁移前校验已有脚本的 checksum
+
+# ---- 日志配置 ----
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: DEBUG  # Spring Security 调试日志（排查认证问题）
 
-
-
+# ---- MyBatis ORM 配置 ----
+# 半自动 ORM，通过 XML Mapper 文件定义 SQL
 mybatis:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.sean.blog.module
+  mapper-locations: classpath:mapper/*.xml  # Mapper XML 文件位置
+  type-aliases-package: com.sean.blog.module  # 实体类别名自动扫描
   configuration:
-    map-underscore-to-camel-case: true
+    map-underscore-to-camel-case: true  # 自动转换下划线字段名 → 驼峰属性名（如 created_at → createdAt）
 
+# ---- JWT 认证配置 ----
+# 使用 HMAC-SHA 算法签名的 JSON Web Token
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: 86400000
+  secret: ${JWT_SECRET}                # JWT 签名密钥（生产环境必须使用强随机字符串）
+  expiration: 86400000                 # Token 过期时间（毫秒），86400000 = 24 小时
 
+# ---- 文件存储配置 ----
+# 所有文件存储在 base-path 下的子目录中
 file:
-  base-path: ${FILE_BASE_PATH:/data}
+  base-path: ${FILE_BASE_PATH:/data}   # 文件存储根路径（Docker: /data，本地开发可覆盖）
   upload:
-    articles: ${file.base-path}/articles
-    skills: ${file.base-path}/skills
-    images: ${file.base-path}/images
+    articles: ${file.base-path}/articles   # MD 文章文件目录
+    skills: ${file.base-path}/skills       # Skill Bundle 文件目录
+    images: ${file.base-path}/images       # 图片资源目录

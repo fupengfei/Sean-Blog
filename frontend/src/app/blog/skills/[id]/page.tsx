@@ -10,6 +10,21 @@ import FileContentView from '@/components/skill/FileContentView';
 import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
 
+/**
+ * Skill 详情页（/blog/skills/[id]）
+ *
+ * 数据获取：客户端 fetch，挂载时拉取文件树（getBundleTree），选中文件时按需拉取内容（getBundleFile）
+ *
+ * 页面布局：左文件树（280px 侧栏）+ 右文件内容（FileContentView，支持代码高亮）
+ *
+ * 状态覆盖：
+ * - loadingTree：左侧 spinner
+ * - tree error：左侧 "无法加载目录"
+ * - loadingFile：右侧 FileContentView 内部 loading
+ * - normal：左右分栏可交互
+ *
+ * 交互：点击左侧树节点触发文件内容懒加载，使用 useCallback 避免不必要的重新渲染
+ */
 export default function SkillDetailPage() {
   const params = useParams();
   const id = params.id as string;

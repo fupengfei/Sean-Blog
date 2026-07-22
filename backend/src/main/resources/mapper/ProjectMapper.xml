@@ -1,23 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  ProjectMapper: 项目展示数据访问
+  对应 Java 接口：com.sean.blog.module.project.mapper.ProjectMapper
+  管理个人作品 / 开源项目的展示数据
+  排序规则：sort_order 升序（越小越靠前），相同 sort_order 按创建时间降序
+-->
 <mapper namespace="com.sean.blog.module.project.mapper.ProjectMapper">
+
+    <!-- findPublished: 查询所有已发布的项目（前台展示用） -->
     <select id="findPublished" resultType="com.sean.blog.module.project.entity.Project">
         SELECT * FROM t_project WHERE status = 'PUBLISHED' ORDER BY sort_order ASC, created_at DESC
     </select>
+
+    <!-- findFeatured: 查询已发布的精选项目（首页展示用，限制数量） -->
     <select id="findFeatured" resultType="com.sean.blog.module.project.entity.Project">
         SELECT * FROM t_project WHERE status = 'PUBLISHED' AND is_featured = 1 ORDER BY sort_order ASC LIMIT #{limit}
     </select>
+
+    <!-- findAll: 查询所有项目（后台管理用，包含草稿状态） -->
     <select id="findAll" resultType="com.sean.blog.module.project.entity.Project">
         SELECT * FROM t_project ORDER BY sort_order ASC, created_at DESC
     </select>
+
+    <!-- findById: 按主键查询单个项目 -->
     <select id="findById" resultType="com.sean.blog.module.project.entity.Project">
         SELECT * FROM t_project WHERE id = #{id}
     </select>
+
+    <!-- insert: 创建新项目 -->
     <insert id="insert">
         INSERT INTO t_project (id, title, description, url, github_url, cover_image, tags, is_featured, sort_order, status)
         VALUES (#{id}, #{title}, #{description}, #{url}, #{githubUrl}, #{coverImage}, #{tags}, #{isFeatured}, #{sortOrder}, #{status})
     </insert>
+
+    <!-- update: 更新项目的全部字段 -->
     <update id="update">
         UPDATE t_project SET title = #{title}, description = #{description}, url = #{url},
             github_url = #{githubUrl}, cover_image = #{coverImage}, tags = #{tags},
@@ -25,12 +43,18 @@
             updated_at = NOW()
         WHERE id = #{id}
     </update>
+
+    <!-- deleteById: 物理删除项目 -->
     <delete id="deleteById">
         DELETE FROM t_project WHERE id = #{id}
     </delete>
+
+    <!-- updateFeatured: 单独更新项目的精选状态（快捷操作） -->
     <update id="updateFeatured">
         UPDATE t_project SET is_featured = #{featured} WHERE id = #{id}
     </update>
+
+    <!-- updateSortOrder: 单独更新项目的排序序号（拖拽排序用） -->
     <update id="updateSortOrder">
         UPDATE t_project SET sort_order = #{sortOrder} WHERE id = #{id}
     </update>

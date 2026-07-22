@@ -1,3 +1,17 @@
+-- =============================================================================
+-- Sean's AI World Blog — 数据库 Schema 参考
+-- =============================================================================
+-- 注意：此文件仅为参考用的完整表结构快照，不是数据库迁移脚本！
+-- 实际的数据库变更通过 Flyway 管理，迁移脚本位于 db/migration/ 目录下：
+--   V1__init_schema.sql         — 初始表结构
+--   V2__add_author_column.sql   — 作者字段 + 精选标记
+--   V3__analytics.sql            — 访问统计
+--   V4__add_contact_content.sql  — 联系记录扩展
+--   V5__article_related.sql      — 文章关联
+--   V7__add_publish_date.sql     — 自定义发布日期
+-- 请勿手动执行此文件，应通过 Flyway 自动迁移。
+-- =============================================================================
+
 CREATE TABLE IF NOT EXISTS t_admin_user (
     id BIGINT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,

@@ -8,6 +8,21 @@ import Footer from '@/components/layout/Footer';
 import ProjectCard from '@/components/project/ProjectCard';
 import BundleCard from '@/components/skill/BundleCard';
 
+/**
+ * 项目展示页（/projects）
+ *
+ * 数据获取：客户端 fetch，挂载时并行请求 getProjects + getBundles（Promise.all）
+ *
+ * 页面结构：
+ * - 头部标题 "精选作品"
+ * - 项目卡片网格（ProjectCard）
+ * - Skills 区块（BundleCard，依附于项目页展示技术能力）
+ *
+ * 状态覆盖：
+ * - loading：6 个骨架屏卡片
+ * - empty：虚线占位卡片（"更多项目正在开发中"），不足 3 时 justify-center
+ * - normal：ProjectCard 网格 + 可选 Skills 区块
+ */
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [bundles, setBundles] = useState<FileBundle[]>([]);

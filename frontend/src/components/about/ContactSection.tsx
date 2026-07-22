@@ -5,6 +5,28 @@ import { postBusinessContact } from '@/lib/api';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
+/**
+ * 合作联系区域
+ *
+ * 「关于我」页面底部的联系方式 + 合作表单，Navy 背景双栏布局：
+ *
+ * **左侧（2/5）**：信息面板
+ * - 标题「期待与您的思想碰撞」
+ * - 描述文字
+ * - 圆点纹理背景装饰（radial-gradient）
+ * - 邮箱地址（点击复制到剪贴板，带「已复制」反馈）
+ * - 所在城市（上海）
+ *
+ * **右侧（3/5）**：合作意向表单
+ * - 姓名 + 邮箱 + 合作详情 textarea
+ * - 提交后记录到后端 Contact 表（type=BUSINESS）
+ * - 表单状态：idle → submitting → success（显示感谢提示 + 继续留言按钮）| error
+ *
+ * 设计决策：
+ * - 表单使用底部边框样式（underline input），与深色背景更协调
+ * - 提交按钮带 loading 旋转动画
+ * - 邮箱复制支持 Clipboard API，fallback 使用 execCommand
+ */
 export default function ContactSection() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

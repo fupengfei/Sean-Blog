@@ -5,9 +5,13 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+/** 文件内容视图 Props */
 interface FileContentViewProps {
+  /** 当前选中文件的路径，null 表示未选择 */
   filePath: string | null;
+  /** 文件内容字符串，null 表示无内容 */
   content: string | null;
+  /** 是否正在加载 */
   loading: boolean;
 }
 
@@ -26,6 +30,24 @@ function getExtension(filename: string): string {
   return parts.length > 1 ? parts.pop()!.toLowerCase() : '';
 }
 
+/**
+ * 文件内容查看器
+ *
+ * Skill 详情页右侧的内容展示面板，根据文件类型智能选择渲染方式。
+ *
+ * 渲染策略（`renderContent()`）：
+ * - **Markdown（.md）**：使用 react-markdown 渲染为富文本
+ * - **代码文件**（js/ts/java/py 等）：使用 Prism 语法高亮 + 行号
+ * - **图片**（png/jpg/svg 等）：以 base64 方式展示
+ * - **大文件**（content > 200KB）：显示不支持预览提示
+ * - **其他**：纯文本 fallback（等宽字体 + 自动换行）
+ *
+ * 四种展示状态：
+ * - **未选择文件**：提示「请从左侧选择文件」
+ * - **加载中**：旋转加载动画
+ * - **无内容**：提示「无法加载文件内容」
+ * - **正常展示**：文件头部（文件名 + 扩展名）+ 内容区
+ */
 export default function FileContentView({ filePath, content, loading }: FileContentViewProps) {
   // No file selected
   if (!filePath) {

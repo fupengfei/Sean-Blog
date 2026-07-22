@@ -1,53 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  =============================================================================
+  Sean's AI World Blog — Maven 项目配置
+  =============================================================================
+  Spring Boot 4.x + MyBatis + MySQL，JDK 21
+  =============================================================================
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承 Spring Boot 4.0 Parent POM，统一依赖版本管理 -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.0</version>
         <relativePath/>
     </parent>
+
     <groupId>com.sean</groupId>
     <artifactId>sean-blog</artifactId>
     <version>1.0.0</version>
     <name>Sean's AI World Blog</name>
 
     <properties>
-        <java.version>21</java.version>
-        <mybatis-spring-boot.version>4.0.0</mybatis-spring-boot.version>
+        <java.version>21</java.version>                          <!-- JDK 21（LTS） -->
+        <mybatis-spring-boot.version>4.0.0</mybatis-spring-boot.version>  <!-- MyBatis Spring Boot Starter 版本 -->
     </properties>
 
     <dependencies>
+        <!-- ====== Spring Boot Starters ====== -->
+
+        <!-- Spring MVC: REST API 框架 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <!-- Spring Security: JWT 认证 + 接口权限控制 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
+        <!-- Bean Validation: DTO 参数校验（@Valid, @NotNull 等注解） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+
+        <!-- Spring Data Redis: 访问统计缓存、IP 地理位置缓存 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
+        <!-- ====== 数据库相关 ====== -->
+
+        <!-- MyBatis Spring Boot Starter: 半自动 ORM，通过 XML Mapper 定义 SQL -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${mybatis-spring-boot.version}</version>
         </dependency>
+
+        <!-- MySQL JDBC 驱动 (mysql-connector-j 是新版 Artifact ID) -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- Flyway: 数据库版本迁移 -->
+
+        <!-- Flyway: 数据库版本迁移工具，启动时自动执行 SQL 迁移脚本 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-flyway</artifactId>
@@ -56,33 +82,48 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
         </dependency>
+
+        <!-- ====== JWT 认证（jjwt 0.12.6） ====== -->
+        <!-- jjwt-api: JWT 生成和解析的 API 接口 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
         </dependency>
+        <!-- jjwt-impl: JWT API 的默认实现（运行时） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- jjwt-jackson: 使用 Jackson 进行 JSON 序列化（运行时） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- ====== 工具库 ====== -->
+
+        <!-- Flexmark: Markdown 解析器，将 MD 文章内容转为 HTML -->
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-all</artifactId>
             <version>0.64.8</version>
         </dependency>
+
+        <!-- Lombok: 通过注解减少样板代码（@Data, @Builder, @Slf4j 等） -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- ====== 测试 ====== -->
+
+        <!-- Spring Boot Test: 单元测试和集成测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -92,11 +133,13 @@
 
     <build>
         <plugins>
+            <!-- Spring Boot Maven Plugin: 打包可执行 jar -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
+                        <!-- 排除 Lombok（编译期注解，运行时不需要） -->
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>

@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  GeoIpCacheMapper: IP 地理位置缓存数据访问
+  对应 Java 接口：com.sean.blog.module.analytics.mapper.GeoIpCacheMapper
+  缓存外部 GeoIP 服务查询结果，避免重复 API 调用
+-->
 <mapper namespace="com.sean.blog.module.analytics.mapper.GeoIpCacheMapper">
 
+    <!-- findByIp: 按 IP 查询缓存的地理位置信息 -->
     <select id="findByIp" resultType="com.sean.blog.module.analytics.entity.GeoIpCache">
         SELECT * FROM t_geo_ip_cache WHERE ip = #{ip}
     </select>
 
+    <!-- insert: 插入 IP 缓存，若已存在则更新地理位置信息（upsert） -->
+    <!-- ON DUPLICATE KEY UPDATE: 利用 IP 唯一索引实现「存在则更新」语义 -->
     <insert id="insert">
         INSERT INTO t_geo_ip_cache (ip, country, region, city)
         VALUES (#{ip}, #{country}, #{region}, #{city})
@@ -17,6 +25,7 @@
             updated_at = NOW()
     </insert>
 
+    <!-- deleteOlderThan: 清理在指定时间之前未更新的缓存（定时任务调用） -->
     <delete id="deleteOlderThan">
         DELETE FROM t_geo_ip_cache
         WHERE updated_at &lt; #{cutoff}

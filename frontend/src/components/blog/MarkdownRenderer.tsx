@@ -28,6 +28,27 @@ function extractTextFromChildren(children: React.ReactNode): string {
   return '';
 }
 
+/**
+ * Markdown 渲染组件
+ *
+ * 将 Markdown 内容渲染为样式化的 HTML，是文章详情页的核心展示组件。
+ *
+ * 使用 `react-markdown` + 插件生态：
+ * - `remark-gfm`：GitHub Flavored Markdown（表格、任务列表等）
+ * - `remark-math`：数学公式支持
+ * - `rehype-katex`：KaTeX 数学公式渲染
+ * - `rehype-highlight`：代码语法高亮
+ *
+ * 自定义组件覆盖：
+ * - **标题（h1-h6）**：自动生成 id 锚点（通过 `slugify()` 处理中英文），带底部边框和适当间距
+ * - **Mermaid 图表**：识别 `language-mermaid` 代码块，委托给 MermaidBlock 组件渲染
+ * - **代码块**：区分行内代码和块级代码，块级使用深色背景主题
+ * - **链接**：外部链接自动添加 `target="_blank"` 和 `rel="noopener noreferrer"`
+ * - **表格**：容器可横向滚动（overflow-x-auto），表头有浅色背景
+ * - **图片**：包裹在 figure 元素中，带圆角边框，底部可选 caption
+ *
+ * 最大宽度限制为 720px，匹配设计系统的文章列宽。
+ */
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div className="prose-custom font-body text-[20px] leading-[32px] max-sm:text-[18px] max-sm:leading-[28px] text-on-surface max-w-[720px]">

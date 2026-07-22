@@ -17,7 +17,7 @@ import type { Article, ArticleRelations } from '@/types';
 import ArticleEditor from '@/components/admin/ArticleEditor';
 
 // ---------------------------------------------------------------------------
-// Article search dropdown hook
+// Article search dropdown hook — 文章搜索下拉（用于关联文章选择器）
 // ---------------------------------------------------------------------------
 
 function useArticleSearch() {
@@ -44,9 +44,28 @@ function useArticleSearch() {
 }
 
 // ---------------------------------------------------------------------------
-// Main page
+// 编辑文章页（/admin/articles/edit/[id]）
 // ---------------------------------------------------------------------------
 
+/**
+ * 编辑文章页（/admin/articles/edit/[id]）
+ *
+ * 数据获取：客户端 fetch，挂载时并行请求文章详情（adminGetArticleById）和关联关系（adminGetArticleRelations）
+ *
+ * 双 Tab 设计：
+ * - 文章内容 Tab：复用 ArticleEditor 组件编辑 Markdown 正文
+ * - 文章关联 Tab：管理前置文章、下一篇、相关文章（三个独立区域，各带搜索下拉 + 保存按钮）
+ *
+ * 关联管理功能：
+ * - 前置文章：搜索选择 → 保存/清除 → API adminSetPrerequisite / adminRemovePrerequisite
+ * - 下一篇：搜索选择 → 保存/清除 → API adminSetNextArticle / adminRemoveNextArticle
+ * - 相关文章：搜索添加 → 多选列表 → 移除 → 保存 → API adminSetRelated
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error / 文章不存在：错误提示 + 返回链接
+ * - normal：双 Tab 界面（面包屑导航在上）
+ */
 export default function AdminArticleEditPage() {
   const params = useParams();
   const router = useRouter();

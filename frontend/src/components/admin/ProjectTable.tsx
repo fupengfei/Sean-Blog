@@ -13,6 +13,17 @@ interface Props {
   onRefresh: () => void;
 }
 
+/**
+ * 项目管理表格
+ *
+ * Admin 项目列表页的数据表格，支持以下操作：
+ * - **精选切换**：星标按钮切换 isFeatured（★/☆）
+ * - **排序调整**：上移/下移按钮调整 sortOrder
+ * - **编辑**：跳转到编辑页 `/admin/projects/edit/{id}`
+ * - **删除**：带 confirm 确认的物理删除
+ *
+ * 空数据时显示「暂无项目数据」。
+ */
 export default function ProjectTable({ projects, onRefresh }: Props) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 

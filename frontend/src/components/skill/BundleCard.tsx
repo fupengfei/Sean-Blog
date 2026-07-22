@@ -1,10 +1,24 @@
 import Link from 'next/link';
 import type { FileBundle } from '@/types';
 
+/** Skill Bundle 卡片 Props */
 interface BundleCardProps {
   bundle: FileBundle;
 }
 
+/**
+ * Skill Bundle 卡片组件
+ *
+ * 用于 Skill 列表页的网格布局，每张卡片链接到对应的文件树浏览页。
+ *
+ * 卡片内容：
+ * - SKILL 类型徽章（secondary 色调）
+ * - 文件夹图标 + Bundle 名称
+ * - 描述文字（最多 2 行截断）
+ * - 文件数量 + Bundle 类型标签
+ *
+ * Hover 动效：轻微上浮 + 阴影，与 ProjectCard 保持一致。
+ */
 export default function BundleCard({ bundle }: BundleCardProps) {
   return (
     <Link href={`/projects/skills/${bundle.id}`}>

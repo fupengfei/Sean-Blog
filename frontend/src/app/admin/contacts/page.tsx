@@ -4,8 +4,27 @@ import { useEffect, useState } from "react";
 import { ContactRecord, ContactStats } from "@/types";
 import { adminGetContacts, adminGetContactStats } from "@/lib/api";
 
+/** 每页记录数 */
 const PAGE_SIZE = 20;
 
+/**
+ * 联系记录管理页（/admin/contacts）
+ *
+ * 数据获取：双数据源
+ * - 挂载时一次性加载分类统计（adminGetContactStats），用于类型筛选按钮的计数
+ * - 分页 + 类型筛选时加载联系记录列表（adminGetContacts）
+ *
+ * 功能：
+ * - 类型筛选按钮：全部 / 商务合作 / 邮件 / 简历 / 订阅（各带计数 badge）
+ * - 表格展示：类型、内容（截断）、公司名、邮箱、IP 地址、时间
+ * - 分页器：带省略号的智能分页（首尾页 + 当前页相邻 2 页）
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error：红色错误提示
+ * - empty：表格内显示 "暂无联系记录"
+ * - normal：表格 + 可能的分页器
+ */
 export default function AdminContactsPage() {
   const [contacts, setContacts] = useState<ContactRecord[]>([]);
   const [total, setTotal] = useState(0);

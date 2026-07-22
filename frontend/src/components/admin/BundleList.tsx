@@ -15,6 +15,20 @@ interface Props {
   onRefresh: () => void;
 }
 
+/**
+ * Bundle 列表管理
+ *
+ * Admin 文件目录页的卡片网格布局，每张卡片展示一个 Bundle 的基本信息。
+ *
+ * 每张卡片支持的操作：
+ * - **编辑**：打开编辑弹窗（名称、描述、类型）
+ * - **发布/取消发布**：切换状态（PUBLISHED ↔ UNPUBLISHED）
+ * - **精选切换**：星标按钮（⭐ 精选 / ☆ 精选）
+ * - **删除**：带 confirm 确认
+ *
+ * 编辑弹窗：全屏半透明遮罩 + 居中白色浮层，包含名称、描述、类型三个字段。
+ * 空数据时显示虚线边框占位提示。
+ */
 export default function BundleList({ bundles, onRefresh }: Props) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingBundle, setEditingBundle] = useState<FileBundle | null>(null);

@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  AdminUserMapper: 管理员用户数据访问
+  对应 Java 接口：com.sean.blog.module.auth.mapper.AdminUserMapper
+  主要操作：按用户名查询用户信息、插入新用户、统计用户数量
+-->
 <mapper namespace="com.sean.blog.module.auth.mapper.AdminUserMapper">
+
+    <!-- findByUsername: 按用户名查询管理员用户（用于 JWT 登录认证验证密码） -->
     <select id="findByUsername" resultType="com.sean.blog.module.auth.entity.AdminUser">
         SELECT id, username, password_hash, created_at, updated_at
         FROM t_admin_user
         WHERE username = #{username}
     </select>
 
+    <!-- insert: 创建新管理员用户（如果用户表为空，在首次启动时初始化默认管理员） -->
     <insert id="insert">
         INSERT INTO t_admin_user (id, username, password_hash) VALUES (#{id}, #{username}, #{passwordHash})
     </insert>
 
+    <!-- count: 统计管理员用户总数（用于判断是否需要初始化默认管理员） -->
     <select id="count" resultType="int">
         SELECT COUNT(*) FROM t_admin_user
     </select>

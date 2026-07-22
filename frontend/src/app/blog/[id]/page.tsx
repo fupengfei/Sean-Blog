@@ -9,9 +9,12 @@ import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
 
 // ---------------------------------------------------------------------------
-// Helpers
+// 工具函数：日期格式化、Markdown 纯文本提取、阅读时间估算、字数统计
 // ---------------------------------------------------------------------------
 
+/**
+ * 将 ISO 日期字符串格式化为中文日期（如 "2026年7月22日"）
+ */
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString('zh-CN', {
@@ -48,7 +51,7 @@ function countWords(markdown: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// Sub-components
+// 子组件：骨架屏、错误状态、前置文章 Banner、下一篇导航、相关文章
 // ---------------------------------------------------------------------------
 
 function Skeleton() {
@@ -264,6 +267,24 @@ function RelatedArticles({ articles }: { articles: ArticleSummary[] }) {
 // Main page component
 // ---------------------------------------------------------------------------
 
+/**
+ * 文章详情页（/blog/[id]）
+ *
+ * 数据获取：客户端 fetch，根据 URL 参数 id 并行请求文章主体、前置文章、下一篇、相关文章
+ *
+ * 页面布局：左侧主内容区（文章标题/元数据/正文/下一篇导航）+ 右侧目录栏（TableOfContents）
+ *
+ * 状态覆盖：
+ * - loading：Skeleton 骨架屏（含标题、作者、内容区域）
+ * - error：ErrorState 组件（区分 404 和通用错误，提供返回链接）
+ * - normal：完整文章渲染 + 相关文章底部区域
+ *
+ * 特色功能：
+ * - 前置文章 Banner（管理员配置，引导阅读顺序）
+ * - 下一篇导航（管理员手动指定）
+ * - 相关文章（双向关联，瀑布流卡片展示，支持展开/收起）
+ * - 阅读时间估算和字数统计
+ */
 export default function ArticleDetailPage() {
   const params = useParams();
   const articleId = params.id as string;

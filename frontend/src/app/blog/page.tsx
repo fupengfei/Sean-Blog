@@ -11,10 +11,28 @@ import ArticleCard from '@/components/blog/ArticleCard';
 import ArticleListItem from '@/components/blog/ArticleListItem';
 import Pagination from '@/components/blog/Pagination';
 
+/** 每页文章数 */
 const PAGE_SIZE = 10;
 
+/** 视图模式：卡片（瀑布流）或列表 */
 type ViewMode = 'card' | 'list';
 
+/**
+ * 博客列表页（/blog）
+ *
+ * 数据获取：客户端 fetch（getArticles + getCategories），分类和分页变化时重新请求
+ *
+ * 核心功能：
+ * - 分类筛选：通过 FilterBar 选择分类，切换时回到第 1 页
+ * - 视图切换：卡片视图（CSS columns 瀑布流，首篇突出）和列表视图
+ * - 分页：Pagination 组件，总页数 <= 1 时不显示
+ *
+ * 状态覆盖：
+ * - loading：骨架屏（首篇特色骨架 + 瀑布列骨架）
+ * - error：红色错误卡片 + 重试按钮
+ * - empty：虚线占位卡片，根据是否有分类筛选显示不同文案
+ * - normal：首篇大卡片 + 其余瀑布流 / 列表
+ */
 export default function BlogListPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

@@ -7,6 +7,21 @@ import { adminGetProjects } from "@/lib/api";
 import ProjectTable from "@/components/admin/ProjectTable";
 import ProjectEditor from "@/components/admin/ProjectEditor";
 
+/**
+ * 项目管理列表页（/admin/projects）
+ *
+ * 数据获取：客户端 fetch（adminGetProjects），挂载时加载全部项目
+ *
+ * 功能：
+ * - 新建项目按钮 → 打开 Modal（内嵌 ProjectEditor）
+ * - ProjectTable 列表展示（含编辑 / 删除操作）
+ * - 编辑操作通过 ProjectTable 内部路由跳转处理
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error：红色错误提示
+ * - normal：ProjectTable + 可能的创建 Modal
+ */
 export default function AdminProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);

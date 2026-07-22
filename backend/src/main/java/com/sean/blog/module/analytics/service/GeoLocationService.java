@@ -19,12 +19,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * IP 地理位置解析服务，三层缓存架构（Redis → MySQL → ipwho.is API）。
+ * 支持同步解析、异步解析、定时兜底批量处理、定期清理过期缓存。
+ * 每日 API 调用配额为 1900 次（ipwho.is 免费额度）。
+ *
+ * @author sean
+ */
 @Service
 public class GeoLocationService {
 
     private static final Logger log = LoggerFactory.getLogger(GeoLocationService.class);
 
+    /** Redis 缓存 TTL（天） */
     private static final int REDIS_TTL_DAYS = 30;
+
+    /** 每日 API 调用配额上限 */
     private static final int DAILY_API_QUOTA = 1900;
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -152,6 +162,7 @@ public class GeoLocationService {
     // 私有方法
     // -----------------------------------------------------------------------
 
+    /** 调用 ipwho.is 免费 API 查询 IP 地理位置，失败返回 UNKNOWN */
     @SuppressWarnings("unchecked")
     private GeoInfo callIpWhoIs(String ip) {
         try {
@@ -169,6 +180,7 @@ public class GeoLocationService {
         return GeoInfo.UNKNOWN;
     }
 
+    /** 判断是否为本地/内网 IP（127.x、10.x、192.168.x、172.16-31.x、IPv6 loopback） */
     private boolean isLocalIp(String ip) {
         if (ip == null) return true;
         if ("127.0.0.1".equals(ip) || "::1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) return true;

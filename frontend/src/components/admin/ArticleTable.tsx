@@ -33,6 +33,18 @@ function formatDate(dateStr: string): string {
   });
 }
 
+/**
+ * 文章管理表格
+ *
+ * Admin 文章列表页的数据表格，支持以下操作：
+ * - **编辑**：跳转到编辑页 `/admin/articles/edit/{id}`
+ * - **发布/取消发布**：切换文章状态（PUBLISHED ↔ DRAFT）
+ * - **精选/取消精选**：切换 isFeatured 标记
+ * - **删除**：带确认弹窗的逻辑删除（设置状态为 DELETED，文件资源物理删除）
+ *
+ * 操作使用 `actionLoading` 状态逐个按钮禁用，防止重复提交。
+ * 空数据时显示「暂无文章数据」。
+ */
 export default function ArticleTable({ articles, onRefresh }: Props) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);

@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 
+/**
+ * 文件流式传输接口控制器，无需认证，用于直接返回图片等静态文件。
+ * 提供路径穿越安全校验，并根据扩展名自动识别 MIME 类型。
+ *
+ * @author sean
+ */
 @RestController
 @RequestMapping("/api/v1/files")
 public class FileStreamController {
@@ -18,6 +24,13 @@ public class FileStreamController {
     @Value("${file.upload.images}")
     private String imagesPath;
 
+    /**
+     * 以流式方式返回图片文件。
+     * 包含路径穿越安全防护，防止通过 ../ 访问 images 目录外的文件。
+     *
+     * @param filename 图片文件名
+     * @return GET /api/v1/files/images/{filename}
+     */
     @GetMapping("/images/{filename}")
     public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
         try {
@@ -47,6 +60,7 @@ public class FileStreamController {
         }
     }
 
+    /** 根据文件扩展名确定 MIME 类型 */
     private String determineContentType(String filename) {
         String lower = filename.toLowerCase();
         if (lower.endsWith(".png")) return "image/png";

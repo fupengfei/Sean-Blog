@@ -7,6 +7,19 @@ import { Project } from "@/types";
 import { adminGetProjects } from "@/lib/api";
 import ProjectEditor from "@/components/admin/ProjectEditor";
 
+/**
+ * 编辑项目页（/admin/projects/edit/[id]）
+ *
+ * 数据获取：客户端 fetch，挂载时 adminGetProjects() 全量加载后在内存中 find 目标项目
+ * 注意：当前实现为列表查找而非单条 API 请求，适合项目数量较少的场景
+ *
+ * 状态覆盖：
+ * - loading：文字 "加载中..."
+ * - error / 项目不存在：红色错误提示
+ * - normal：ProjectEditor（含预填充数据）+ 面包屑导航
+ *
+ * 行为：保存成功后回调 handleSuccess → 跳转到 /admin/projects
+ */
 export default function AdminProjectEditPage() {
   const router = useRouter();
   const params = useParams();

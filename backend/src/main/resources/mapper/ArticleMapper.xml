@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  ArticleMapper: 文章数据访问（核心 Mapper，最复杂）
+  对应 Java 接口：com.sean.blog.module.blog.mapper.ArticleMapper
+  提供文章的完整 CRUD、状态管理、分类/标签关联、关联推荐等操作
+
+  关键 SQL 设计模式：
+    - 分页查询使用子查询 + LIMIT 模式：先在内层子查询中分页，再在外层关联 JOIN
+      避免了直接 JOIN 后分页导致的结果数量不准确问题
+    - resultMap 使用 association（一对一：文章 → 分类）和 collection（一对多：文章 → 标签）
+      实现一次查询返回完整的文章详情
+-->
 <mapper namespace="com.sean.blog.module.blog.mapper.ArticleMapper">
 
+    <!-- ===================================================================== -->
+    <!-- resultMap: 文章详情映射（包含分类和标签） -->
+    <!-- ===================================================================== -->
     <resultMap id="articleDetail" type="com.sean.blog.module.blog.entity.Article">
+        <!-- 文章自身字段，下划线自动转驼峰 -->
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="slug" column="slug"/>
@@ -21,11 +36,13 @@
         <result property="viewCount" column="view_count"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+        <!-- 一对一：文章所属分类（LEFT JOIN t_category，可能为 NULL） -->
         <association property="category" javaType="com.sean.blog.module.blog.entity.Category">
             <result property="id" column="cat_id"/>
             <result property="name" column="cat_name"/>
             <result property="slug" column="cat_slug"/>
         </association>
+        <!-- 一对多：文章的标签列表（LEFT JOIN t_article_tag + t_tag） -->
         <collection property="tags" ofType="com.sean.blog.module.blog.entity.Tag">
             <result property="id" column="tag_id"/>
             <result property="name" column="tag_name"/>
@@ -33,11 +50,17 @@
         </collection>
     </resultMap>
 
+    <!-- ===================================================================== -->
+    <!-- 写入操作 -->
+    <!-- ===================================================================== -->
+
+    <!-- insert: 创建新文章 -->
     <insert id="insert">
         INSERT INTO t_article (id, title, slug, content_md, content_html, excerpt, author, publish_date, cover_image, category_id, status, is_featured)
         VALUES (#{id}, #{title}, #{slug}, #{contentMd}, #{contentHtml}, #{excerpt}, #{author}, #{publishDate}, #{coverImage}, #{categoryId}, #{status}, #{isFeatured})
     </insert>
 
+    <!-- update: 更新文章的全部可编辑字段 -->
     <update id="update">
         UPDATE t_article SET title = #{title}, slug = #{slug}, content_md = #{contentMd},
             content_html = #{contentHtml}, excerpt = #{excerpt}, author = #{author}, publish_date = #{publishDate},
@@ -45,18 +68,27 @@
         WHERE id = #{id}
     </update>
 
+    <!-- updateStatus: 更新文章状态（DRAFT / PUBLISHED / DELETED 软删除） -->
     <update id="updateStatus">
         UPDATE t_article SET status = #{status} WHERE id = #{id}
     </update>
 
+    <!-- updateFeatured: 更新文章精选状态 -->
     <update id="updateFeatured">
         UPDATE t_article SET is_featured = #{featured} WHERE id = #{id}
     </update>
 
+    <!-- incrementViewCount: 文章浏览量 +1（原子操作，防止并发问题） -->
     <update id="incrementViewCount">
         UPDATE t_article SET view_count = view_count + 1 WHERE id = #{id}
     </update>
 
+    <!-- ===================================================================== -->
+    <!-- 查询操作 -->
+    <!-- ===================================================================== -->
+
+    <!-- findBySlug: 按 slug 查询已发布文章（前台详情页用） -->
+    <!-- 关联查询分类和标签，供 resultMap 映射 -->
     <select id="findBySlug" resultMap="articleDetail">
         SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
@@ -67,6 +99,7 @@
         WHERE a.slug = #{slug} AND a.status = 'PUBLISHED'
     </select>
 
+    <!-- findById: 按 ID 查询文章（包含所有状态，后台编辑用） -->
     <select id="findById" resultMap="articleDetail">
         SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
@@ -77,6 +110,7 @@
         WHERE a.id = #{id}
     </select>
 
+    <!-- findPublishedById: 按 ID 查询已发布文章（前台用，确保不返回草稿/已删除） -->
     <select id="findPublishedById" resultMap="articleDetail">
         SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
@@ -87,6 +121,10 @@
         WHERE a.id = #{id} AND a.status = 'PUBLISHED'
     </select>
 
+    <!-- findPublished: 分页查询已发布文章列表（前台博客列表页用） -->
+    <!-- 分页策略：内层子查询仅查 ID + LIMIT，外层再做 JOIN 关联分类和标签 -->
+    <!-- 避免先 JOIN 后 LIMIT 导致分页不准（一个文章有多个标签时 JOIN 会产生多行） -->
+    <!-- 支持按分类、标签、关键词筛选 -->
     <select id="findPublished" resultMap="articleDetail">
         SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
@@ -115,6 +153,7 @@
         ORDER BY a.created_at DESC
     </select>
 
+    <!-- countPublished: 统计已发布文章总数（与 findPublished 使用相同的筛选条件） -->
     <select id="countPublished" resultType="long">
         SELECT COUNT(DISTINCT a.id) FROM t_article a
         <where>
@@ -129,6 +168,7 @@
         </where>
     </select>
 
+    <!-- findFeatured: 查询精选文章（首页展示用，按发布日期降序，限制数量） -->
     <select id="findFeatured" resultMap="articleDetail">
         SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
@@ -148,6 +188,7 @@
         ORDER BY a.publish_date DESC
     </select>
 
+    <!-- findAll: 分页查询所有文章（后台管理用，排除已删除，支持关键词搜索） -->
     <select id="findAll" resultMap="articleDetail">
         SELECT a.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                t.id as tag_id, t.name as tag_name, t.slug as tag_slug
@@ -160,7 +201,7 @@
                 SELECT a2.id
                 FROM t_article a2
                 <where>
-                    a2.status != 'DELETED'
+                    a2.status != 'DELETED'             -- 排除软删除的文章
                     <if test="keyword != null and keyword != ''">
                         AND (a2.title LIKE CONCAT('%', #{keyword}, '%') OR a2.excerpt LIKE CONCAT('%', #{keyword}, '%'))
                     </if>
@@ -172,6 +213,7 @@
         ORDER BY a.created_at DESC
     </select>
 
+    <!-- countAll: 统计所有非删除文章总数（与 findAll 使用相同的筛选条件） -->
     <select id="countAll" resultType="long">
         SELECT COUNT(DISTINCT a.id) FROM t_article a
         <where>
@@ -182,34 +224,50 @@
         </where>
     </select>
 
+    <!-- ===================================================================== -->
+    <!-- 文章-标签关联操作 -->
+    <!-- ===================================================================== -->
+
+    <!-- insertArticleTag: 添加文章标签关联 -->
     <insert id="insertArticleTag">
         INSERT INTO t_article_tag (article_id, tag_id) VALUES (#{articleId}, #{tagId})
     </insert>
 
+    <!-- deleteArticleTags: 删除文章的所有标签关联（更新文章前先清理旧标签，再重新添加） -->
     <delete id="deleteArticleTags">
         DELETE FROM t_article_tag WHERE article_id = #{articleId}
     </delete>
 
+    <!-- ===================================================================== -->
+    <!-- 文章关联操作（前置文章 / 下一篇推荐） -->
+    <!-- ===================================================================== -->
+
+    <!-- setPrerequisite: 设置文章的前置阅读文章 -->
     <update id="setPrerequisite">
         UPDATE t_article SET prerequisite_id = #{prerequisiteId}, updated_at = NOW()
         WHERE id = #{id}
     </update>
 
+    <!-- clearPrerequisite: 清除文章的前置阅读关联 -->
     <update id="clearPrerequisite">
         UPDATE t_article SET prerequisite_id = NULL, updated_at = NOW()
         WHERE id = #{id}
     </update>
 
+    <!-- setNextArticle: 设置文章的下一篇推荐 -->
     <update id="setNextArticle">
         UPDATE t_article SET next_article_id = #{nextArticleId}, updated_at = NOW()
         WHERE id = #{id}
     </update>
 
+    <!-- clearNextArticle: 清除下一篇推荐关联 -->
     <update id="clearNextArticle">
         UPDATE t_article SET next_article_id = NULL, updated_at = NOW()
         WHERE id = #{id}
     </update>
 
+    <!-- findSummaryByIds: 批量查询文章摘要（仅返回列表展示所需字段，不包含正文） -->
+    <!-- 用于关联推荐列表、精选文章列表等场景，减少数据传输量 -->
     <select id="findSummaryByIds" resultType="com.sean.blog.module.blog.entity.Article">
         SELECT a.id, a.title, a.slug, a.cover_image AS coverImage, a.excerpt,
                a.created_at AS createdAt,

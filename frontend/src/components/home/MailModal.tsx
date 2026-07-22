@@ -3,11 +3,26 @@
 import { useState } from 'react';
 import { postMailContact } from '@/lib/api';
 
+/**
+ * 发送邮件弹窗 Props
+ */
 interface MailModalProps {
   open: boolean;
   onClose: () => void;
 }
 
+/**
+ * 发送邮件模态框
+ *
+ * 用户填写邮箱地址和邮件内容，提交后记录到后端 Contact 表（type=MAIL）。
+ *
+ * 状态流转：
+ * - **表单态**：邮箱 + 内容输入框 + 发送/取消按钮
+ * - **提交中**：按钮显示「发送中...」并禁用
+ * - **成功态**：绿色勾号 + 成功提示，2 秒后自动关闭并重置表单
+ *
+ * 失败时静默处理（`silently fail`），不打断用户操作流。
+ */
 export default function MailModal({ open, onClose }: MailModalProps) {
   const [email, setEmail] = useState('');
   const [content, setContent] = useState('');

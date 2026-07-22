@@ -14,6 +14,19 @@ function MermaidPlaceholder() {
   );
 }
 
+/**
+ * Mermaid 图表渲染组件
+ *
+ * 动态导入 `mermaid` 库（避免 SSR 时的模块加载问题），将 Mermaid 语法代码渲染为 SVG。
+ *
+ * 三种渲染状态：
+ * - **加载中**：显示「加载图表...」占位（MermaidPlaceholder）
+ * - **渲染成功**：SVG 图表，居中展示，带圆角边框
+ * - **渲染失败**：红色错误提示 + Mermaid 源码展示
+ *
+ * 通过 `cancelled` 标志处理组件卸载（如快速切换页面）时的竞态问题。
+ * Mermaid 配置：neutral 主题、sandbox 安全级别、Inter 字体。
+ */
 export default function MermaidBlock({ code }: MermaidBlockProps) {
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

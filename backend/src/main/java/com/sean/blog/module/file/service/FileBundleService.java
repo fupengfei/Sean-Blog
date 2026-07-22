@@ -19,6 +19,13 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * 文件合集业务服务，负责 Skill Bundle 的完整生命周期管理。
+ * 核心流程：上传 ZIP → 解压 → 构建文件树 → 发布/查询/删除。
+ * 包含 Zip Slip 安全防护和 macOS 元数据文件过滤。
+ *
+ * @author sean
+ */
 @Service
 @RequiredArgsConstructor
 public class FileBundleService {
@@ -27,6 +34,7 @@ public class FileBundleService {
     private final FileNodeMapper nodeMapper;
     private final SnowflakeIdGenerator idGenerator;
 
+    /** 文件上传基础目录（skills 目录） */
     @Value("${file.upload.skills}")
     private String skillsPath;
 
@@ -35,6 +43,11 @@ public class FileBundleService {
 
     // ==================== Upload ====================
 
+    /**
+     * 上传并创建文件合集。
+     * 流程：预生成 ID → 创建 DB 记录 → 解压 ZIP 到磁盘 → 递归构建文件节点树 → 更新文件计数。
+     * 整个流程在一个事务中，保证 DB 和文件系统的一致性。
+     */
     @Transactional
     public FileBundle uploadBundle(MultipartFile zipFile, String name, String description, String type) throws IOException {
         // 1. Create bundle record (rootPath depends on ID, pre-generate via Snowflake)
@@ -67,6 +80,10 @@ public class FileBundleService {
         return bundle;
     }
 
+    /**
+     * 解压 ZIP 文件到目标目录。
+     * 包含安全防护：Zip Slip 路径穿越检测、macOS 元数据文件（__MACOSX、.DS_Store、._*）过滤。
+     */
     private void extractZip(InputStream inputStream, String destDir) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(inputStream)) {
             ZipEntry entry;
@@ -104,6 +121,12 @@ public class FileBundleService {
         }
     }
 
+    /**
+     * 递归遍历目录，为每个文件和子目录创建 FileNode 记录。
+     * 排序规则：目录优先，然后按名称字母序。
+     *
+     * @return 该目录及其子目录下的文件总数
+     */
     private int buildFileTree(Long bundleId, String dirPath, Long parentId) {
         File dir = new File(dirPath);
         File[] files = dir.listFiles();
@@ -157,6 +180,10 @@ public class FileBundleService {
 
     // ==================== Tree ====================
 
+    /**
+     * 获取合集的完整文件树结构。
+     * 查询所有节点后在内存中递归构建树形层级。
+     */
     public FileTreeResponse getTree(Long bundleId) {
         FileBundle bundle = bundleMapper.findById(bundleId);
         if (bundle == null) {
@@ -169,6 +196,12 @@ public class FileBundleService {
         return new FileTreeResponse(bundleId, bundle.getName(), tree);
     }
 
+    /**
+     * 递归构建文件树节点列表，将平铺的节点列表组装为层级结构。
+     *
+     * @param allNodes 合集下所有文件节点
+     * @param parentId 当前层级的父节点 ID，null 表示根层级
+     */
     private List<FileTreeResponse.FileTreeNode> buildTree(List<FileNode> allNodes, Long parentId) {
         List<FileTreeResponse.FileTreeNode> result = new ArrayList<>();
         for (FileNode node : allNodes) {
@@ -191,6 +224,10 @@ public class FileBundleService {
 
     // ==================== File Content ====================
 
+    /**
+     * 读取合集中指定文件的内容。
+     * 包含路径穿越安全校验；对已知二进制格式返回友好提示信息。
+     */
     public String getFileContent(Long bundleId, String filePath) throws IOException {
         FileBundle bundle = bundleMapper.findById(bundleId);
         if (bundle == null) {
@@ -224,6 +261,7 @@ public class FileBundleService {
         }
     }
 
+    /** 根据文件扩展名判断是否可能为二进制文件 */
     private boolean isLikelyBinary(String fileName) {
         String[] binaryExtensions = {
                 ".zip", ".jar", ".war", ".tar", ".gz", ".bz2", ".7z", ".rar",
@@ -241,16 +279,19 @@ public class FileBundleService {
 
     // ==================== List ====================
 
+    /** 查询所有已发布的合集（前台展示用） */
     public List<FileBundle> listPublished() {
         return bundleMapper.findByStatus(STATUS_PUBLISHED);
     }
 
+    /** 查询所有合集（管理端用，含草稿） */
     public List<FileBundle> listAll() {
         return bundleMapper.findAll();
     }
 
     // ==================== Feature / Unfeature ====================
 
+    /** 切换合集精选状态，仅已发布合集可设为精选 */
     public void toggleFeature(Long id) {
         FileBundle bundle = bundleMapper.findById(id);
         if (bundle == null) {
@@ -262,22 +303,26 @@ public class FileBundleService {
         bundleMapper.toggleFeature(id);
     }
 
+    /** 查询所有精选合集（首页展示用） */
     public List<FileBundle> getFeatured() {
         return bundleMapper.findFeatured();
     }
 
     // ==================== Publish / Unpublish ====================
 
+    /** 发布合集（状态改为 PUBLISHED） */
     public void publish(Long id) {
         bundleMapper.updateStatus(id, STATUS_PUBLISHED);
     }
 
+    /** 取消发布合集（状态改为 DRAFT） */
     public void unpublish(Long id) {
         bundleMapper.updateStatus(id, STATUS_DRAFT);
     }
 
     // ==================== Update ====================
 
+    /** 更新合集基本信息（名称、描述、类型），先校验存在性 */
     public FileBundle updateBundle(Long id, String name, String description, String type) {
         FileBundle bundle = bundleMapper.findById(id);
         if (bundle == null) {
@@ -292,6 +337,11 @@ public class FileBundleService {
 
     // ==================== Delete ====================
 
+    /**
+     * 删除合集及其关联数据。
+     * 流程：校验存在性 → 删除 FileNode 记录 → 删除 Bundle 记录 → 删除磁盘目录。
+     * 整个流程在一个事务中，保证 DB 和文件系统的一致性。
+     */
     @Transactional
     public void delete(Long bundleId) {
         FileBundle bundle = bundleMapper.findById(bundleId);
@@ -316,6 +366,7 @@ public class FileBundleService {
         }
     }
 
+    /** 递归删除目录及其所有子文件和子目录 */
     private void deleteDirectory(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             try (var entries = Files.newDirectoryStream(path)) {

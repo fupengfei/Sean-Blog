@@ -6,6 +6,10 @@ import { postPageView } from '@/lib/api';
 
 /**
  * 路径 → 统计页面类型映射
+ *
+ * 将 Next.js 路由路径映射为后端统计的 pageType。
+ * 博客详情页提取 slug 作为 pageKey，Skill 详情页提取 id 作为 pageKey。
+ * Admin 页面不记录 PV，返回空字符串跳过上报。
  */
 function getPageInfo(pathname: string): { pageType: string; pageKey: string } {
   if (pathname === '/') return { pageType: 'home', pageKey: '' };
@@ -29,16 +33,19 @@ function getPageInfo(pathname: string): { pageType: string; pageKey: string } {
 
 /**
  * 页面浏览追踪 Hook
- * 每次路由切换时向后端发送 PV 事件
+ *
+ * 监听 Next.js 路由变化，每次路由切换时向后端发送 PV（Page View）事件。
+ * 通过 `lastPath` ref 去重，避免同一路径重复上报。
+ * 上报失败时静默处理，不影响页面正常交互。
  */
 export default function usePageView() {
   const pathname = usePathname();
   const lastPath = useRef('');
 
   useEffect(() => {
-    if (pathname === lastPath.current) return; // 去重
+    if (pathname === lastPath.current) return; // 去重：同一路径不重复上报
     const info = getPageInfo(pathname);
-    if (!info.pageType) return; // 不追踪的页面
+    if (!info.pageType) return; // 不追踪的页面（如 Admin）
     lastPath.current = pathname;
 
     postPageView(info).catch(() => {

@@ -10,6 +10,26 @@ interface Props {
   article?: Article;
 }
 
+/**
+ * 文章编辑器（创建 + 编辑复用）
+ *
+ * 通过 `article` prop 区分模式：
+ * - `article` 为 undefined → 创建模式（必须上传 .md 文件）
+ * - `article` 传入现有数据 → 编辑模式（可上传新文件替换）
+ *
+ * 表单字段：
+ * - **文章标题**：可选，留空则从 MD 中自动提取
+ * - **文章描述**：可选，留空则自动从内容生成
+ * - **发布日期**：日期选择器，默认当天
+ * - **文件上传**：拖拽或点击上传 .md 文件，带拖拽高亮反馈
+ * - **分类**：下拉选择（从后端加载）
+ * - **标签**：多选按钮组（从后端加载）
+ * - **作者**：可选文本输入
+ * - **精选**：切换开关（toggle switch）
+ *
+ * 提交通过 FormData 发送到后端 `/api/v1/admin/articles`。
+ * 成功后调用 `onSuccess()` 回调。
+ */
 export default function ArticleEditor({ onSuccess, article }: Props) {
   const isEdit = !!article;
 

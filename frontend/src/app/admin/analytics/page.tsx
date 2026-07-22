@@ -17,7 +17,7 @@ import type {
 } from '@/types';
 
 // ---------------------------------------------------------------------------
-// 页面类型 → 中文名
+// 页面类型 → 中文名映射
 // ---------------------------------------------------------------------------
 const PAGE_TYPE_LABELS: Record<string, string> = {
   home: '首页',
@@ -30,9 +30,10 @@ const PAGE_TYPE_LABELS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// 子组件
+// 子组件：StatCard、TrendChart（堆叠柱状图）、RankingTable、CountryTable
 // ---------------------------------------------------------------------------
 
+/** 统计卡片：标题 + 数值 + 可选的环比变化百分比 */
 function StatCard({ title, value, delta }: { title: string; value: number; delta?: number }) {
   return (
     <div className="bg-surface border border-outline-variant rounded-lg p-6">
@@ -47,6 +48,7 @@ function StatCard({ title, value, delta }: { title: string; value: number; delta
   );
 }
 
+/** 每日 PV 趋势图：堆叠柱状图，按页面类型分色显示，含图例 */
 function TrendChart({ data }: { data: PageViewTrendVO[] }) {
   if (!data.length) return <p className="text-on-surface-variant text-sm py-8 text-center">暂无趋势数据</p>;
 
@@ -99,6 +101,7 @@ function TrendChart({ data }: { data: PageViewTrendVO[] }) {
   );
 }
 
+/** PV 排行表格：按页面类型和标识展示访问量 */
 function RankingTable({ data }: { data: PageViewStatVO[] }) {
   if (!data.length) return <p className="text-on-surface-variant text-sm py-8 text-center">暂无排行数据</p>;
 
@@ -128,6 +131,7 @@ function RankingTable({ data }: { data: PageViewStatVO[] }) {
   );
 }
 
+/** 访客国家分布：横向进度条 + 百分比 */
 function CountryTable({ data }: { data: CountryStatVO[] }) {
   if (!data.length) return <p className="text-on-surface-variant text-sm py-8 text-center">暂无访客数据</p>;
 
@@ -154,9 +158,28 @@ function CountryTable({ data }: { data: CountryStatVO[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// 主页面
+// 访问统计页（/admin/analytics）
 // ---------------------------------------------------------------------------
 
+/**
+ * 访问统计页（/admin/analytics）
+ *
+ * 数据获取：客户端 fetch，挂载时并行请求 5 个 API（getPageViewSummary、getPageViewTrend、getPageViewRanking、getVisitorCountries、getVisitorSummary）
+ * 所有请求通过 useCallback + useEffect 管理，时间窗口切换时重新拉取
+ *
+ * 展示内容：
+ * - 时间窗口切换：近 7 天 / 近 30 天按钮组
+ * - PV 统计卡片：总 PV、本周 PV、今日 PV（含环比变化）
+ * - UV 统计卡片：总 UV、本周 UV、今日 UV
+ * - 每日 PV 趋势图：堆叠柱状图，按页面类型分色
+ * - 页面排行表：按页面类型和标识展示 PV
+ * - 访客国家分布：横向进度条 + 百分比
+ *
+ * 状态覆盖：
+ * - loading：骨架屏统计卡片
+ * - error：红色错误提示 + 重试按钮
+ * - normal：完整数据面板
+ */
 export default function AdminAnalyticsPage() {
   const [window, setWindow] = useState<'7d' | '30d'>('7d');
   const [trendDays, setTrendDays] = useState(7);

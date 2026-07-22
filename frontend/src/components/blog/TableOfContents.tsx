@@ -81,6 +81,27 @@ function buildTocTree(items: TocItem[]): TocTreeNode[] {
   return roots;
 }
 
+/**
+ * 文章目录侧边栏组件
+ *
+ * 从 Markdown 内容中提取标题生成层级目录树，展示在文章详情页右侧。
+ *
+ * 核心功能：
+ * - **标题提取**：`extractToc()` 解析 Markdown 所有标题（h1-h6），过滤代码块内的 `#` 符号
+ * - **树形结构**：`buildTocTree()` 根据标题层级构建父子关系树
+ * - **活跃追踪**：使用 IntersectionObserver 监听文章中标题元素，自动高亮当前阅读位置
+ * - **折叠/展开**：有子标题的节点可点击 chevron 折叠或展开，默认全部展开
+ * - **祖先自动展开**：当子标题被激活时，自动展开其所有祖先节点
+ * - **滚动跟随**：自动将可视区域外的激活项滚动到目录容器内
+ *
+ * Sticky 定位（top: 120px），最大高度为 `calc(100vh - 160px)`，溢出时内部滚动。
+ *
+ * 附加功能：
+ * - 前置阅读文章链接（prerequisite）
+ * - 相关文章链接列表（relatedArticles，最多 5 篇）
+ *
+ * 无标题时返回 null（不渲染）。
+ */
 export default function TableOfContents({ content, prerequisite, relatedArticles }: TableOfContentsProps) {
   const tocItems = useMemo(() => extractToc(content), [content]);
   const tocTree = useMemo(() => buildTocTree(tocItems), [tocItems]);

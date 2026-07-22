@@ -9,6 +9,23 @@ interface Props {
   project?: Project; // 可选：编辑模式时传入已有项目
 }
 
+/**
+ * 项目编辑器（创建 + 编辑复用）
+ *
+ * 通过 `project` prop 区分模式：
+ * - `project` 为 undefined → 创建模式
+ * - `project` 传入现有数据 → 编辑模式
+ *
+ * 表单字段：
+ * - **标题**：必填
+ * - **描述**：选填，多行文本
+ * - **项目 URL / GitHub URL**：选填，type=url 输入框
+ * - **标签**：逗号分隔的文本输入，提交时转换为 JSON 数组字符串（如 `"React,TypeScript"` → `["React","TypeScript"]`）
+ * - **精选**：checkbox 切换
+ * - **封面图**：文件上传，编辑模式下提示已有封面图
+ *
+ * 提交通过 FormData 发送，成功后调用 `onSuccess()`。
+ */
 export default function ProjectEditor({ onSuccess, project }: Props) {
   const isEdit = !!project;
 

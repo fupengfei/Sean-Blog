@@ -5,6 +5,24 @@ import { useRouter } from "next/navigation";
 import { adminChangePassword } from "@/lib/api";
 import { logout } from "@/lib/auth";
 
+/**
+ * 修改密码页（/admin/settings）
+ *
+ * 数据获取：无初始数据请求，仅表单提交时调用 adminChangePassword API
+ *
+ * 表单校验规则：
+ * - 旧密码不能为空
+ * - 新密码不能为空且长度 >= 6
+ * - 确认密码须与新密码一致
+ * - 新密码不能与旧密码相同
+ *
+ * 状态覆盖：
+ * - 表单校验失败：红色错误提示
+ * - API 错误：红色错误提示
+ * - loading：按钮显示 "提交中..." 并禁用
+ * - 成功：绿色成功提示 → 3 秒后自动 logout 跳转登录页
+ * - 成功状态时隐藏表单，仅显示成功消息
+ */
 export default function AdminSettingsPage() {
   const router = useRouter();
 

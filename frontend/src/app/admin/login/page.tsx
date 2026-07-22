@@ -5,6 +5,23 @@ import { useRouter } from "next/navigation";
 import { adminLogin } from "@/lib/api";
 import { login, isAuthenticated } from "@/lib/auth";
 
+/**
+ * Admin 登录页（/admin/login）
+ *
+ * 数据获取：无初始数据请求，表单提交时调用 adminLogin API
+ *
+ * 认证流程：
+ * - 客户端挂载后检查是否已登录（isAuthenticated），已登录则跳转 /admin/dashboard
+ * - 使用 mounted 状态避免 SSR/CSR 水合不一致（hydration mismatch）
+ * - 提交表单 → adminLogin → 存储 JWT token → 跳转 dashboard
+ *
+ * 状态覆盖：
+ * - 未挂载（SSR 阶段）：return null
+ * - 表单校验失败：红色错误提示
+ * - API 错误：红色错误提示
+ * - loading：按钮显示 "登录中..." 并禁用
+ * - 成功：存储 token 后跳转
+ */
 export default function AdminLoginPage() {
   const router = useRouter();
 
