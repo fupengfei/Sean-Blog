@@ -40,7 +40,7 @@ interface ChatContextValue {
 /** 根据文章上下文生成欢迎语：文章页显示文章版，其他页面显示通用版 */
 function buildWelcomeMessage(articleContext: ArticleContext | null): ChatMessage {
   const content = articleContext
-    ? `📖 你正在阅读 **《${articleContext.title}》**，可以问我任何关于这篇文章的问题，比如「这篇文章讲了什么？」
+    ? `📖 您正在阅读 **《${articleContext.title}》**，可以问我任何关于这篇文章的问题，比如「这篇文章讲了什么？」
 
 也可以继续问我关于 Sean 的技术栈、博客文章或技术问题。`
     : `👋 您好！我是 **Sean's AI 助手**，可以问我关于：
