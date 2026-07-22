@@ -7,7 +7,7 @@
 | 层 | 技术 |
 |------|------|
 | 前端 | Next.js 14 (App Router) + TypeScript + Tailwind CSS |
-| 后端 | Spring Boot 4.x + Spring MVC + MyBatis |
+| 后端 | Spring Boot 4.x + Spring AI 2.x + Spring MVC + MyBatis |
 | 数据库 | MySQL 8.0 |
 | 缓存 | Redis 7 |
 | 部署 | Docker Compose（Nginx + Next.js + Spring Boot + MySQL + Redis） |
