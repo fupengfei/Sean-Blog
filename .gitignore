@@ -23,4 +23,5 @@ Thumbs.db
 .env*
 data/
 
-*.rbd
+# Redis
+*.rdb
