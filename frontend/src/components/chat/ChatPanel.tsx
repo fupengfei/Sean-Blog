@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useChat } from './ChatProvider';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
+import ArticleContextChip from './ArticleContextChip';
 
 /**
  * ChatPanel — 对话面板外壳，支持拖动 + 最小化
@@ -103,6 +104,7 @@ export default function ChatPanel() {
           <div className="w-14" />
         </div>
 
+        <ArticleContextChip />
         <MessageList />
         <ChatInput />
       </div>
@@ -176,6 +178,7 @@ export default function ChatPanel() {
           </div>
         </div>
 
+        <ArticleContextChip />
         <MessageList />
         <ChatInput />
       </div>

@@ -17,7 +17,7 @@ import { useChat } from './ChatProvider';
  * - 发送按钮：主色渐变圆形图标按钮
  */
 export default function ChatInput() {
-  const { sendMessage, stopStreaming, isStreaming } = useChat();
+  const { sendMessage, stopStreaming, isStreaming, articleContext } = useChat();
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +46,13 @@ export default function ChatInput() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={isStreaming ? 'AI 正在回复...' : '输入您的问题...'}
+        placeholder={
+          isStreaming
+            ? 'AI 正在回复...'
+            : articleContext
+              ? '问问关于这篇文章的问题...'
+              : '输入您的问题...'
+        }
         disabled={isStreaming}
         className="flex-1 h-10 px-4 text-sm text-on-surface placeholder:text-outline bg-surface-container-low rounded-xl border-none outline-none disabled:opacity-50 transition-colors"
       />
