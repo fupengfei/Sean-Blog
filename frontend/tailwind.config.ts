@@ -57,6 +57,25 @@ const config: Config = {
         body: ['"Source Serif 4"', 'serif'],             // 文章正文字体
         ui: ['Inter', 'sans-serif'],                     // UI 组件字体
       },
+      // -----------------------------------------------------------------------
+      // 动画系统：公告横幅专用
+      // banner-sheen: 低透明度光带扫过（前 25% 时间扫完，其余时间停顿，6s 一轮）
+      // banner-pulse: NEW 徽章柔和呼吸脉冲
+      // -----------------------------------------------------------------------
+      keyframes: {
+        'banner-sheen': {
+          '0%': { transform: 'translateX(-100%) skewX(-12deg)' },
+          '25%, 100%': { transform: 'translateX(350%) skewX(-12deg)' },
+        },
+        'banner-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
+        },
+      },
+      animation: {
+        'banner-sheen': 'banner-sheen 6s ease-in-out infinite',
+        'banner-pulse': 'banner-pulse 2.4s ease-in-out infinite',
+      },
     },
   },
   // Tailwind Typography 插件：为 Markdown 渲染的 HTML 提供排版样式
