@@ -87,4 +87,35 @@ public class AsyncConfig {
         executor.initialize();
         return executor;
     }
+
+    /**
+     * AI 对话审计落库线程池。
+     *
+     * <p>配置参数：
+     * <ul>
+     *   <li>核心线程数：2</li>
+     *   <li>最大线程数：2</li>
+     *   <li>队列容量：1000</li>
+     *   <li>拒绝策略：静默丢弃（审计丢失可接受，不可拖垮聊天主链路）</li>
+     * </ul>
+     * </p>
+     *
+     * @return 配置好的 chatPersistExecutor 线程池
+     */
+    @Bean("chatPersistExecutor")
+    public Executor chatPersistExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("chat-persist-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy() {
+            @Override
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+                System.err.println("Chat persistence dropped: async queue full");
+            }
+        });
+        executor.initialize();
+        return executor;
+    }
 }
