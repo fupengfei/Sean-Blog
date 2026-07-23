@@ -59,6 +59,7 @@ Sean-Blog/
 │       ├── config/             # 安全/MyBatis/CORS 配置
 │       └── module/
 │           ├── auth/           # JWT 认证
+│           ├── ai/             # AI 聊天（SSE 流式 + Lucene 向量 RAG）
 │           ├── blog/           # 文章/分类/标签
 │           ├── project/        # 项目展示
 │           ├── file/           # 文件目录（Skill Bundle）
@@ -67,7 +68,11 @@ Sean-Blog/
 ├── frontend/                   # Next.js 前端
 │   └── src/
 │       ├── app/                # 页面路由
-│       ├── components/         # UI 组件
+│       ├── components/
+│       │   ├── chat/           # AI 聊天助手（浮动按钮 + 面板 + SSE 流式）
+│       │   ├── blog/           # 博客相关组件
+│       │   ├── layout/         # 布局组件
+│       │   └── ...             # 其他页面组件
 │       ├── lib/                # API 客户端/认证工具
 │       └── types/              # TypeScript 类型
 ├── docs/                       # 项目文档
@@ -88,10 +93,11 @@ Sean-Blog/
 |------|------|------|
 | 首页 | `/` | Hero + 精选项目 + 精选文章 + CTA |
 | 博客列表 | `/blog` | 分类/标签筛选 + 分页 |
-| 文章详情 | `/blog/[slug]` | Markdown 渲染 + 代码高亮 |
+| 文章详情 | `/blog/[slug]` | Markdown 渲染 + 代码高亮 + AI 助手上下文感知 |
 | Skill 目录 | `/blog/skills` | 文件树浏览 |
 | 项目展示 | `/projects` | 卡片网格 |
 | 关于我 | `/about` | 个人介绍 |
+| AI 助手 | 全站浮动按钮 | SSE 流式对话 + 文章上下文感知 + Lucene 向量 RAG |
 
 ### Admin 管理
 
