@@ -4,6 +4,7 @@ import tools.jackson.databind.ObjectMapper;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -86,7 +87,39 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
                 // 损坏的单条记录跳过，不连累整个会话
             }
         }
-        return messages;
+        return repairToolPairs(messages);
+    }
+
+    /**
+     * 修复窗口截断/旧数据造成的工具配对破损，保证回放历史对 DeepSeek 恒合法：
+     * 1. 孤立 TOOL（前面的 assistant(toolCalls) 被截断）→ 丢弃；
+     * 2. assistant(toolCalls) 后紧跟的不是 TOOL 且不在末尾（旧数据或配对被截）
+     *    → 降级为纯文本 assistant（保留 content）；
+     * 3. 末尾的 assistant(toolCalls) 原样保留——工具循环第二轮的请求形态正是
+     *    [user, assistant(toolCalls)]，框架据此补回 tool 消息，剥掉会触发
+     *    「tool 消息前必须有带 tool_calls 的 assistant」400。
+     */
+    private List<Message> repairToolPairs(List<Message> messages) {
+        List<Message> repaired = new ArrayList<>(messages.size());
+        for (int i = 0; i < messages.size(); i++) {
+            Message m = messages.get(i);
+            if (m.getMessageType() == MessageType.TOOL) {
+                Message prev = repaired.isEmpty() ? null : repaired.get(repaired.size() - 1);
+                if (prev instanceof AssistantMessage assistant && assistant.hasToolCalls()) {
+                    repaired.add(m);
+                }
+            } else if (m instanceof AssistantMessage assistant && assistant.hasToolCalls()) {
+                Message next = i + 1 < messages.size() ? messages.get(i + 1) : null;
+                if (next != null && next.getMessageType() != MessageType.TOOL) {
+                    repaired.add(new AssistantMessage(assistant.getText()));
+                } else {
+                    repaired.add(m);
+                }
+            } else {
+                repaired.add(m);
+            }
+        }
+        return repaired;
     }
 
     @Override

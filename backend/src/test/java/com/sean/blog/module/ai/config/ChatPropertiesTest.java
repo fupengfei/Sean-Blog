@@ -11,7 +11,7 @@ class ChatPropertiesTest {
     @Test
     void defaults() {
         ChatProperties props = new ChatProperties();
-        assertEquals(20, props.getMemoryWindow());
+        assertEquals(40, props.getMemoryWindow());
         assertEquals(Duration.ofDays(7), props.getMemoryTtl());
         assertEquals(4, props.getRag().getFetchSize());
         assertEquals(3, props.getRag().getKeepSize());

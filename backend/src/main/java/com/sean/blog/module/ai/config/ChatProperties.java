@@ -11,7 +11,7 @@ import java.time.Duration;
 public class ChatProperties {
 
     /** 模型上下文记忆窗口（条数） */
-    private int memoryWindow = 20;
+    private int memoryWindow = 40;
 
     /** Redis 会话记忆 TTL */
     private Duration memoryTtl = Duration.ofDays(7);

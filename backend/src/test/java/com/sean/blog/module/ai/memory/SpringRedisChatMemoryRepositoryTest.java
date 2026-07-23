@@ -21,7 +21,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -173,5 +172,55 @@ class SpringRedisChatMemoryRepositoryTest {
     @Test
     void findConversationIdsUnsupportedEmpty() {
         assertTrue(repository.findConversationIds().isEmpty());
+    }
+
+    @Test
+    void orphanToolMessageDroppedInRepair() {
+        // 窗口截断把 assistant(toolCalls) 截掉留下孤立 TOOL，回放会触发 DeepSeek 400
+        when(listOps.range("chat:memory:cid-1", 0, -1)).thenReturn(List.of(
+                "{\"type\":\"USER\",\"text\":\"问\"}",
+                "{\"type\":\"TOOL\",\"toolResponses\":[{\"id\":\"call_1\",\"name\":\"listProjects\",\"responseData\":\"[]\"}]}",
+                "{\"type\":\"ASSISTANT\",\"text\":\"答\"}"));
+
+        List<Message> messages = repository.findByConversationId("cid-1");
+
+        assertEquals(2, messages.size());
+        assertEquals(MessageType.USER, messages.get(0).getMessageType());
+        assertEquals(MessageType.ASSISTANT, messages.get(1).getMessageType());
+    }
+
+    @Test
+    void assistantToolCallsStrippedWhenNotFollowedByTool() {
+        // 旧数据或配对截断：assistant(toolCalls) 后紧跟的不是 TOOL → 降级为纯文本
+        when(listOps.range("chat:memory:cid-1", 0, -1)).thenReturn(List.of(
+                "{\"type\":\"USER\",\"text\":\"问\"}",
+                "{\"type\":\"ASSISTANT\",\"text\":\"好的\",\"toolCalls\":[{\"id\":\"call_1\",\"type\":\"function\",\"name\":\"listProjects\",\"arguments\":\"{}\"}]}",
+                "{\"type\":\"ASSISTANT\",\"text\":\"最终答复\"}",
+                "{\"type\":\"USER\",\"text\":\"再问\"}"));
+
+        List<Message> messages = repository.findByConversationId("cid-1");
+
+        assertEquals(4, messages.size());
+        AssistantMessage stripped = (AssistantMessage) messages.get(1);
+        assertTrue(!stripped.hasToolCalls(), "非末尾的 assistant(toolCalls) 应被降级");
+        assertEquals("好的", stripped.getText());
+        assertEquals("最终答复", messages.get(2).getText());
+        assertEquals("再问", messages.get(3).getText());
+    }
+
+    @Test
+    void trailingAssistantToolCallsPreserved() {
+        // 工具循环第二轮形态 [user, assistant(toolCalls)]——末尾必须保留 toolCalls，
+        // 否则框架无法据此补回 tool 消息，DeepSeek 400「tool 消息前缺 tool_calls」
+        when(listOps.range("chat:memory:cid-1", 0, -1)).thenReturn(List.of(
+                "{\"type\":\"USER\",\"text\":\"你有哪些项目？\"}",
+                "{\"type\":\"ASSISTANT\",\"text\":\"\",\"toolCalls\":[{\"id\":\"call_1\",\"type\":\"function\",\"name\":\"listProjects\",\"arguments\":\"{}\"}]}"));
+
+        List<Message> messages = repository.findByConversationId("cid-1");
+
+        assertEquals(2, messages.size());
+        AssistantMessage trailing = (AssistantMessage) messages.get(1);
+        assertTrue(trailing.hasToolCalls(), "末尾的 assistant(toolCalls) 必须保留");
+        assertEquals("call_1", trailing.getToolCalls().get(0).id());
     }
 }

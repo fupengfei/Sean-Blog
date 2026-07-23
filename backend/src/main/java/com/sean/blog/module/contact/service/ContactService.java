@@ -14,7 +14,8 @@ import java.util.Map;
 
 /**
  * 联系记录业务服务，处理四种联系类型的记录入库和管理端查询。
- * 每个记录方法从 HttpServletRequest 中提取真实客户端 IP。
+ * 记录方法支持 HttpServletRequest 或 IP 字符串两种调用方式，
+ * IP 提取统一由 {@link com.sean.blog.common.ClientIpResolver} 完成。
  *
  * @author sean
  */

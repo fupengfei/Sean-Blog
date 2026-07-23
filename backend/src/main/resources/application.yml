@@ -89,7 +89,7 @@ file:
 sean:
   ai:
     chat:
-      memory-window: 20        # 模型上下文记忆窗口（条）
+      memory-window: 40        # 模型上下文记忆窗口（条，工具调用一轮占 4 条，需覆盖多轮）
       memory-ttl: 7d           # Redis 会话记忆 TTL
       rag:
         fetch-size: 4          # RAG 向量检索取数

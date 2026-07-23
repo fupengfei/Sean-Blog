@@ -10,15 +10,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * 异步任务线程池配置，为不同类型的后台操作提供独立的自定义线程池。
  *
- * <p>定义了两个线程池：</p>
+ * <p>定义了三个线程池：</p>
  * <ul>
  *   <li>{@code pvExecutor} — 页面浏览量（Page View）异步记录线程池。</li>
  *   <li>{@code geoExecutor} — IP 地理信息解析异步线程池。</li>
+ *   <li>{@code chatPersistExecutor} — AI 对话审计落库异步线程池。</li>
  * </ul>
  *
- * <p>两个线程池均采用 {@link ThreadPoolExecutor.DiscardPolicy} 拒绝策略：
+ * <p>三个线程池均采用 {@link ThreadPoolExecutor.DiscardPolicy} 拒绝策略：
  * 当队列满时新任务将被静默丢弃，并打印错误日志到 stderr。
- * 这样设计是因为 PV 记录和 IP 解析属于非关键辅助功能，即使偶尔丢失也不影响核心业务的正确性。</p>
+ * 这样设计是因为 PV 记录、IP 解析与对话审计均属于非关键辅助功能，即使偶尔丢失也不影响核心业务的正确性。</p>
  */
 @Configuration
 public class AsyncConfig {
