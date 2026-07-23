@@ -7,7 +7,7 @@ import { useChat } from '@/components/chat/ChatProvider';
 // 首页上线公告横幅（Announcement Banner）
 //
 // 庆祝 Sean's AI 智能助手（RAG + Function Call + Skill）顺利上线：
-// - 点击横幅任意位置 → useChat().openChat() 打开助手聊天面板
+// - 点击「立即体验」按钮 → useChat().openChat() 打开助手聊天面板（横幅其它区域不可点击）
 // - × 关闭 → 写入 localStorage（key 带版本号，将来换公告升级版本号可重新触达）
 // - 服务端不渲染（localStorage 仅客户端可读）；客户端判定未关闭后播放滑入动画
 // ---------------------------------------------------------------------------
@@ -43,14 +43,6 @@ export default function AnnouncementBanner() {
     return () => cancelAnimationFrame(raf);
   }, [visible]);
 
-  /** 键盘操作支持（role="button" 需支持 Enter / Space） */
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openChat();
-    }
-  };
-
   /** 关闭公告：播放退场动画后写入 localStorage 并卸载 */
   const handleDismiss = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -85,18 +77,11 @@ export default function AnnouncementBanner() {
         <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-primary/[0.05] to-transparent motion-reduce:animate-none" />
       </span>
 
-      {/* 整条横幅可点击：div + role="button"（避免与内部 × 按钮形成非法嵌套） */}
+      {/* 横幅内容容器：仅展示，不可点击；交互收敛到「立即体验」按钮 */}
       <div
-        role="button"
-        tabIndex={0}
-        onClick={openChat}
-        onKeyDown={handleKeyDown}
-        aria-label="打开 Sean's AI 智能助手"
         className={[
-          'group relative mx-auto flex w-full max-w-[1200px] cursor-pointer flex-col items-center justify-center gap-2 px-4 py-2 pr-10',
+          'relative mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center gap-2 px-4 py-2 pr-10',
           'sm:flex-row sm:flex-wrap sm:gap-4 sm:px-6 sm:pr-12 lg:px-10',
-          'transition-colors duration-200 hover:bg-primary/[0.04]',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary/70',
         ].join(' ')}
       >
         {/* 徽章组：sparkle + NEW 始终同行，作为不可收缩的整体 */}
@@ -128,13 +113,17 @@ export default function AnnouncementBanner() {
         <p className="w-full min-w-0 text-center text-sm leading-5 text-primary sm:w-auto">
           <span className="font-semibold">Sean's AI 智能助手正式上线！</span>
           <span className="block text-on-surface-variant sm:inline">
-            {' '}
-            RAG 检索 · Function Call 调用 · Skill 编排{' '}
-            <span className="whitespace-nowrap">—— 从会聊天到会做事</span>
+            {' '}内置 RAG 知识库检索 · Function Call 函数调用 · Skill 任务编排三大核心能力{' '}
+            <span className="whitespace-nowrap">—— 从简单问答，到全域协同</span>
           </span>
         </p>
 
-        <span className="inline-flex shrink-0 items-center gap-1 rounded bg-primary px-3 py-1 text-xs font-medium text-on-primary transition-colors duration-200 group-hover:bg-primary-container">
+        <button
+          type="button"
+          onClick={openChat}
+          aria-label="立即体验，打开 Sean's AI 智能助手"
+          className="group inline-flex shrink-0 cursor-pointer items-center gap-1 rounded bg-primary px-3 py-1 text-xs font-medium text-on-primary transition-colors duration-200 hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary/70"
+        >
           立即体验
           <svg
             aria-hidden
@@ -146,7 +135,7 @@ export default function AnnouncementBanner() {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
           </svg>
-        </span>
+        </button>
       </div>
 
       {/* 关闭按钮 */}
