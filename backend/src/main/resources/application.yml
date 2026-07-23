@@ -82,3 +82,13 @@ file:
     articles: ${file.base-path}/articles   # MD 文章文件目录
     skills: ${file.base-path}/skills       # Skill Bundle 文件目录
     images: ${file.base-path}/images       # 图片资源目录
+
+# ---- AI 聊天配置 ----
+sean:
+  ai:
+    chat:
+      memory-window: 20        # 模型上下文记忆窗口（条）
+      memory-ttl: 7d           # Redis 会话记忆 TTL
+      rag:
+        fetch-size: 4          # RAG 向量检索取数
+        keep-size: 3           # 注入相关文章上限

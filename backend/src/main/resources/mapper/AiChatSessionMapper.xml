@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sean.blog.module.ai.mapper.AiChatSessionMapper">
+
+    <insert id="insert" parameterType="com.sean.blog.module.ai.entity.AiChatSession">
+        INSERT INTO ai_chat_session
+            (id, conversation_id, created_at, last_active_at, ip, user_agent, message_count)
+        VALUES
+            (#{id}, #{conversationId}, #{createdAt}, #{lastActiveAt}, #{ip}, #{userAgent}, #{messageCount})
+    </insert>
+
+    <update id="updateLastActive">
+        UPDATE ai_chat_session SET last_active_at = #{lastActiveAt} WHERE id = #{id}
+    </update>
+
+    <update id="incrementMessageCount">
+        UPDATE ai_chat_session SET message_count = message_count + #{delta} WHERE id = #{id}
+    </update>
+
+    <select id="findByConversationId" resultType="com.sean.blog.module.ai.entity.AiChatSession">
+        SELECT id, conversation_id AS conversationId, created_at AS createdAt,
+               last_active_at AS lastActiveAt, ip, user_agent AS userAgent,
+               message_count AS messageCount
+        FROM ai_chat_session
+        WHERE conversation_id = #{conversationId}
+    </select>
+</mapper>
