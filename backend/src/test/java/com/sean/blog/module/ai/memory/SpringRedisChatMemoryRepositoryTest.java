@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -101,6 +102,60 @@ class SpringRedisChatMemoryRepositoryTest {
         AssistantMessage restoredAssistant = (AssistantMessage) restored.get(1);
         assertTrue(restoredAssistant.hasToolCalls());
         assertEquals(List.of(toolCall), restoredAssistant.getToolCalls());
+    }
+
+    @Test
+    void toolCallChainSurvivesRoundTrip() {
+        // 完整工具调用链回归：[user, assistant(toolCalls), tool(响应), assistant(最终答复)]。
+        // MessageChatMemoryAdvisor 按此形态写入 memory；跨请求回放时任一环节丢失
+        // （assistant 缺 toolCalls / tool 响应被丢弃），DeepSeek 均 400。
+        AssistantMessage.ToolCall toolCall =
+                new AssistantMessage.ToolCall("call_1", "function", "listProjects", "{}");
+        ToolResponseMessage.ToolResponse toolResponse =
+                new ToolResponseMessage.ToolResponse("call_1", "listProjects", "[{\"name\":\"机场巴士\"}]");
+        List<Message> chain = List.of(
+                new UserMessage("你有哪些项目？"),
+                AssistantMessage.builder().content("好的").toolCalls(List.of(toolCall)).build(),
+                ToolResponseMessage.builder().responses(List.of(toolResponse)).build(),
+                new AssistantMessage("Sean 的项目有：机场巴士"));
+
+        repository.saveAll("cid-1", chain);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(listOps).rightPushAll(eq("chat:memory:cid-1"), captor.capture());
+        List<String> serialized = List.copyOf(captor.getValue());
+
+        when(listOps.range("chat:memory:cid-1", 0, -1)).thenReturn(serialized);
+        List<Message> restored = repository.findByConversationId("cid-1");
+
+        assertEquals(4, restored.size());
+        assertEquals(MessageType.USER, restored.get(0).getMessageType());
+
+        AssistantMessage restoredAssistant = (AssistantMessage) restored.get(1);
+        assertEquals(List.of(toolCall), restoredAssistant.getToolCalls());
+
+        ToolResponseMessage restoredTool = (ToolResponseMessage) restored.get(2);
+        assertEquals(MessageType.TOOL, restoredTool.getMessageType());
+        assertEquals(List.of(toolResponse), restoredTool.getResponses());
+
+        assertEquals("Sean 的项目有：机场巴士", restored.get(3).getText());
+    }
+
+    @Test
+    void legacyToolEntryWithoutResponsesIsSkipped() {
+        // 旧格式 TOOL 条目（仅 type+text，无 responses）无法还原 tool_call_id，
+        // 应跳过该条而不连累整个会话
+        when(listOps.range("chat:memory:cid-1", 0, -1)).thenReturn(List.of(
+                "{\"type\":\"USER\",\"text\":\"问\"}",
+                "{\"type\":\"TOOL\",\"text\":\"旧格式工具结果\"}",
+                "{\"type\":\"ASSISTANT\",\"text\":\"答\"}"));
+
+        List<Message> messages = repository.findByConversationId("cid-1");
+
+        assertEquals(2, messages.size());
+        assertEquals(MessageType.USER, messages.get(0).getMessageType());
+        assertEquals(MessageType.ASSISTANT, messages.get(1).getMessageType());
     }
 
     @Test

@@ -5,6 +5,7 @@ import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import tools.jackson.core.JacksonException;
@@ -46,16 +47,23 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
     /**
      * Redis 中的消息存储形态（绕开 Spring AI Message 对象序列化问题）。
      *
-     * <p>{@code toolCalls} 必须保留：当链上存在 MemoryAdvisor 时，框架会关闭
-     * ToolCallingAdvisor 的内部会话历史（{@code conversationHistoryEnabled=false}），
-     * 工具循环每一轮仅携带 {@code [system, 最后的 tool 消息]}，由 memory advisor
-     * 从仓储补回完整历史——其中 assistant 消息若丢失 toolCalls，DeepSeek 会以
-     * 400「tool message 前必须有带 tool_calls 的 assistant」拒绝该轮请求。</p>
+     * <p>{@code toolCalls} / {@code toolResponses} 必须完整保留：当链上存在
+     * MemoryAdvisor 时，框架会关闭 ToolCallingAdvisor 的内部会话历史
+     * （{@code conversationHistoryEnabled=false}），工具循环每一轮及后续请求的
+     * 历史均由 memory advisor 从本仓储补回。MessageChatMemoryAdvisor 写入的
+     * 完整链路为 {@code [user, assistant(toolCalls), tool(响应), assistant(最终答复)]}——
+     * assistant 丢失 toolCalls 或 tool 响应被丢弃，DeepSeek 都会以 400 拒绝
+     * （「tool 消息前必须有带 tool_calls 的 assistant」/「带 tool_calls 的
+     * assistant 后必须紧跟对应的 tool 响应」）。</p>
      */
-    record StoredMessage(String type, String text, List<StoredToolCall> toolCalls) {}
+    record StoredMessage(String type, String text, List<StoredToolCall> toolCalls,
+                         List<StoredToolResponse> toolResponses) {}
 
     /** AssistantMessage.ToolCall 的存储形态（与框架 record 字段一一对应） */
     record StoredToolCall(String id, String type, String name, String arguments) {}
+
+    /** ToolResponseMessage.ToolResponse 的存储形态（id 即 tool_call_id，DeepSeek 强校验） */
+    record StoredToolResponse(String id, String name, String responseData) {}
 
     @Override
     public List<String> findConversationIds() {
@@ -113,7 +121,14 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
                 .map(tc -> new StoredToolCall(tc.id(), tc.type(), tc.name(), tc.arguments()))
                 .toList();
         }
-        return new StoredMessage(message.getMessageType().name(), message.getText(), toolCalls);
+        List<StoredToolResponse> toolResponses = null;
+        if (message instanceof ToolResponseMessage toolMessage) {
+            toolResponses = toolMessage.getResponses()
+                .stream()
+                .map(r -> new StoredToolResponse(r.id(), r.name(), r.responseData()))
+                .toList();
+        }
+        return new StoredMessage(message.getMessageType().name(), message.getText(), toolCalls, toolResponses);
     }
 
     private Message toMessage(StoredMessage stored) {
@@ -128,6 +143,17 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
                     .map(tc -> new AssistantMessage.ToolCall(tc.id(), tc.type(), tc.name(), tc.arguments()))
                     .toList();
                 yield AssistantMessage.builder().content(stored.text()).toolCalls(toolCalls).build();
+            }
+            case "TOOL" -> {
+                if (stored.toolResponses() == null || stored.toolResponses().isEmpty()) {
+                    // 旧格式（仅存 text）无法还原 tool_call_id，跳过该条
+                    throw new IllegalArgumentException("TOOL message without stored responses: " + stored.text());
+                }
+                List<ToolResponseMessage.ToolResponse> responses = stored.toolResponses()
+                    .stream()
+                    .map(r -> new ToolResponseMessage.ToolResponse(r.id(), r.name(), r.responseData()))
+                    .toList();
+                yield ToolResponseMessage.builder().responses(responses).build();
             }
             case "SYSTEM" -> new SystemMessage(stored.text());
             default -> throw new IllegalArgumentException("Unsupported message type: " + stored.type());
