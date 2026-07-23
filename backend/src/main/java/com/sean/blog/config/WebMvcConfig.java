@@ -27,6 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "http://106.54.196.106:*")     // IP 直接访问（其他端口，如 :3000）
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
+                .exposedHeaders("X-Conversation-Id")
                 .allowCredentials(true);  // allowedOriginPatterns 可与 credentials 组合（allowedOrigins("*") 不行）
     }
 
