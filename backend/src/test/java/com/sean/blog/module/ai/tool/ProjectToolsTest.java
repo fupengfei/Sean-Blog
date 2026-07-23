@@ -43,4 +43,10 @@ class ProjectToolsTest {
         when(projectService.findPublished()).thenReturn(List.of());
         assertTrue(tools.listProjects().contains("暂无"));
     }
+
+    @Test
+    void serviceFailureReturnsFriendlyMessage() {
+        when(projectService.findPublished()).thenThrow(new RuntimeException("db down"));
+        assertTrue(tools.listProjects().contains("查询项目列表失败"));
+    }
 }

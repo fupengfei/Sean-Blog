@@ -31,16 +31,20 @@ public class SkillTools {
     @Tool(name = "listSkillBundles",
             description = "列出已发布的 Skill 文件包（id、名称、描述、类型）。用户问「有哪些 Skill」「技能包」时使用。")
     public String listSkillBundles() {
-        List<FileBundle> bundles = fileBundleService.listPublished();
-        if (bundles.isEmpty()) {
-            return "暂无已发布的 Skill 文件包。";
+        try {
+            List<FileBundle> bundles = fileBundleService.listPublished();
+            if (bundles.isEmpty()) {
+                return "暂无已发布的 Skill 文件包。";
+            }
+            return bundles.stream()
+                    .map(b -> String.format("- 《%s》(id: %d, 类型: %s)\n  %s",
+                            b.getName(), b.getId(),
+                            b.getType() == null ? "" : b.getType(),
+                            b.getDescription() == null ? "" : b.getDescription()))
+                    .collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            return "查询 Skill 文件包列表失败，请稍后重试。";
         }
-        return bundles.stream()
-                .map(b -> String.format("- 《%s》(id: %d, 类型: %s)\n  %s",
-                        b.getName(), b.getId(),
-                        b.getType() == null ? "" : b.getType(),
-                        b.getDescription() == null ? "" : b.getDescription()))
-                .collect(Collectors.joining("\n"));
     }
 
     @Tool(name = "getSkillFileTree",

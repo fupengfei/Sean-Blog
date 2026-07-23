@@ -71,4 +71,10 @@ class SkillToolsTest {
 
         assertTrue(result.contains("读取失败"));
     }
+
+    @Test
+    void listBundlesFailureReturnsFriendlyMessage() {
+        when(fileBundleService.listPublished()).thenThrow(new RuntimeException("db down"));
+        assertTrue(tools.listSkillBundles().contains("查询 Skill 文件包列表失败"));
+    }
 }

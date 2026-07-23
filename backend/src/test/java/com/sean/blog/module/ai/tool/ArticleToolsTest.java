@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -74,5 +75,11 @@ class ArticleToolsTest {
         when(articleMapper.findPublished(anyMap())).thenReturn(List.of());
         String result = tools.listRecentArticles(99);
         assertTrue(result.contains("暂无"));
+    }
+
+    @Test
+    void dbFailureReturnsFriendlyMessage() {
+        when(articleMapper.findBySlug("any")).thenThrow(new RuntimeException("db down"));
+        assertEquals("查询文章失败，请稍后重试。", tools.getArticleBySlug("any"));
     }
 }
