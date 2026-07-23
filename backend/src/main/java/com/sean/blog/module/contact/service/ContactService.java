@@ -1,5 +1,6 @@
 package com.sean.blog.module.contact.service;
 
+import com.sean.blog.common.ClientIpResolver;
 import com.sean.blog.common.PageResult;
 import com.sean.blog.common.SnowflakeIdGenerator;
 import com.sean.blog.module.contact.entity.ContactRecord;
@@ -22,19 +23,18 @@ public class ContactService {
 
     private final ContactRecordMapper contactRecordMapper;
     private final SnowflakeIdGenerator idGenerator;
+    private final ClientIpResolver clientIpResolver;
 
-    public ContactService(ContactRecordMapper contactRecordMapper, SnowflakeIdGenerator idGenerator) {
+    public ContactService(ContactRecordMapper contactRecordMapper,
+                          SnowflakeIdGenerator idGenerator,
+                          ClientIpResolver clientIpResolver) {
         this.contactRecordMapper = contactRecordMapper;
         this.idGenerator = idGenerator;
+        this.clientIpResolver = clientIpResolver;
     }
 
     /**
      * 记录首页商务合作请求。
-     *
-     * @param request     HTTP 请求，用于提取客户端 IP
-     * @param companyName 公司名称
-     * @param email       联系邮箱
-     * @param content     合作需求内容
      */
     public void recordBusiness(HttpServletRequest request, String companyName, String email, String content) {
         ContactRecord record = new ContactRecord();
@@ -43,16 +43,12 @@ public class ContactService {
         record.setContent(content);
         record.setCompanyName(companyName);
         record.setEmail(email);
-        record.setIpAddress(getIpAddress(request));
+        record.setIpAddress(clientIpResolver.resolve(request));
         contactRecordMapper.insert(record);
     }
 
     /**
      * 记录"关于我"页面发送邮件请求。
-     *
-     * @param request HTTP 请求，用于提取客户端 IP
-     * @param email   发送目标邮箱
-     * @param content 邮件内容
      */
     public void recordMail(HttpServletRequest request, String email, String content) {
         ContactRecord record = new ContactRecord();
@@ -60,40 +56,54 @@ public class ContactService {
         record.setType("MAIL");
         record.setContent(content);
         record.setEmail(email);
-        record.setIpAddress(getIpAddress(request));
+        record.setIpAddress(clientIpResolver.resolve(request));
         contactRecordMapper.insert(record);
     }
 
     /**
-     * 记录用户获取简历请求。
+     * 记录用户获取简历请求（IP 字符串版，供 AI 工具等非 Web 上下文调用）。
      *
-     * @param request     HTTP 请求，用于提取客户端 IP
-     * @param companyName 公司名称
+     * @param ipAddress   调用方捕获的客户端 IP
+     * @param companyName 公司名称（可为 null）
      * @param email       邮箱
      */
-    public void recordResume(HttpServletRequest request, String companyName, String email) {
+    public void recordResume(String ipAddress, String companyName, String email) {
         ContactRecord record = new ContactRecord();
         record.setId(idGenerator.nextId());
         record.setType("RESUME");
         record.setCompanyName(companyName);
         record.setEmail(email);
-        record.setIpAddress(getIpAddress(request));
+        record.setIpAddress(ipAddress);
+        contactRecordMapper.insert(record);
+    }
+
+    /**
+     * 记录用户获取简历请求。
+     */
+    public void recordResume(HttpServletRequest request, String companyName, String email) {
+        recordResume(clientIpResolver.resolve(request), companyName, email);
+    }
+
+    /**
+     * 记录用户订阅请求（IP 字符串版，供 AI 工具等非 Web 上下文调用）。
+     *
+     * @param ipAddress 调用方捕获的客户端 IP
+     * @param email     订阅邮箱
+     */
+    public void recordSubscribe(String ipAddress, String email) {
+        ContactRecord record = new ContactRecord();
+        record.setId(idGenerator.nextId());
+        record.setType("SUBSCRIBE");
+        record.setEmail(email);
+        record.setIpAddress(ipAddress);
         contactRecordMapper.insert(record);
     }
 
     /**
      * 记录用户订阅请求。
-     *
-     * @param request HTTP 请求，用于提取客户端 IP
-     * @param email   订阅邮箱
      */
     public void recordSubscribe(HttpServletRequest request, String email) {
-        ContactRecord record = new ContactRecord();
-        record.setId(idGenerator.nextId());
-        record.setType("SUBSCRIBE");
-        record.setEmail(email);
-        record.setIpAddress(getIpAddress(request));
-        contactRecordMapper.insert(record);
+        recordSubscribe(clientIpResolver.resolve(request), email);
     }
 
     /**
@@ -136,33 +146,5 @@ public class ContactService {
             }
         }
         return result;
-    }
-
-    /**
-     * 从请求中提取真实客户端 IP 地址。
-     * 依次检查 X-Forwarded-For、Proxy-Client-IP 等代理头部，最后回退到 RemoteAddr。
-     * 若有多个 IP（逗号分隔），取第一个。
-     */
-    private String getIpAddress(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip;
     }
 }
