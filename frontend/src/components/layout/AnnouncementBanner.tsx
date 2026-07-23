@@ -93,35 +93,39 @@ export default function AnnouncementBanner() {
         onKeyDown={handleKeyDown}
         aria-label="打开 Sean's AI 智能助手"
         className={[
-          'group relative mx-auto flex w-full max-w-[1200px] cursor-pointer flex-wrap items-center',
-          'justify-center gap-2 px-4 py-2 pr-10 sm:justify-start sm:gap-4 sm:px-6 sm:pr-12 lg:px-10',
+          'group relative mx-auto flex w-full max-w-[1200px] cursor-pointer flex-col items-center gap-2 px-4 py-2 pr-10',
+          'sm:flex-row sm:flex-wrap sm:justify-start sm:gap-4 sm:px-6 sm:pr-12 lg:px-10',
           'transition-colors duration-200 hover:bg-on-primary/[0.03]',
           'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary/70',
         ].join(' ')}
       >
-        <svg
-          aria-hidden
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          className="h-4 w-4 shrink-0 text-on-primary/90"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"
-          />
-        </svg>
+        {/* 徽章组：sparkle + NEW 始终同行，作为不可收缩的整体 */}
+        <span className="inline-flex shrink-0 items-center gap-2">
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-4 w-4 text-on-primary/90"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"
+            />
+          </svg>
 
-        <span
-          aria-hidden
-          className="shrink-0 animate-banner-pulse rounded bg-secondary px-2 py-0.5 text-xs font-semibold leading-4 text-on-secondary motion-reduce:animate-none"
-        >
-          NEW
+          <span
+            aria-hidden
+            className="animate-banner-pulse rounded bg-secondary px-2 py-0.5 text-xs font-semibold leading-4 text-on-secondary motion-reduce:animate-none"
+          >
+            NEW
+          </span>
         </span>
 
-        <p className="text-center text-sm leading-5 text-on-primary sm:text-left">
+        {/* 文案：min-w-0 允许收缩换行；移动端占满整行居中，桌面端行内左对齐 */}
+        <p className="w-full min-w-0 text-center text-sm leading-5 text-on-primary sm:w-auto sm:text-left">
           <span className="font-semibold">Sean's AI 智能助手正式上线！</span>
           <span className="text-on-primary/75">
             {' '}
