@@ -127,9 +127,10 @@ export default function AnnouncementBanner() {
         {/* 文案：min-w-0 允许收缩换行；移动端占满整行、桌面端行内，均水平居中 */}
         <p className="w-full min-w-0 text-center text-sm leading-5 text-primary sm:w-auto">
           <span className="font-semibold">Sean's AI 智能助手正式上线！</span>
-          <span className="text-on-surface-variant">
+          <span className="block text-on-surface-variant sm:inline">
             {' '}
-            融合 RAG 知识检索 · Function Call · Skill 编排三大能力
+            RAG 检索 · Function Call 调用 · Skill 编排{' '}
+            <span className="whitespace-nowrap">—— 从会聊天到会做事</span>
           </span>
         </p>
 
