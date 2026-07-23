@@ -25,6 +25,7 @@ import java.util.UUID;
  *
  * <p>瘦控制器：仅做参数校验、会话 ID 解析、IP/UA 元数据捕获，
  * 对话增强逻辑全部在 Advisor 链（见 AiConfig）中完成。</p>
+ * <p>注意：因 Spring AI 2.0.0 流式工具调用缺陷，当前使用非流式调用（SSE 单事件返回）。</p>
  */
 @RestController
 @RequestMapping("/api/v1/ai")
@@ -53,7 +54,11 @@ public class ChatController {
         String rawUserAgent = httpRequest.getHeader("User-Agent");
         final String userAgent = rawUserAgent == null ? "" : rawUserAgent;
 
-        return chatClient.prompt()
+        // 非流式调用（.call()）：Spring AI 2.0.0 流式聚合存在 tool_calls 丢失缺陷
+        // （DeepSeek 工具调用的第二轮请求 assistant 消息缺 tool_calls → 400），
+        // 经实验证实与思考模式无关，为框架自身 bug。改用同步调用，
+        // 响应仍以 SSE 单事件返回，前端无需改动。待 Spring AI 修复后可改回 .stream().content()。
+        String content = chatClient.prompt()
                 .user(request.message().trim())
                 .advisors(a -> {
                     a.param(ChatMemory.CONVERSATION_ID, conversationId);
@@ -64,9 +69,9 @@ public class ChatController {
                     a.param(ConversationPersistenceAdvisor.USER_AGENT_KEY, userAgent);
                 })
                 .toolContext(Map.of("ip", ip == null ? "" : ip))
-                .stream()
-                .content()
-                .doOnCancel(() -> { /* 客户端主动断开，Reactor 正常取消订阅 */ });
+                .call()
+                .content();
+        return Flux.just(content == null ? "" : content);
     }
 
     /**
