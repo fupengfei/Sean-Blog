@@ -43,8 +43,19 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
         this.keyPrefix = keyPrefix;
     }
 
-    /** Redis 中的消息存储形态（绕开 Spring AI Message 对象序列化问题） */
-    record StoredMessage(String type, String text) {}
+    /**
+     * Redis 中的消息存储形态（绕开 Spring AI Message 对象序列化问题）。
+     *
+     * <p>{@code toolCalls} 必须保留：当链上存在 MemoryAdvisor 时，框架会关闭
+     * ToolCallingAdvisor 的内部会话历史（{@code conversationHistoryEnabled=false}），
+     * 工具循环每一轮仅携带 {@code [system, 最后的 tool 消息]}，由 memory advisor
+     * 从仓储补回完整历史——其中 assistant 消息若丢失 toolCalls，DeepSeek 会以
+     * 400「tool message 前必须有带 tool_calls 的 assistant」拒绝该轮请求。</p>
+     */
+    record StoredMessage(String type, String text, List<StoredToolCall> toolCalls) {}
+
+    /** AssistantMessage.ToolCall 的存储形态（与框架 record 字段一一对应） */
+    record StoredToolCall(String id, String type, String name, String arguments) {}
 
     @Override
     public List<String> findConversationIds() {
@@ -79,8 +90,7 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
         }
         List<String> serialized = new ArrayList<>(messages.size());
         for (Message message : messages) {
-            serialized.add(objectMapper.writeValueAsString(
-                    new StoredMessage(message.getMessageType().name(), message.getText())));
+            serialized.add(objectMapper.writeValueAsString(toStored(message)));
         }
         redisTemplate.opsForList().rightPushAll(key, serialized);
         redisTemplate.expire(key, ttl);
@@ -95,10 +105,30 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
         return keyPrefix + conversationId;
     }
 
+    private StoredMessage toStored(Message message) {
+        List<StoredToolCall> toolCalls = null;
+        if (message instanceof AssistantMessage assistant && assistant.hasToolCalls()) {
+            toolCalls = assistant.getToolCalls()
+                .stream()
+                .map(tc -> new StoredToolCall(tc.id(), tc.type(), tc.name(), tc.arguments()))
+                .toList();
+        }
+        return new StoredMessage(message.getMessageType().name(), message.getText(), toolCalls);
+    }
+
     private Message toMessage(StoredMessage stored) {
         return switch (stored.type()) {
             case "USER" -> new UserMessage(stored.text());
-            case "ASSISTANT" -> new AssistantMessage(stored.text());
+            case "ASSISTANT" -> {
+                if (stored.toolCalls() == null || stored.toolCalls().isEmpty()) {
+                    yield new AssistantMessage(stored.text());
+                }
+                List<AssistantMessage.ToolCall> toolCalls = stored.toolCalls()
+                    .stream()
+                    .map(tc -> new AssistantMessage.ToolCall(tc.id(), tc.type(), tc.name(), tc.arguments()))
+                    .toList();
+                yield AssistantMessage.builder().content(stored.text()).toolCalls(toolCalls).build();
+            }
             case "SYSTEM" -> new SystemMessage(stored.text());
             default -> throw new IllegalArgumentException("Unsupported message type: " + stored.type());
         };

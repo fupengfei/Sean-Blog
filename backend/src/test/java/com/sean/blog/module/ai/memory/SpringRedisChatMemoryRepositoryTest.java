@@ -76,6 +76,34 @@ class SpringRedisChatMemoryRepositoryTest {
     }
 
     @Test
+    void assistantToolCallsSurviveRoundTrip() {
+        // 工具调用回归用例：链上有 MemoryAdvisor 时框架关闭 ToolCallingAdvisor 内部历史，
+        // 每轮靠仓储补回 assistant(toolCalls)；仓储若丢失 toolCalls，DeepSeek 400。
+        AssistantMessage.ToolCall toolCall =
+                new AssistantMessage.ToolCall("call_1", "function", "listProjects", "{}");
+        AssistantMessage assistant = AssistantMessage.builder()
+                .content("")
+                .toolCalls(List.of(toolCall))
+                .build();
+
+        repository.saveAll("cid-1", List.of(new UserMessage("你有哪些项目？"), assistant));
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(listOps).rightPushAll(eq("chat:memory:cid-1"), captor.capture());
+        List<String> serialized = List.copyOf(captor.getValue());
+        assertTrue(serialized.get(1).contains("\"name\":\"listProjects\""));
+
+        when(listOps.range("chat:memory:cid-1", 0, -1)).thenReturn(serialized);
+        List<Message> restored = repository.findByConversationId("cid-1");
+
+        assertEquals(2, restored.size());
+        AssistantMessage restoredAssistant = (AssistantMessage) restored.get(1);
+        assertTrue(restoredAssistant.hasToolCalls());
+        assertEquals(List.of(toolCall), restoredAssistant.getToolCalls());
+    }
+
+    @Test
     void findByConversationIdReturnsEmptyWhenNoKey() {
         when(listOps.range("chat:memory:cid-x", 0, -1)).thenReturn(null);
         assertTrue(repository.findByConversationId("cid-x").isEmpty());
