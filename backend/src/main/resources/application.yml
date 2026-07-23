@@ -18,6 +18,8 @@ spring:
       host: ${REDIS_HOST:localhost}    # Redis 服务地址（Docker: redis）
       port: ${REDIS_PORT:6379}         # Redis 服务端口
       password: ${REDIS_PASSWORD:}     # Redis 认证密码
+      timeout: 2s                      # Lettuce 命令超时：Redis 故障时快速失败，交由 ResilientChatMemory 降级（默认 60s 会拖死请求）
+      connect-timeout: 2s              # 建连超时：同上（默认 10s）
 
   # ---- MySQL 数据源配置 ----
   # 使用 MySQL 8.0 JDBC 驱动，字符集 UTF-8，时区亚洲/上海
