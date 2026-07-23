@@ -55,11 +55,14 @@ public class ChatController {
 
         return chatClient.prompt()
                 .user(request.message().trim())
-                .advisors(a -> a
-                        .param(ChatMemory.CONVERSATION_ID, conversationId)
-                        .param(ArticleContextAdvisor.ARTICLE_ID_PARAM, request.articleId())
-                        .param(ConversationPersistenceAdvisor.IP_KEY, ip)
-                        .param(ConversationPersistenceAdvisor.USER_AGENT_KEY, userAgent))
+                .advisors(a -> {
+                    a.param(ChatMemory.CONVERSATION_ID, conversationId);
+                    if (request.articleId() != null) {
+                        a.param(ArticleContextAdvisor.ARTICLE_ID_PARAM, request.articleId());
+                    }
+                    a.param(ConversationPersistenceAdvisor.IP_KEY, ip == null ? "" : ip);
+                    a.param(ConversationPersistenceAdvisor.USER_AGENT_KEY, userAgent);
+                })
                 .toolContext(Map.of("ip", ip == null ? "" : ip))
                 .stream()
                 .content()
