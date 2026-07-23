@@ -13,7 +13,7 @@ import Link from 'next/link';
  */
 export default function HeroSection() {
   return (
-    <section className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-24 md:py-32">
+    <section className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 pt-12 pb-24 md:pt-16 md:pb-32">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Left: Text */}
         <div className="max-w-[720px]">

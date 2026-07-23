@@ -245,7 +245,7 @@ export default function AboutPage() {
       <NavBar />
       <main className="min-h-screen">
         {/* Banner — 匹配设计稿简洁风格 */}
-        <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-10 max-w-[1200px] mx-auto">
+        <section className="pt-12 pb-16 px-4 sm:px-6 lg:px-10 max-w-[1200px] mx-auto">
           <div className="border-l-4 border-primary pl-6 py-2">
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-primary mb-4">
               关于我

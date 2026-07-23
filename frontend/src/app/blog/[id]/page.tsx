@@ -8,6 +8,8 @@ import { useChat } from '@/components/chat/ChatProvider';
 import type { Article, ArticleSummary } from '@/types';
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
+import NavBar from '@/components/layout/NavBar';
+import Footer from '@/components/layout/Footer';
 
 // ---------------------------------------------------------------------------
 // 工具函数：日期格式化、Markdown 纯文本提取、阅读时间估算、字数统计
@@ -57,7 +59,7 @@ function countWords(markdown: string): number {
 
 function Skeleton() {
   return (
-    <div className="min-h-screen pt-32 pb-24 animate-pulse">
+    <div className="min-h-[calc(100vh-5rem)] pt-12 pb-24 animate-pulse">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           <div className="lg:col-span-7 xl:col-span-8">
@@ -99,7 +101,7 @@ function Skeleton() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-[calc(100vh-5rem)] pt-12 pb-24">
       <div className="max-w-[720px] mx-auto px-4 sm:px-6 text-center">
         <h1 className="font-display text-[28px] font-bold text-primary mb-4">
           {message.includes('404') || message.includes('不存在') ? '文章不存在' : '加载失败'}
@@ -354,15 +356,16 @@ export default function ArticleDetailPage() {
   // States: loading / error
   // ------------------------------------------------------------------
 
-  if (loading) return <Skeleton />;
-  if (error || !article) return <ErrorState message={error || '无法找到该文章'} />;
+  if (loading) return (<><NavBar /><Skeleton /><Footer /></>);
+  if (error || !article) return (<><NavBar /><ErrorState message={error || '无法找到该文章'} /><Footer /></>);
 
   const readingTime = estimateReadingTime(article.contentMd || '');
   const wordCount = countWords(article.contentMd || '');
 
   return (
     <>
-      <main className="pt-32 pb-24">
+      <NavBar />
+      <main className="pt-12 pb-24">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* ================================================================ */}
@@ -499,6 +502,7 @@ export default function ArticleDetailPage() {
       {/* Related Articles (full-width section)                                   */}
       {/* ==================================================================== */}
       <RelatedArticles articles={relatedArticles} />
+      <Footer />
     </>
   );
 }

@@ -80,7 +80,7 @@ export default function BlogListPage() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen pt-32 pb-24 px-4 sm:px-6 lg:px-10 max-w-[1200px] mx-auto">
+      <main className="min-h-screen pt-12 pb-24 px-4 sm:px-6 lg:px-10 max-w-[1200px] mx-auto">
         {/* Page header — 匹配 v2_1 设计稿 */}
         <header className="mb-16 border-l-4 border-primary pl-6 py-2">
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-primary mb-4 tracking-tight">

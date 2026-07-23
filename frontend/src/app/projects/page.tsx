@@ -43,7 +43,7 @@ export default function ProjectsPage() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen pt-32 pb-24 px-4 sm:px-6 lg:px-10 max-w-[1200px] mx-auto">
+      <main className="min-h-screen pt-12 pb-24 px-4 sm:px-6 lg:px-10 max-w-[1200px] mx-auto">
         {/* Header — 匹配 v2_3 设计稿 */}
         <div className="mb-16">
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-primary mb-4">
