@@ -68,7 +68,7 @@ export default function AnnouncementBanner() {
       role="region"
       aria-label="上线公告"
       className={[
-        'relative overflow-hidden bg-gradient-to-r from-primary to-primary-container',
+        'relative overflow-hidden border-b border-outline-variant bg-gradient-to-r from-surface-container to-primary-fixed',
         'transition-all ease-out',
         closing ? 'duration-200' : 'duration-300',
         entered && !closing ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0',
@@ -77,12 +77,12 @@ export default function AnnouncementBanner() {
       {/* 左端绿色环境光晕：呼应 NEW 徽章，低调的光层次 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-secondary/25 blur-3xl"
+        className="pointer-events-none absolute -left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-secondary/15 blur-3xl"
       />
 
       {/* 流光：低透明度白色光带缓慢扫过（减弱动态效果时关闭） */}
       <span aria-hidden className="pointer-events-none absolute inset-0">
-        <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-white/[0.06] to-transparent motion-reduce:animate-none" />
+        <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-primary/[0.05] to-transparent motion-reduce:animate-none" />
       </span>
 
       {/* 整条横幅可点击：div + role="button"（避免与内部 × 按钮形成非法嵌套） */}
@@ -95,8 +95,8 @@ export default function AnnouncementBanner() {
         className={[
           'group relative mx-auto flex w-full max-w-[1200px] cursor-pointer flex-col items-center justify-center gap-2 px-4 py-2 pr-10',
           'sm:flex-row sm:flex-wrap sm:gap-4 sm:px-6 sm:pr-12 lg:px-10',
-          'transition-colors duration-200 hover:bg-on-primary/[0.03]',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary/70',
+          'transition-colors duration-200 hover:bg-primary/[0.04]',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary/70',
         ].join(' ')}
       >
         {/* 徽章组：sparkle + NEW 始终同行，作为不可收缩的整体 */}
@@ -107,7 +107,7 @@ export default function AnnouncementBanner() {
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
-            className="h-4 w-4 text-on-primary/90"
+            className="h-4 w-4 text-primary/80"
           >
             <path
               strokeLinecap="round"
@@ -125,15 +125,15 @@ export default function AnnouncementBanner() {
         </span>
 
         {/* 文案：min-w-0 允许收缩换行；移动端占满整行、桌面端行内，均水平居中 */}
-        <p className="w-full min-w-0 text-center text-sm leading-5 text-on-primary sm:w-auto">
+        <p className="w-full min-w-0 text-center text-sm leading-5 text-primary sm:w-auto">
           <span className="font-semibold">Sean's AI 智能助手正式上线！</span>
-          <span className="text-on-primary/75">
+          <span className="text-on-surface-variant">
             {' '}
             融合 RAG 知识检索 · Function Call · Skill 编排三大能力
           </span>
         </p>
 
-        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-on-primary/35 px-3 py-1 text-xs font-medium text-on-primary transition-colors duration-200 group-hover:border-on-primary/60 group-hover:bg-on-primary/10">
+        <span className="inline-flex shrink-0 items-center gap-1 rounded bg-primary px-3 py-1 text-xs font-medium text-on-primary transition-colors duration-200 group-hover:bg-primary-container">
           立即体验
           <svg
             aria-hidden
@@ -154,9 +154,9 @@ export default function AnnouncementBanner() {
         aria-label="关闭公告"
         onClick={handleDismiss}
         className={[
-          'absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded p-1 text-on-primary/60 sm:right-4',
-          'transition-colors duration-200 hover:text-on-primary',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary/70',
+          'absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded p-1 text-primary/50 sm:right-4',
+          'transition-colors duration-200 hover:text-primary',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary/70',
         ].join(' ')}
       >
         <svg
