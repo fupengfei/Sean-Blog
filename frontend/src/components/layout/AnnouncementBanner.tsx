@@ -60,21 +60,21 @@ export default function AnnouncementBanner() {
       role="region"
       aria-label="上线公告"
       className={[
-        'relative overflow-hidden border-b border-outline-variant bg-gradient-to-r from-surface-container to-primary-fixed',
+        'relative overflow-hidden border-b border-on-primary/10 bg-gradient-to-r from-primary to-primary-container',
         'transition-all ease-out',
         closing ? 'duration-200' : 'duration-300',
         entered && !closing ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0',
       ].join(' ')}
     >
-      {/* 左端绿色环境光晕：呼应 NEW 徽章，低调的光层次 */}
+      {/* 左端绿色环境光晕：呼应 NEW 徽章，深底上略微提亮 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-secondary/15 blur-3xl"
+        className="pointer-events-none absolute -left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-secondary/35 blur-3xl"
       />
 
       {/* 流光：低透明度白色光带缓慢扫过（减弱动态效果时关闭） */}
       <span aria-hidden className="pointer-events-none absolute inset-0">
-        <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-primary/[0.05] to-transparent motion-reduce:animate-none" />
+        <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-white/[0.06] to-transparent motion-reduce:animate-none" />
       </span>
 
       {/* 横幅内容容器：仅展示，不可点击；交互收敛到「立即体验」按钮 */}
@@ -92,7 +92,7 @@ export default function AnnouncementBanner() {
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
-            className="h-4 w-4 text-primary/80"
+            className="h-4 w-4 text-primary-fixed"
           >
             <path
               strokeLinecap="round"
@@ -110,9 +110,9 @@ export default function AnnouncementBanner() {
         </span>
 
         {/* 文案：min-w-0 允许收缩换行；移动端占满整行、桌面端行内，均水平居中 */}
-        <p className="w-full min-w-0 text-center text-sm leading-5 text-primary sm:w-auto">
+        <p className="w-full min-w-0 text-center text-sm leading-5 text-on-primary sm:w-auto">
           <span className="font-semibold">Sean's AI 智能助手正式上线！</span>
-          <span className="block text-on-surface-variant sm:inline">
+          <span className="block text-primary-fixed sm:inline">
             {' '}内置 RAG 知识库检索 · Function Call 函数调用 · Skill 任务编排三大核心能力{' '}
             <span className="whitespace-nowrap">—— 从简单问答，到全域协同</span>
           </span>
@@ -122,7 +122,7 @@ export default function AnnouncementBanner() {
           type="button"
           onClick={openChat}
           aria-label="立即体验，打开 Sean's AI 智能助手"
-          className="group inline-flex shrink-0 cursor-pointer items-center gap-1 rounded bg-primary px-3 py-1 text-xs font-medium text-on-primary transition-colors duration-200 hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary/70"
+          className="group inline-flex shrink-0 cursor-pointer items-center gap-1 rounded bg-on-primary px-3 py-1 text-xs font-medium text-primary transition-colors duration-200 hover:bg-primary-fixed focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary/70"
         >
           立即体验
           <svg
@@ -144,9 +144,9 @@ export default function AnnouncementBanner() {
         aria-label="关闭公告"
         onClick={handleDismiss}
         className={[
-          'absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded p-1 text-primary/50 sm:right-4',
-          'transition-colors duration-200 hover:text-primary',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary/70',
+          'absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded p-1 text-on-primary/50 sm:right-4',
+          'transition-colors duration-200 hover:text-on-primary',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary/70',
         ].join(' ')}
       >
         <svg
