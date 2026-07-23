@@ -93,8 +93,8 @@ export default function AnnouncementBanner() {
         onKeyDown={handleKeyDown}
         aria-label="打开 Sean's AI 智能助手"
         className={[
-          'group relative mx-auto flex w-full max-w-[1200px] cursor-pointer flex-col items-center gap-2 px-4 py-2 pr-10',
-          'sm:flex-row sm:flex-wrap sm:justify-start sm:gap-4 sm:px-6 sm:pr-12 lg:px-10',
+          'group relative mx-auto flex w-full max-w-[1200px] cursor-pointer flex-col items-center justify-center gap-2 px-4 py-2 pr-10',
+          'sm:flex-row sm:flex-wrap sm:gap-4 sm:px-6 sm:pr-12 lg:px-10',
           'transition-colors duration-200 hover:bg-on-primary/[0.03]',
           'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary/70',
         ].join(' ')}
@@ -124,8 +124,8 @@ export default function AnnouncementBanner() {
           </span>
         </span>
 
-        {/* 文案：min-w-0 允许收缩换行；移动端占满整行居中，桌面端行内左对齐 */}
-        <p className="w-full min-w-0 text-center text-sm leading-5 text-on-primary sm:w-auto sm:text-left">
+        {/* 文案：min-w-0 允许收缩换行；移动端占满整行、桌面端行内，均水平居中 */}
+        <p className="w-full min-w-0 text-center text-sm leading-5 text-on-primary sm:w-auto">
           <span className="font-semibold">Sean's AI 智能助手正式上线！</span>
           <span className="text-on-primary/75">
             {' '}
