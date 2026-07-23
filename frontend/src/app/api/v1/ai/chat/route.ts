@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 流式透传：把后端的 ReadableStream 直接交给浏览器
+  const conversationId = backendResponse.headers.get('x-conversation-id');
   return new Response(backendResponse.body, {
     status: 200,
     headers: {
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
       'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
       'X-Accel-Buffering': 'no', // 告诉 nginx 这个响应不要缓冲
+      ...(conversationId ? { 'X-Conversation-Id': conversationId } : {}),
     },
   });
 }

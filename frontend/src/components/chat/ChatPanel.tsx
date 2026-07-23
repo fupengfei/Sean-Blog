@@ -19,7 +19,7 @@ import ArticleContextChip from './ArticleContextChip';
  * - 移动 (<768px)：fixed inset-0，全屏无边角（不可拖动）
  */
 export default function ChatPanel() {
-  const { isOpen, isMinimized, closeChat, minimizeChat } = useChat();
+  const { isOpen, isMinimized, closeChat, minimizeChat, resetConversation } = useChat();
 
   // ---- 拖动状态（仅桌面端） ----
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -101,7 +101,16 @@ export default function ChatPanel() {
             返回
           </button>
           <span className="text-sm font-semibold">Sean&apos;s AI 助手</span>
-          <div className="w-14" />
+          <button
+            onClick={resetConversation}
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10"
+            aria-label="新对话"
+            title="新对话"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
 
         <ArticleContextChip />
@@ -154,6 +163,19 @@ export default function ChatPanel() {
           </div>
 
           <div className="flex items-center gap-1">
+            {/* 新对话按钮 */}
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); resetConversation(); }}
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10"
+              aria-label="新对话"
+              title="新对话"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+
             {/* 最小化按钮 */}
             <button
               onClick={(e) => { e.stopPropagation(); minimizeChat(); }}

@@ -31,6 +31,7 @@ interface ChatContextValue {
   minimizeChat: () => void;
   sendMessage: (text: string) => Promise<void>;
   stopStreaming: () => void;
+  resetConversation: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +62,30 @@ function nextId(): string {
   return `msg-${++msgIdCounter}-${Date.now()}`;
 }
 
+const CONVERSATION_ID_KEY = 'sean-ai-conversation-id';
+
+function loadConversationId(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.sessionStorage.getItem(CONVERSATION_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function saveConversationId(id: string | null) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (id) {
+      window.sessionStorage.setItem(CONVERSATION_ID_KEY, id);
+    } else {
+      window.sessionStorage.removeItem(CONVERSATION_ID_KEY);
+    }
+  } catch {
+    // sessionStorage 不可用时静默降级（每次都是新会话）
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------
@@ -83,6 +108,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [articleContext, setArticleContext] = useState<ArticleContext | null>(null);
+  const [conversationId, setConversationId] = useState<string | null>(loadConversationId);
   const abortRef = useRef<AbortController | null>(null);
 
   // Abort any in-flight stream on unmount
@@ -118,6 +144,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(false);
     setIsMinimized(false);
     setIsStreaming(false);
+    setConversationId(null);
+    saveConversationId(null);
     setMessages([buildWelcomeMessage(articleContext)]);
   }, [articleContext]);
 
@@ -126,6 +154,18 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(false);
     setIsMinimized(true);
   }, []);
+
+  /** 新对话：中断流、清空消息与会话 ID（不关闭面板） */
+  const resetConversation = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setIsStreaming(false);
+    setConversationId(null);
+    saveConversationId(null);
+    setMessages([buildWelcomeMessage(articleContext)]);
+  }, [articleContext]);
 
   /** 终止生成：中断当前 SSE 流，保留已接收内容 */
   const stopStreaming = useCallback(() => {
@@ -159,17 +199,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsStreaming(true);
 
-    // 3. 构建历史（发送前快照，剔除欢迎语）— 前端轻裁剪，后端兜底校验
-    const history = messages
-      .filter((m) => m.id !== 'welcome')
-      .slice(-10)
-      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
-
     // Build URL — 直连后端避免 Next.js rewrite 代理缓冲 SSE 流
     const base = process.env.NEXT_PUBLIC_BACKEND_URL || '';
     const url = base ? `${base}/ai/chat` : '/api/v1/ai/chat';
 
-    // 4. Create AbortController
+    // 3. Create AbortController
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -179,11 +213,18 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: trimmed,
+          conversationId,
           articleId: articleContext ? articleContext.id : null,
-          history,
         }),
         signal: controller.signal,
       });
+
+      // 保存后端返回的会话 ID（首次请求时生成，后续请求携带以保持多轮记忆）
+      const cid = response.headers.get('X-Conversation-Id');
+      if (cid) {
+        setConversationId(cid);
+        saveConversationId(cid);
+      }
 
       if (!response.ok) {
         // HTTP error
@@ -290,11 +331,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setIsStreaming(false);
       abortRef.current = null;
     }
-  }, [isStreaming, messages, articleContext]);
+  }, [isStreaming, articleContext, conversationId]);
 
   return (
     <ChatContext.Provider
-      value={{ messages, isOpen, isMinimized, isStreaming, articleContext, setArticleContext, openChat, closeChat, minimizeChat, sendMessage, stopStreaming }}
+      value={{ messages, isOpen, isMinimized, isStreaming, articleContext, setArticleContext, openChat, closeChat, minimizeChat, resetConversation, sendMessage, stopStreaming }}
     >
       {children}
     </ChatContext.Provider>
