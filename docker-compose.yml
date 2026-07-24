@@ -57,6 +57,8 @@ services:
       # ---- AI 模型 API Key（智能客服：聊天 + RAG 向量检索）----
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}                 # DeepSeek 聊天模型密钥
       - QWEN_EMBEDDING_API_KEY=${QWEN_EMBEDDING_API_KEY:-}     # 通义千问向量 Embedding 密钥
+      # ---- 链路追踪 ----
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans  # Zipkin Span 上报地址
     depends_on:
       mysql:
         condition: service_healthy      # 等待 MySQL 健康检查通过
@@ -96,4 +98,17 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]  # ping 检测
       timeout: 20s                     # 单次检测超时时间
       retries: 10                      # 重试次数
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Zipkin — 分布式链路追踪
+  # 接收后端应用上报的 Span 数据，提供 Web UI 查看调用链
+  # 版本：openzipkin/zipkin:3
+  # ---------------------------------------------------------------------------
+  zipkin:
+    image: openzipkin/zipkin:3
+    ports:
+      - "9411:9411"
+    environment:
+      - JAVA_OPTS=-Xmx256m
     restart: unless-stopped
