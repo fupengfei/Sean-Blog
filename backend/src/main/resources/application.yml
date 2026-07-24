@@ -96,3 +96,12 @@ sean:
         keep-size: 3           # 注入相关文章上限
         query-rewrite:
           enabled: true         # 查询重写：LLM 改写提升检索质量
+
+# ---- 链路追踪配置 ----
+management:
+  tracing:
+    sampling:
+      probability: 1.0              # 全量采样（小流量场景）
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
