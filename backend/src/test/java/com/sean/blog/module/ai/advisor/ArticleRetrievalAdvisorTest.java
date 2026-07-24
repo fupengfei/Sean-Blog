@@ -3,6 +3,7 @@ package com.sean.blog.module.ai.advisor;
 import com.sean.blog.module.ai.config.ChatProperties;
 import com.sean.blog.module.ai.service.ArticleVectorService;
 import com.sean.blog.module.ai.service.LuceneVectorService;
+import com.sean.blog.module.ai.service.QueryRewriter;
 import com.sean.blog.module.blog.entity.Article;
 import com.sean.blog.module.blog.mapper.ArticleMapper;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,11 +38,16 @@ class ArticleRetrievalAdvisorTest {
     private ArticleVectorService vectorService;
     @Mock
     private ArticleMapper articleMapper;
+    @Mock
+    private QueryRewriter queryRewriter;
 
     private final AdvisorChain chain = mock(AdvisorChain.class);
 
     private ArticleRetrievalAdvisor advisor() {
-        return new ArticleRetrievalAdvisor(vectorService, articleMapper, new ChatProperties());
+        ChatProperties props = new ChatProperties();
+        // 现有测试默认禁用查询重写，保持原有行为
+        props.getRag().getQueryRewrite().setEnabled(false);
+        return new ArticleRetrievalAdvisor(vectorService, articleMapper, props, queryRewriter);
     }
 
     private String lastUserText(ChatClientRequest request) {
@@ -122,5 +130,26 @@ class ArticleRetrievalAdvisorTest {
 
         assertTrue(text.contains("《A》") && text.contains("《C》"));
         assertFalse(text.contains("《D》"));
+    }
+
+    @Test
+    void usesRewrittenQueryForSearch() {
+        ChatProperties props = new ChatProperties();
+        props.getRag().getQueryRewrite().setEnabled(true);
+        var advisor = new ArticleRetrievalAdvisor(vectorService, articleMapper, props, queryRewriter);
+
+        when(queryRewriter.isEnabled()).thenReturn(true);
+        when(queryRewriter.rewrite(eq("compose 怎么配"), anyList()))
+                .thenReturn("Docker Compose 多服务编排配置方法");
+        when(vectorService.search("Docker Compose 多服务编排配置方法", 4)).thenReturn(List.of(
+                new LuceneVectorService.SearchResult("1", "Docker 部署", "摘要", 0.9f)));
+        when(articleMapper.findSummaryByIds(List.of(1L))).thenReturn(List.of(summary(1L, "docker-deploy")));
+
+        ChatClientRequest request = new ChatClientRequest(
+                new Prompt(new UserMessage("compose 怎么配")), Map.of());
+        String text = lastUserText(advisor.before(request, chain));
+
+        assertTrue(text.contains("《Docker 部署》"));
+        verify(queryRewriter).rewrite(eq("compose 怎么配"), anyList());
     }
 }

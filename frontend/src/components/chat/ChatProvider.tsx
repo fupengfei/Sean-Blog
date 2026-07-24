@@ -176,7 +176,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(true);
   }, [isMinimized]);
 
-  /** 关闭面板：中断流、清空对话（重置为欢迎语）、重置最小化 */
+  /** 关闭面板：中断流、清空对话（重置为欢迎语）、重置最小化、重置用户名 */
   const closeChat = useCallback(() => {
     if (abortRef.current) {
       abortRef.current.abort();
@@ -188,6 +188,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setConversationId(null);
     saveConversationId(null);
     setMessages([buildWelcomeMessage(articleContext)]);
+    // 关闭面板 = 结束对话，重置用户名
+    setUserNameState('用户');
+    saveUserName('用户');
   }, [articleContext]);
 
   /** 最小化：隐藏面板但保持流和对话状态 */
@@ -196,7 +199,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsMinimized(true);
   }, []);
 
-  /** 新对话：中断流、清空消息与会话 ID（不关闭面板） */
+  /** 新对话：中断流、清空消息与会话 ID、重置用户名（不关闭面板） */
   const resetConversation = useCallback(() => {
     if (abortRef.current) {
       abortRef.current.abort();
@@ -206,6 +209,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setConversationId(null);
     saveConversationId(null);
     setMessages([buildWelcomeMessage(articleContext)]);
+    // 新对话 = 新的开始，重置用户名
+    setUserNameState('用户');
+    saveUserName('用户');
   }, [articleContext]);
 
   /** 终止生成：中断当前 SSE 流，保留已接收内容 */

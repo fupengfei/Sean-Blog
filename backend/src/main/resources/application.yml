@@ -94,3 +94,5 @@ sean:
       rag:
         fetch-size: 4          # RAG 向量检索取数
         keep-size: 3           # 注入相关文章上限
+        query-rewrite:
+          enabled: true         # 查询重写：LLM 改写提升检索质量

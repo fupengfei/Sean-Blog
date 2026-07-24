@@ -31,10 +31,23 @@ public class ChatProperties {
         private int fetchSize = 4;
         /** 剔除当前文章后注入上限 */
         private int keepSize = 3;
+        /** 查询重写配置 */
+        private QueryRewrite queryRewrite = new QueryRewrite();
 
         public int getFetchSize() { return fetchSize; }
         public void setFetchSize(int fetchSize) { this.fetchSize = fetchSize; }
         public int getKeepSize() { return keepSize; }
         public void setKeepSize(int keepSize) { this.keepSize = keepSize; }
+        public QueryRewrite getQueryRewrite() { return queryRewrite; }
+        public void setQueryRewrite(QueryRewrite queryRewrite) { this.queryRewrite = queryRewrite; }
+    }
+
+    /** 查询重写配置 */
+    public static class QueryRewrite {
+        /** 是否启用 LLM 查询重写，默认启用 */
+        private boolean enabled = true;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
     }
 }

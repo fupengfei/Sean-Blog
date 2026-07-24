@@ -3,6 +3,7 @@ package com.sean.blog.module.ai.advisor;
 import com.sean.blog.module.ai.config.ChatProperties;
 import com.sean.blog.module.ai.service.ArticleVectorService;
 import com.sean.blog.module.ai.service.LuceneVectorService;
+import com.sean.blog.module.ai.service.QueryRewriter;
 import com.sean.blog.module.blog.entity.Article;
 import com.sean.blog.module.blog.mapper.ArticleMapper;
 import org.slf4j.Logger;
@@ -36,13 +37,16 @@ public class ArticleRetrievalAdvisor implements BaseAdvisor {
     private final ArticleVectorService articleVectorService;
     private final ArticleMapper articleMapper;
     private final ChatProperties chatProperties;
+    private final QueryRewriter queryRewriter;
 
     public ArticleRetrievalAdvisor(ArticleVectorService articleVectorService,
                                    ArticleMapper articleMapper,
-                                   ChatProperties chatProperties) {
+                                   ChatProperties chatProperties,
+                                   QueryRewriter queryRewriter) {
         this.articleVectorService = articleVectorService;
         this.articleMapper = articleMapper;
         this.chatProperties = chatProperties;
+        this.queryRewriter = queryRewriter;
     }
 
     @Override
@@ -64,8 +68,13 @@ public class ArticleRetrievalAdvisor implements BaseAdvisor {
         try {
             Long excludeId = asLong(request.context().get(ArticleContextAdvisor.ARTICLE_ID_PARAM));
 
+            // 查询重写：结合对话历史改写为独立、检索友好的查询
+            String searchQuery = queryRewriter.isEnabled()
+                    ? queryRewriter.rewrite(query, request.prompt().getInstructions())
+                    : query;
+
             List<LuceneVectorService.SearchResult> results =
-                    articleVectorService.search(query, chatProperties.getRag().getFetchSize());
+                    articleVectorService.search(searchQuery, chatProperties.getRag().getFetchSize());
 
             if (excludeId != null) {
                 String exclude = String.valueOf(excludeId);
