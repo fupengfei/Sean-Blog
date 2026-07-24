@@ -26,6 +26,8 @@ interface ChatContextValue {
   isStreaming: boolean;
   articleContext: ArticleContext | null;
   setArticleContext: (ctx: ArticleContext | null) => void;
+  userName: string;
+  setUserName: (name: string) => void;
   openChat: () => void;
   closeChat: () => void;
   minimizeChat: () => void;
@@ -87,6 +89,44 @@ function saveConversationId(id: string | null) {
 }
 
 // ---------------------------------------------------------------------------
+// User name persistence + detection
+// ---------------------------------------------------------------------------
+
+const USER_NAME_KEY = 'sean-ai-user-name';
+
+function loadUserName(): string {
+  if (typeof window === 'undefined') return '用户';
+  try {
+    return window.localStorage.getItem(USER_NAME_KEY) || '用户';
+  } catch {
+    return '用户';
+  }
+}
+
+function saveUserName(name: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(USER_NAME_KEY, name);
+  } catch {
+    // 静默降级
+  }
+}
+
+/** 从用户消息中检测自称名字，用于自动更新聊天头像名称 */
+const NAME_PATTERNS: RegExp[] = [
+  /(?:我叫|我是|我姓|我的名字是|我的名字叫|称呼我|你可以叫我|可以叫我|请叫我|喊我|名字是)\s*([一-龥A-Za-z]{1,8})\s*(?:[，。！？,!?]|$)/,
+  /(?:call me|I'm|I am|my name is|name's)\s+([A-Za-z]{1,20})\b/i,
+];
+
+function detectUserName(text: string): string | null {
+  for (const pattern of NAME_PATTERNS) {
+    const match = text.match(pattern);
+    if (match && match[1]) return match[1].trim();
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------
 
@@ -109,6 +149,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [articleContext, setArticleContext] = useState<ArticleContext | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(loadConversationId);
+  const [userName, setUserNameState] = useState<string>(loadUserName);
   const abortRef = useRef<AbortController | null>(null);
 
   // Abort any in-flight stream on unmount
@@ -176,9 +217,30 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsStreaming(false);
   }, []);
 
+  /** 更新用户名（同步到状态 + localStorage） */
+  const setUserName = useCallback((name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setUserNameState(trimmed);
+    saveUserName(trimmed);
+  }, []);
+
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || isStreaming) return;
+
+    // 检测用户消息中是否包含自称名字，自动更新头像名称
+    const detected = detectUserName(trimmed);
+    if (detected) {
+      setUserNameState((prev) => {
+        // 仅在新名字与当前不同时更新
+        if (detected !== prev) {
+          saveUserName(detected);
+          return detected;
+        }
+        return prev;
+      });
+    }
 
     // 1. Append user message
     const userMsg: ChatMessage = {
@@ -335,7 +397,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ChatContext.Provider
-      value={{ messages, isOpen, isMinimized, isStreaming, articleContext, setArticleContext, openChat, closeChat, minimizeChat, resetConversation, sendMessage, stopStreaming }}
+      value={{ messages, isOpen, isMinimized, isStreaming, articleContext, setArticleContext, userName, setUserName, openChat, closeChat, minimizeChat, resetConversation, sendMessage, stopStreaming }}
     >
       {children}
     </ChatContext.Provider>

@@ -5,12 +5,15 @@ import { useChat } from './ChatProvider';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import ArticleContextChip from './ArticleContextChip';
+import ChatNoticeBanner from './ChatNoticeBanner';
 
 /**
  * ChatPanel — 对话面板外壳，支持拖动 + 最小化
  *
  * 结构（从上到下）：
  * - Header：Logo + 标题 "Sean's AI 助手" + 最小化按钮 + 关闭按钮（渐变背景）
+ * - ArticleContextChip：当前文章上下文提示条
+ * - ChatNoticeBanner：技术说明通知横幅（可关闭）
  * - MessageList：flex-1 可滚动消息区域
  * - ChatInput：底部输入栏
  *
@@ -114,6 +117,7 @@ export default function ChatPanel() {
         </div>
 
         <ArticleContextChip />
+        <ChatNoticeBanner />
         <MessageList />
         <ChatInput />
       </div>
@@ -201,6 +205,7 @@ export default function ChatPanel() {
         </div>
 
         <ArticleContextChip />
+        <ChatNoticeBanner />
         <MessageList />
         <ChatInput />
       </div>
