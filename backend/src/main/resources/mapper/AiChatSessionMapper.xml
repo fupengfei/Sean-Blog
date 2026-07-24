@@ -10,6 +10,17 @@
             (#{id}, #{conversationId}, #{createdAt}, #{lastActiveAt}, #{ip}, #{userAgent}, #{messageCount})
     </insert>
 
+    <insert id="upsert" parameterType="com.sean.blog.module.ai.entity.AiChatSession">
+        INSERT INTO ai_chat_session
+            (id, conversation_id, created_at, last_active_at, ip, user_agent, message_count)
+        VALUES
+            (#{id}, #{conversationId}, #{createdAt}, #{lastActiveAt}, #{ip}, #{userAgent}, #{messageCount})
+        ON DUPLICATE KEY UPDATE
+            last_active_at = VALUES(last_active_at),
+            ip = IF(VALUES(ip) IS NOT NULL, VALUES(ip), ip),
+            user_agent = IF(VALUES(user_agent) IS NOT NULL, VALUES(user_agent), user_agent)
+    </insert>
+
     <update id="updateLastActive">
         UPDATE ai_chat_session SET last_active_at = #{lastActiveAt} WHERE id = #{id}
     </update>

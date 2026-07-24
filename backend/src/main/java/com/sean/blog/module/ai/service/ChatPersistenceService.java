@@ -42,58 +42,57 @@ public class ChatPersistenceService {
     }
 
     /**
-     * 持久化用户轮次：upsert 会话（含 IP/UA 元数据）+ 写 user 消息 + 计数 +1。
+     * 持久化用户轮次：原子 upsert 会话（带 IP/UA 元数据）+ 写 user 消息 + 计数 +1。
+     *
+     * <p>使用 INSERT … ON DUPLICATE KEY UPDATE 消除 SELECT-then-INSERT 的
+     * 并发竞争窗口（两个首次请求同时到达时第二个 INSERT 会撞 uk_conversation_id）。
+     * upsert 后统一 SELECT 获取会话 ID，再写消息与增量计数。</p>
      */
     @Async("chatPersistExecutor")
     public void persistUserTurn(String conversationId, String ip, String userAgent, String userText) {
         try {
             LocalDateTime now = LocalDateTime.now();
-            AiChatSession session = sessionMapper.findByConversationId(conversationId);
-            if (session == null) {
-                session = new AiChatSession();
-                session.setId(idGenerator.nextId());
-                session.setConversationId(conversationId);
-                session.setCreatedAt(now);
-                session.setLastActiveAt(now);
-                session.setIp(ip);
-                session.setUserAgent(truncateUserAgent(userAgent));
-                session.setMessageCount(0);
-                sessionMapper.insert(session);
-            } else {
-                sessionMapper.updateLastActive(session.getId(), now);
-            }
-            insertMessage(session.getId(), "user", userText, now);
-            sessionMapper.incrementMessageCount(session.getId(), 1);
+            AiChatSession session = new AiChatSession();
+            session.setId(idGenerator.nextId());
+            session.setConversationId(conversationId);
+            session.setCreatedAt(now);
+            session.setLastActiveAt(now);
+            session.setIp(ip);
+            session.setUserAgent(truncateUserAgent(userAgent));
+            session.setMessageCount(0);
+            sessionMapper.upsert(session);
+
+            AiChatSession persisted = sessionMapper.findByConversationId(conversationId);
+            insertMessage(persisted.getId(), "user", userText, now);
+            sessionMapper.incrementMessageCount(persisted.getId(), 1);
         } catch (Exception e) {
-            log.warn("Chat persistence failed (user turn, conversationId={}): {}", conversationId, e.getMessage());
+            log.warn("Chat persistence failed (user turn, conversationId={})", conversationId, e);
         }
     }
 
     /**
-     * 持久化助手轮次：写 assistant 消息 + 计数 +1。
-     * 会话不存在时兜底创建（无 IP/UA 元数据，理论上不应发生）。
+     * 持久化助手轮次：原子 upsert 会话（不传 IP/UA，冲突时保留旧值）+ 写 assistant 消息 + 计数 +1。
+     *
+     * <p>理论上助手轮次到达时 user 轮次已创建会话，但防御性地使用同样的 upsert 路径，
+     * 避免极端时序（异步线程乱序）下并发 INSERT 撞唯一键。</p>
      */
     @Async("chatPersistExecutor")
     public void persistAssistantTurn(String conversationId, String assistantText) {
         try {
             LocalDateTime now = LocalDateTime.now();
-            AiChatSession session = sessionMapper.findByConversationId(conversationId);
-            if (session == null) {
-                log.warn("Assistant turn arrived without session, creating fallback (conversationId={})", conversationId);
-                session = new AiChatSession();
-                session.setId(idGenerator.nextId());
-                session.setConversationId(conversationId);
-                session.setCreatedAt(now);
-                session.setLastActiveAt(now);
-                session.setMessageCount(0);
-                sessionMapper.insert(session);
-            } else {
-                sessionMapper.updateLastActive(session.getId(), now);
-            }
-            insertMessage(session.getId(), "assistant", assistantText, now);
-            sessionMapper.incrementMessageCount(session.getId(), 1);
+            AiChatSession session = new AiChatSession();
+            session.setId(idGenerator.nextId());
+            session.setConversationId(conversationId);
+            session.setCreatedAt(now);
+            session.setLastActiveAt(now);
+            session.setMessageCount(0);
+            sessionMapper.upsert(session);
+
+            AiChatSession persisted = sessionMapper.findByConversationId(conversationId);
+            insertMessage(persisted.getId(), "assistant", assistantText, now);
+            sessionMapper.incrementMessageCount(persisted.getId(), 1);
         } catch (Exception e) {
-            log.warn("Chat persistence failed (assistant turn, conversationId={}): {}", conversationId, e.getMessage());
+            log.warn("Chat persistence failed (assistant turn, conversationId={})", conversationId, e);
         }
     }
 

@@ -12,11 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,50 +34,61 @@ class ChatPersistenceServiceTest {
     }
 
     @Test
-    void userTurnInsertsSessionAndMessageWhenAbsent() {
-        when(sessionMapper.findByConversationId("cid-1")).thenReturn(null);
+    void userTurnUpsertsSessionAndInsertsMessageWhenAbsent() {
+        // 模拟 upsert 后查询返回的持久化会话（首次创建场景）
+        AiChatSession persisted = new AiChatSession();
+        persisted.setId(100L);
+        persisted.setConversationId("cid-1");
+        when(sessionMapper.findByConversationId("cid-1")).thenReturn(persisted);
 
         service.persistUserTurn("cid-1", "1.2.3.4", "UA", "你好");
 
+        // 验证原子 upsert 被调用
         ArgumentCaptor<AiChatSession> sessionCaptor = ArgumentCaptor.forClass(AiChatSession.class);
-        verify(sessionMapper).insert(sessionCaptor.capture());
+        verify(sessionMapper).upsert(sessionCaptor.capture());
         AiChatSession session = sessionCaptor.getValue();
         assertEquals("cid-1", session.getConversationId());
         assertEquals("1.2.3.4", session.getIp());
         assertEquals("UA", session.getUserAgent());
         assertEquals(0, session.getMessageCount());
 
+        // 验证消息写入和计数递增加
         ArgumentCaptor<AiChatMessage> msgCaptor = ArgumentCaptor.forClass(AiChatMessage.class);
         verify(messageMapper).insert(msgCaptor.capture());
         assertEquals("user", msgCaptor.getValue().getRole());
         assertEquals("你好", msgCaptor.getValue().getContent());
-        assertEquals(session.getId(), msgCaptor.getValue().getSessionId());
-        verify(sessionMapper).incrementMessageCount(session.getId(), 1);
+        assertEquals(Long.valueOf(100L), msgCaptor.getValue().getSessionId());
+        verify(sessionMapper).incrementMessageCount(100L, 1);
     }
 
     @Test
-    void userTurnUpdatesLastActiveWhenSessionExists() {
-        AiChatSession existing = new AiChatSession();
-        existing.setId(99L);
-        existing.setConversationId("cid-1");
-        when(sessionMapper.findByConversationId("cid-1")).thenReturn(existing);
+    void userTurnUpsertsWhenSessionExists() {
+        // 已有会话：upsert 处理冲突，查询返回已有 ID
+        AiChatSession persisted = new AiChatSession();
+        persisted.setId(99L);
+        persisted.setConversationId("cid-1");
+        when(sessionMapper.findByConversationId("cid-1")).thenReturn(persisted);
 
         service.persistUserTurn("cid-1", "1.2.3.4", "UA", "你好");
 
-        verify(sessionMapper, never()).insert(any());
-        verify(sessionMapper).updateLastActive(eq(99L), any(LocalDateTime.class));
+        // upsert 总是被调用，updateLastActive 不再直接调用
+        verify(sessionMapper).upsert(any());
+        verify(sessionMapper, never()).updateLastActive(any(), any());
         verify(messageMapper).insert(any());
         verify(sessionMapper).incrementMessageCount(99L, 1);
     }
 
     @Test
-    void assistantTurnCreatesSessionFallbackWhenAbsent() {
-        when(sessionMapper.findByConversationId("cid-2")).thenReturn(null);
+    void assistantTurnUpsertsAndInsertsMessage() {
+        AiChatSession persisted = new AiChatSession();
+        persisted.setId(200L);
+        persisted.setConversationId("cid-2");
+        when(sessionMapper.findByConversationId("cid-2")).thenReturn(persisted);
 
         service.persistAssistantTurn("cid-2", "回答");
 
         ArgumentCaptor<AiChatSession> sessionCaptor = ArgumentCaptor.forClass(AiChatSession.class);
-        verify(sessionMapper).insert(sessionCaptor.capture());
+        verify(sessionMapper).upsert(sessionCaptor.capture());
         assertEquals("cid-2", sessionCaptor.getValue().getConversationId());
 
         ArgumentCaptor<AiChatMessage> msgCaptor = ArgumentCaptor.forClass(AiChatMessage.class);
@@ -91,20 +99,23 @@ class ChatPersistenceServiceTest {
 
     @Test
     void userAgentTruncatedTo512() {
-        when(sessionMapper.findByConversationId("cid-3")).thenReturn(null);
+        AiChatSession persisted = new AiChatSession();
+        persisted.setId(300L);
+        persisted.setConversationId("cid-3");
+        when(sessionMapper.findByConversationId("cid-3")).thenReturn(persisted);
         String longUa = "x".repeat(600);
 
         service.persistUserTurn("cid-3", "1.1.1.1", longUa, "hi");
 
         ArgumentCaptor<AiChatSession> captor = ArgumentCaptor.forClass(AiChatSession.class);
-        verify(sessionMapper).insert(captor.capture());
+        verify(sessionMapper).upsert(captor.capture());
         assertEquals(512, captor.getValue().getUserAgent().length());
     }
 
     @Test
     void dbFailureSwallowed() {
-        when(sessionMapper.findByConversationId("cid-4")).thenReturn(null);
-        org.mockito.Mockito.doThrow(new RuntimeException("db down")).when(sessionMapper).insert(any());
+        org.mockito.Mockito.doThrow(new RuntimeException("db down"))
+                .when(sessionMapper).upsert(any());
 
         // 不应抛出异常
         service.persistUserTurn("cid-4", "1.1.1.1", "UA", "hi");

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * <ol>
  *   <li>{@link BusinessException} — 已知业务异常，直接透传其错误码和消息。</li>
  *   <li>{@link MethodArgumentNotValidException} — Bean Validation 校验失败，汇总所有字段错误。</li>
+ *   <li>{@link HttpMessageNotReadableException} — 请求体反序列化失败（畸形 JSON），返回 400。</li>
  *   <li>{@link AccessDeniedException} — Spring Security 权限不足，返回 403。</li>
  *   <li>{@link Exception} — 兜底处理器，记录日志并返回 500，避免将堆栈信息泄露给客户端。</li>
  * </ol>
@@ -54,6 +56,18 @@ public class GlobalExceptionHandler {
                 .map(f -> f.getField() + ": " + f.getDefaultMessage())
                 .collect(Collectors.joining("; "));
         return Result.error(400, message);
+    }
+
+    /**
+     * 处理请求体反序列化失败异常（如畸形 JSON）。
+     *
+     * @param e 消息不可读异常实例
+     * @return HTTP 400，提示请求格式错误
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<?> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        return Result.error(400, "请求格式错误，请检查 JSON 格式");
     }
 
     /**

@@ -24,6 +24,11 @@ export default function Footer() {
           <p className="text-xs font-semibold tracking-wider uppercase text-on-surface-variant">
             &copy; {new Date().getFullYear()} Sean&apos;s AI World. All rights reserved.
           </p>
+          <p className="mt-2 text-xs text-on-surface-variant">
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              沪ICP备17056023号
+            </a>
+          </p>
         </div>
 
         {/* Right: Links */}

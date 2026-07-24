@@ -8,6 +8,8 @@ import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import tools.jackson.core.JacksonException;
 
@@ -125,16 +127,29 @@ public class SpringRedisChatMemoryRepository implements ChatMemoryRepository {
     @Override
     public void saveAll(String conversationId, List<Message> messages) {
         String key = key(conversationId);
-        redisTemplate.delete(key);
+        // 预序列化放在事务外：Jackson 异常应快速失败，不打开事务
+        List<String> serialized;
         if (messages == null || messages.isEmpty()) {
-            return;
+            serialized = List.of();
+        } else {
+            serialized = new ArrayList<>(messages.size());
+            for (Message message : messages) {
+                serialized.add(objectMapper.writeValueAsString(toStored(message)));
+            }
         }
-        List<String> serialized = new ArrayList<>(messages.size());
-        for (Message message : messages) {
-            serialized.add(objectMapper.writeValueAsString(toStored(message)));
-        }
-        redisTemplate.opsForList().rightPushAll(key, serialized);
-        redisTemplate.expire(key, ttl);
+        // MULTI/EXEC 原子执行 delete + pushAll + expire，消除并发读写竞争
+        redisTemplate.execute(new SessionCallback<List<Object>>() {
+            @Override
+            public List<Object> execute(RedisOperations operations) {
+                operations.multi();
+                operations.delete(key);
+                if (!serialized.isEmpty()) {
+                    operations.opsForList().rightPushAll(key, serialized);
+                    operations.expire(key, ttl);
+                }
+                return operations.exec();
+            }
+        });
     }
 
     @Override

@@ -26,7 +26,7 @@ public class ResilientChatMemory implements ChatMemory {
         try {
             delegate.add(conversationId, messages);
         } catch (Exception e) {
-            log.warn("Chat memory add failed (conversationId={}): {}", conversationId, e.getMessage());
+            log.warn("Chat memory add failed (conversationId={})", conversationId, e);
         }
     }
 
@@ -35,8 +35,8 @@ public class ResilientChatMemory implements ChatMemory {
         try {
             return delegate.get(conversationId);
         } catch (Exception e) {
-            log.warn("Chat memory get failed, returning empty history (conversationId={}): {}",
-                    conversationId, e.getMessage());
+            log.warn("Chat memory get failed, returning empty history (conversationId={})",
+                    conversationId, e);
             return List.of();
         }
     }
@@ -46,7 +46,7 @@ public class ResilientChatMemory implements ChatMemory {
         try {
             delegate.clear(conversationId);
         } catch (Exception e) {
-            log.warn("Chat memory clear failed (conversationId={}): {}", conversationId, e.getMessage());
+            log.warn("Chat memory clear failed (conversationId={})", conversationId, e);
         }
     }
 }

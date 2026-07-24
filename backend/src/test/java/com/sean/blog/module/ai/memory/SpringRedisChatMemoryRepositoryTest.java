@@ -13,6 +13,8 @@ import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.Duration;
@@ -21,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -33,6 +36,9 @@ class SpringRedisChatMemoryRepositoryTest {
     @Mock
     private StringRedisTemplate redisTemplate;
 
+    @Mock
+    private RedisOperations<String, String> sessionOps;
+
     private ListOperations<String, String> listOps;
     private SpringRedisChatMemoryRepository repository;
 
@@ -40,7 +46,16 @@ class SpringRedisChatMemoryRepositoryTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         listOps = mock(ListOperations.class);
+        // 直接路径（findByConversationId / deleteByConversationId）
         lenient().when(redisTemplate.opsForList()).thenReturn(listOps);
+        // MULTI/EXEC 路径（saveAll）：让 mock 的 execute 真实调用 SessionCallback
+        lenient().when(redisTemplate.execute(any(SessionCallback.class))).thenAnswer(invocation -> {
+            SessionCallback<?> callback = invocation.getArgument(0);
+            return callback.execute(sessionOps);
+        });
+        lenient().when(sessionOps.opsForList()).thenReturn(listOps);
+        lenient().when(sessionOps.exec()).thenReturn(List.of());
+
         repository = new SpringRedisChatMemoryRepository(
                 redisTemplate, new ObjectMapper(), Duration.ofDays(7), "chat:memory:");
     }
@@ -51,13 +66,14 @@ class SpringRedisChatMemoryRepositoryTest {
 
         repository.saveAll("cid-1", messages);
 
-        verify(redisTemplate).delete("chat:memory:cid-1");
+        // 验证 MULTI/EXEC 内操作通过 sessionOps 执行
+        verify(sessionOps).delete("chat:memory:cid-1");
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
         verify(listOps).rightPushAll(eq("chat:memory:cid-1"), captor.capture());
         assertEquals(2, captor.getValue().size());
         assertTrue(captor.getValue().iterator().next().contains("\"type\":\"USER\""));
-        verify(redisTemplate).expire("chat:memory:cid-1", Duration.ofDays(7));
+        verify(sessionOps).expire("chat:memory:cid-1", Duration.ofDays(7));
     }
 
     @Test
