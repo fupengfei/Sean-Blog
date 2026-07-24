@@ -24,6 +24,29 @@ import ChatNoticeBanner from './ChatNoticeBanner';
 export default function ChatPanel() {
   const { isOpen, isMinimized, closeChat, minimizeChat, resetConversation } = useChat();
 
+  // ---- 展开/收起（双击 Header 切换） ----
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // ---- 动态测量导航栏底部位置，展开时自动避开顶部 banner ----
+  const [navBottom, setNavBottom] = useState(90); // 默认 navbar 80px + 10px 间距
+
+  useEffect(() => {
+    const measure = () => {
+      const navbar = document.querySelector('header');
+      if (navbar) {
+        const rect = navbar.getBoundingClientRect();
+        setNavBottom(rect.bottom + 10);
+      }
+    };
+    measure();
+    window.addEventListener('scroll', measure, { passive: true });
+    window.addEventListener('resize', measure);
+    return () => {
+      window.removeEventListener('scroll', measure);
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
   // ---- 拖动状态（仅桌面端） ----
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -35,6 +58,12 @@ export default function ChatPanel() {
     isDragging.current = true;
     dragStart.current = { x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y };
   }, [dragOffset]);
+
+  /** 双击 Header：切换展开/收起，并重置拖动位置 */
+  const onHeaderDoubleClick = useCallback(() => {
+    setIsExpanded((prev) => !prev);
+    setDragOffset({ x: 0, y: 0 });
+  }, []);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -54,9 +83,12 @@ export default function ChatPanel() {
     };
   }, []);
 
-  // 面板关闭/最小化时重置拖动位置
+  // 面板关闭/最小化时重置拖动位置和展开状态
   useEffect(() => {
-    if (!isOpen) setDragOffset({ x: 0, y: 0 });
+    if (!isOpen) {
+      setDragOffset({ x: 0, y: 0 });
+      setIsExpanded(false);
+    }
   }, [isOpen]);
 
   // 仅在移动端（<768px）全屏面板打开时锁定 body 滚动，桌面端不影响页面操作
@@ -132,23 +164,29 @@ export default function ChatPanel() {
         style={{
           transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)`,
           transition: isDragging.current ? 'none' : undefined,
+          ...(isExpanded ? { top: navBottom, right: 12, bottom: 10, width: 540 } : {}),
         }}
         className={`
-          hidden md:flex fixed bottom-48 right-16 z-40
-          w-[400px] h-[560px] flex-col bg-surface
+          hidden md:flex fixed z-40
+          flex-col bg-surface
           rounded-2xl border border-outline-variant
-          shadow-[0_8px_40px_rgba(0,0,0,0.10),0_0_0_1px_rgba(0,0,0,0.04)]
           transition-all duration-300 ease-out
           overflow-hidden
+          ${isExpanded
+            ? 'shadow-[-8px_0_40px_rgba(0,0,0,0.12)]'
+            : 'bottom-48 right-16 w-[400px] h-[560px] shadow-[0_8px_40px_rgba(0,0,0,0.10),0_0_0_1px_rgba(0,0,0,0.04)]'
+          }
           ${visible
             ? 'translate-y-0 opacity-100'
             : 'translate-y-4 opacity-0 pointer-events-none'
           }
         `}
       >
-        {/* Header — 可拖动区域，渐变背景 */}
+        {/* Header — 可拖动区域，渐变背景；双击切换展开/收起 */}
         <div
           onMouseDown={onHeaderMouseDown}
+          onDoubleClick={onHeaderDoubleClick}
+          title={isExpanded ? '双击还原窗口大小' : '双击放大窗口'}
           className="flex items-center justify-between h-14 px-4 bg-gradient-to-r from-[#002045] to-[#1a365d] text-white shrink-0 cursor-grab active:cursor-grabbing select-none"
         >
           <div className="flex items-center gap-2.5">
@@ -159,6 +197,22 @@ export default function ChatPanel() {
               className="w-6 h-6 rounded object-contain"
             />
             <span className="text-sm font-semibold">Sean&apos;s AI 助手</span>
+
+            {/* 双击展开/收起提示图标 */}
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="w-3.5 h-3.5 text-white/40"
+            >
+              {isExpanded ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9M20.25 20.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+              )}
+            </svg>
 
             {/* 最小化状态标记 */}
             {isMinimized && (
