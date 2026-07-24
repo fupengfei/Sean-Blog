@@ -85,6 +85,19 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-deepseek</artifactId>
         </dependency>
+
+        <!-- Micrometer Tracing → OpenTelemetry 桥接 -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+
+        <!-- OpenTelemetry Zipkin 导出器 -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-zipkin</artifactId>
+        </dependency>
+
         <!-- MySQL JDBC 驱动 (mysql-connector-j 是新版 Artifact ID) -->
         <dependency>
             <groupId>com.mysql</groupId>
