@@ -1,6 +1,9 @@
 package com.sean.blog.module.ai.service;
 
 import com.sean.blog.module.ai.config.ChatProperties;
+import com.sean.blog.module.ai.tracing.AiObservationConvention;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -27,20 +30,25 @@ public class QueryRewriter {
 
     private final ChatClient chatClient;
     private final ChatProperties chatProperties;
+    private final ObservationRegistry observationRegistry;
     private final String systemPrompt;
 
     /** 注入对话历史的上下文轮数（用户 + 助手为一轮，即最多 10 条消息） */
     private static final int HISTORY_WINDOW_MESSAGES = 10;
 
-    public QueryRewriter(ChatClient.Builder builder, ChatProperties chatProperties) throws IOException {
-        this(builder, chatProperties, new ClassPathResource("prompt/query-rewrite-system.md")
-                .getContentAsString(StandardCharsets.UTF_8));
+    public QueryRewriter(ChatClient.Builder builder, ChatProperties chatProperties,
+                         ObservationRegistry observationRegistry) throws IOException {
+        this(builder, chatProperties, observationRegistry,
+                new ClassPathResource("prompt/query-rewrite-system.md")
+                        .getContentAsString(StandardCharsets.UTF_8));
     }
 
     /** 测试用构造器，直接注入 system prompt。 */
-    QueryRewriter(ChatClient.Builder builder, ChatProperties chatProperties, String systemPrompt) {
+    QueryRewriter(ChatClient.Builder builder, ChatProperties chatProperties,
+                  ObservationRegistry observationRegistry, String systemPrompt) {
         this.chatClient = builder.build();
         this.chatProperties = chatProperties;
+        this.observationRegistry = observationRegistry;
         this.systemPrompt = systemPrompt;
     }
 
@@ -62,6 +70,11 @@ public class QueryRewriter {
         if (!isEnabled()) {
             return query;
         }
+        Observation observation = Observation.createNotStarted(
+                        AiObservationConvention.SPAN_QUERY_REWRITE, observationRegistry)
+                .highCardinalityKeyValue(AiObservationConvention.TAG_QUERY_ORIGINAL_LEN,
+                        String.valueOf(query.length()))
+                .start();
         try {
             String context = buildHistoryContext(history);
             String rewritten = chatClient.prompt()
@@ -74,11 +87,16 @@ public class QueryRewriter {
                 return query;
             }
             String cleaned = rewritten.trim();
+            observation.highCardinalityKeyValue(AiObservationConvention.TAG_QUERY_REWRITTEN_LEN,
+                    String.valueOf(cleaned.length()));
             log.debug("Query rewritten: \"{}\" → \"{}\"", query, cleaned);
             return cleaned;
         } catch (Exception e) {
+            observation.error(e);
             log.warn("Query rewrite failed, falling back to original query: {}", e.getMessage());
             return query;
+        } finally {
+            observation.stop();
         }
     }
 
