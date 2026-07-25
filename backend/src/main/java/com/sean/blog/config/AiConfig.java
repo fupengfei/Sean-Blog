@@ -3,6 +3,7 @@ package com.sean.blog.config;
 import com.sean.blog.module.ai.advisor.ArticleContextAdvisor;
 import com.sean.blog.module.ai.advisor.ArticleRetrievalAdvisor;
 import com.sean.blog.module.ai.advisor.ConversationPersistenceAdvisor;
+import com.sean.blog.module.ai.tracing.AiTracingAdvisor;
 import com.sean.blog.module.ai.config.ChatProperties;
 import com.sean.blog.module.ai.memory.ResilientChatMemory;
 import com.sean.blog.module.ai.memory.SpringRedisChatMemoryRepository;
@@ -70,6 +71,7 @@ public class AiConfig {
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder,
                                  ChatMemory chatMemory,
+                                 AiTracingAdvisor aiTracingAdvisor,
                                  ConversationPersistenceAdvisor conversationPersistenceAdvisor,
                                  ArticleRetrievalAdvisor articleRetrievalAdvisor,
                                  ArticleContextAdvisor articleContextAdvisor,
@@ -80,11 +82,12 @@ public class AiConfig {
         return builder
                 .defaultSystem(new ClassPathResource("prompt/system-prompt.md"), StandardCharsets.UTF_8)
                 .defaultAdvisors(
-                        conversationPersistenceAdvisor,        // order 0
-                        new SimpleLoggerAdvisor(50),           // order 50
+                        aiTracingAdvisor,                         // order -1000（最外层包裹）
+                        conversationPersistenceAdvisor,           // order 0
+                        new SimpleLoggerAdvisor(50),               // order 50
                         MessageChatMemoryAdvisor.builder(chatMemory).order(100).build(),
-                        articleRetrievalAdvisor,               // order 200
-                        articleContextAdvisor)                 // order 300
+                        articleRetrievalAdvisor,                   // order 200
+                        articleContextAdvisor)                     // order 300
                 .defaultTools(articleTools, projectTools, skillTools, contactTools)
                 .build();
     }
