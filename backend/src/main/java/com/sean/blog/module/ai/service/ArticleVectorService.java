@@ -1,7 +1,10 @@
 package com.sean.blog.module.ai.service;
 
+import com.sean.blog.module.ai.tracing.AiObservationConvention;
 import com.sean.blog.module.blog.entity.Article;
 import com.sean.blog.module.blog.mapper.ArticleMapper;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -32,16 +35,19 @@ public class ArticleVectorService {
     private final LuceneVectorService lucene;
     private final EmbeddingModel embeddingModel;
     private final ArticleMapper articleMapper;
+    private final ObservationRegistry observationRegistry;
 
     /** embedding 文本最大长度（字符数），4000 字符 ≈ 2000-4000 tokens */
     private static final int MAX_TEXT_LENGTH = 4000;
 
     public ArticleVectorService(LuceneVectorService lucene,
                                  EmbeddingModel embeddingModel,
-                                 ArticleMapper articleMapper) {
+                                 ArticleMapper articleMapper,
+                                 ObservationRegistry observationRegistry) {
         this.lucene = lucene;
         this.embeddingModel = embeddingModel;
         this.articleMapper = articleMapper;
+        this.observationRegistry = observationRegistry;
     }
 
     /**
@@ -103,12 +109,22 @@ public class ArticleVectorService {
      * @return 相关文章列表（id + title + content 摘要 + 相似度分数）
      */
     public List<LuceneVectorService.SearchResult> search(String query, int k) {
+        Observation observation = Observation.createNotStarted(
+                        AiObservationConvention.SPAN_EMBEDDING_SEARCH, observationRegistry)
+                .lowCardinalityKeyValue(AiObservationConvention.TAG_EMBEDDING_MODEL, embeddingModelName())
+                .start();
         try {
             float[] vector = embed(query);
-            return lucene.search(vector, k);
+            List<LuceneVectorService.SearchResult> results = lucene.search(vector, k);
+            observation.lowCardinalityKeyValue(AiObservationConvention.TAG_LUCENE_TOP_K,
+                    String.valueOf(results.size()));
+            return results;
         } catch (Exception e) {
+            observation.error(e);
             log.error("Vector search failed: {}", e.getMessage());
             return List.of();
+        } finally {
+            observation.stop();
         }
     }
 
@@ -180,6 +196,18 @@ public class ArticleVectorService {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * 获取当前 Embedding 模型的名称，用于 tracing tag。
+     * Spring AI 2.0.0 的 EmbeddingModel 无 getModelName() API，写死为配置值。
+     */
+    private String embeddingModelName() {
+        try {
+            return "qwen3.7-text-embedding";
+        } catch (Exception e) {
+            return "unknown";
+        }
     }
 
     /**
