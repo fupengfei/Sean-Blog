@@ -109,22 +109,27 @@ public class ArticleVectorService {
      * @return 相关文章列表（id + title + content 摘要 + 相似度分数）
      */
     public List<LuceneVectorService.SearchResult> search(String query, int k) {
-        Observation observation = Observation.createNotStarted(
-                        AiObservationConvention.SPAN_EMBEDDING_SEARCH, observationRegistry)
-                .lowCardinalityKeyValue(AiObservationConvention.TAG_EMBEDDING_MODEL, embeddingModelName())
-                .start();
+        Observation observation = null;
         try {
+            observation = Observation.createNotStarted(
+                            AiObservationConvention.SPAN_EMBEDDING_SEARCH, observationRegistry)
+                    .lowCardinalityKeyValue(AiObservationConvention.TAG_EMBEDDING_MODEL, embeddingModelName())
+                    .start();
             float[] vector = embed(query);
             List<LuceneVectorService.SearchResult> results = lucene.search(vector, k);
             observation.lowCardinalityKeyValue(AiObservationConvention.TAG_LUCENE_TOP_K,
                     String.valueOf(results.size()));
             return results;
         } catch (Exception e) {
-            observation.error(e);
+            if (observation != null) {
+                try { observation.error(e); } catch (Exception ex) { /* ignore */ }
+            }
             log.error("Vector search failed: {}", e.getMessage());
             return List.of();
         } finally {
-            observation.stop();
+            if (observation != null) {
+                try { observation.stop(); } catch (Exception ex) { /* ignore */ }
+            }
         }
     }
 

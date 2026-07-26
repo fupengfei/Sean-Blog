@@ -70,12 +70,13 @@ public class QueryRewriter {
         if (!isEnabled()) {
             return query;
         }
-        Observation observation = Observation.createNotStarted(
-                        AiObservationConvention.SPAN_QUERY_REWRITE, observationRegistry)
-                .highCardinalityKeyValue(AiObservationConvention.TAG_QUERY_ORIGINAL_LEN,
-                        String.valueOf(query.length()))
-                .start();
+        Observation observation = null;
         try {
+            observation = Observation.createNotStarted(
+                            AiObservationConvention.SPAN_QUERY_REWRITE, observationRegistry)
+                    .highCardinalityKeyValue(AiObservationConvention.TAG_QUERY_ORIGINAL_LEN,
+                            String.valueOf(query.length()))
+                    .start();
             String context = buildHistoryContext(history);
             String rewritten = chatClient.prompt()
                     .system(systemPrompt)
@@ -92,11 +93,15 @@ public class QueryRewriter {
             log.debug("Query rewritten: \"{}\" → \"{}\"", query, cleaned);
             return cleaned;
         } catch (Exception e) {
-            observation.error(e);
+            if (observation != null) {
+                try { observation.error(e); } catch (Exception ex) { /* ignore */ }
+            }
             log.warn("Query rewrite failed, falling back to original query: {}", e.getMessage());
             return query;
         } finally {
-            observation.stop();
+            if (observation != null) {
+                try { observation.stop(); } catch (Exception ex) { /* ignore */ }
+            }
         }
     }
 
