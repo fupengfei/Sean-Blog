@@ -1,6 +1,7 @@
 package com.sean.blog.module.ai.service;
 
 import com.sean.blog.module.ai.config.ChatProperties;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,7 @@ class QueryRewriterTest {
     }
 
     private QueryRewriter rewriter() {
-        return new QueryRewriter(chatClientBuilder, chatProperties, SYSTEM_PROMPT);
+        return new QueryRewriter(chatClientBuilder, chatProperties, ObservationRegistry.NOOP, SYSTEM_PROMPT);
     }
 
     // -----------------------------------------------------------------------
