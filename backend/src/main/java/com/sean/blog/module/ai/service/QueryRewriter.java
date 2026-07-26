@@ -9,10 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,11 +38,20 @@ public class QueryRewriter {
     /** 注入对话历史的上下文轮数（用户 + 助手为一轮，即最多 10 条消息） */
     private static final int HISTORY_WINDOW_MESSAGES = 10;
 
+    @Autowired
     public QueryRewriter(ChatClient.Builder builder, ChatProperties chatProperties,
-                         ObservationRegistry observationRegistry) throws IOException {
+                         ObservationRegistry observationRegistry) {
         this(builder, chatProperties, observationRegistry,
-                new ClassPathResource("prompt/query-rewrite-system.md")
-                        .getContentAsString(StandardCharsets.UTF_8));
+                loadSystemPrompt());
+    }
+
+    private static String loadSystemPrompt() {
+        try {
+            return new ClassPathResource("prompt/query-rewrite-system.md")
+                    .getContentAsString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load query-rewrite-system.md", e);
+        }
     }
 
     /** 测试用构造器，直接注入 system prompt。 */

@@ -86,16 +86,16 @@
             <artifactId>spring-ai-starter-model-deepseek</artifactId>
         </dependency>
 
-        <!-- Micrometer Tracing → OpenTelemetry 桥接 -->
+        <!-- Spring Boot Actuator: 健康检查 + 管理端点 + 链路追踪自动配置 -->
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- OpenTelemetry Zipkin 导出器 -->
+        <!-- Spring Boot Zipkin Starter (Boot 4.x): Brave 桥接 + Zipkin 导出器自动配置 -->
         <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-zipkin</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-zipkin</artifactId>
         </dependency>
 
         <!-- MySQL JDBC 驱动 (mysql-connector-j 是新版 Artifact ID) -->
