@@ -10,6 +10,7 @@ import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
 import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
+import WeChatShareButton from '@/components/blog/WeChatShareButton';
 
 // ---------------------------------------------------------------------------
 // 工具函数：日期格式化、Markdown 纯文本提取、阅读时间估算、字数统计
@@ -439,6 +440,9 @@ export default function ArticleDetailPage() {
                       {formatDate(article.publishDate || article.createdAt)}
                     </span>
                   </div>
+
+                  {/* WeChat share */}
+                  <WeChatShareButton />
                 </div>
 
                 {/* Category + Tags */}
