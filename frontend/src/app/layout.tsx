@@ -49,10 +49,6 @@ export const metadata: Metadata = {
     description: '个人技术博客，探索 AI 与软件开发',
     images: ['/og-image.jpg'],
   },
-  // 微信私有标签：朋友圈分享依赖 wx:thumbnail 来展示缩略图
-  other: {
-    'wx:thumbnail': '/og-image.jpg',
-  },
   robots: {
     index: true,
     follow: true,
@@ -74,8 +70,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN">
       <head>
-        {/* 微信分享私有标签：告诉微信这是一张可分享的网页卡片 */}
+        {/* 微信分享私有标签（必须 property 属性 + 绝对路径，朋友圈专用） */}
         <meta property="wx:webpage" content="true" />
+        <meta property="wx:thumbnail" content={`${SITE_URL}/og-image.jpg`} />
       </head>
       <body className="font-ui">
         <ChatProviderWrapper>

@@ -116,7 +116,7 @@ export default function ChatPanel() {
         aria-modal="true"
         aria-label="AI 对话面板"
         className={`
-          md:hidden fixed inset-0 z-50 bg-surface flex flex-col
+          md:hidden fixed inset-0 z-[100] bg-surface flex flex-col
           transition-all duration-300 ease-out
           ${visible
             ? 'translate-y-0 opacity-100'
