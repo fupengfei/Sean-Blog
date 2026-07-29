@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Sean's AI World",
     description: '个人技术博客，探索 AI 与软件开发',
-    images: ['/og-image.jpg'],
+    images: ['/og-image.jpg?v=3'],
   },
   robots: {
     index: true,

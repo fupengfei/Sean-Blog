@@ -76,15 +76,23 @@ declare global {
       }) => void;
       ready: (cb: () => void) => void;
       error: (cb: (err: unknown) => void) => void;
-      updateTimelineShareData: (opts: WechatShareConfig) => void;
-      updateAppMessageShareData: (opts: WechatShareConfig) => void;
-      onMenuShareTimeline: (opts: WechatShareConfig) => void;
-      onMenuShareAppMessage: (opts: WechatShareConfig) => void;
+      updateTimelineShareData: (opts: TimelineShareConfig) => void;
+      updateAppMessageShareData: (opts: AppMessageShareConfig) => void;
+      onMenuShareTimeline: (opts: TimelineShareConfig) => void;
+      onMenuShareAppMessage: (opts: AppMessageShareConfig) => void;
     };
   }
 }
 
-interface WechatShareConfig {
+interface TimelineShareConfig {
+  title: string;
+  link: string;
+  imgUrl: string;
+  success?: () => void;
+  cancel?: () => void;
+}
+
+interface AppMessageShareConfig {
   title: string;
   desc: string;
   link: string;
@@ -174,28 +182,23 @@ export default function WeChatSDK({ title, description, imageUrl }: WeChatSDKPro
 
       // 5. wx.ready 后设置分享数据
       const shareLink = window.location.href.split('#')[0];
-      const shareConfig: WechatShareConfig = {
-        title: title || '',
-        desc: description || '',
-        link: shareLink,
-        imgUrl: imageUrl || '',
-      };
 
       window.wx.ready(() => {
         if (cancelled) return;
-        try {
-          // 新版 API（推荐）
-          window.wx!.updateTimelineShareData(shareConfig);
-          window.wx!.updateAppMessageShareData(shareConfig);
-        } catch {
-          // 降级到旧版 API
-          try {
-            window.wx!.onMenuShareTimeline(shareConfig);
-            window.wx!.onMenuShareAppMessage(shareConfig);
-          } catch {
-            // 静默失败
-          }
-        }
+        // 微信 6.5.6+ 要求：必须通过 SDK 显式指定分享参数，不再自动抓取页面 meta
+        window.wx!.updateTimelineShareData({
+          title: title || '',
+          link: shareLink,
+          imgUrl: imageUrl || '',
+          success() { console.log('[WeChatSDK] updateTimelineShareData OK'); },
+        });
+        window.wx!.updateAppMessageShareData({
+          title: title || '',
+          desc: description || '',
+          link: shareLink,
+          imgUrl: imageUrl || '',
+          success() { console.log('[WeChatSDK] updateAppMessageShareData OK'); },
+        });
       });
 
       window.wx.error((err: unknown) => {
