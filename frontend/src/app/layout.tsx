@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: "Sean's AI World",
     images: [
       {
-        url: '/og-image.png?v=4',
+        url: '/og-image.jpg?v=5',
         width: 1024,
         height: 1024,
         alt: "Sean's AI World",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Sean's AI World",
     description: '个人技术博客，探索 AI 与软件开发',
-    images: ['/og-image.png?v=4'],
+    images: ['/og-image.jpg?v=5'],
   },
   robots: {
     index: true,
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   },
   other: {
     'wx:webpage': 'true',
-    'wx:thumbnail': `${SITE_URL}/og-image-wechat.png?v=4`,
+    'wx:thumbnail': `${SITE_URL}/og-image-wechat.jpg?v=5`,
   },
 }
 
@@ -82,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             300×300 尺寸确保被爬虫识别为有效图片（1×1 可能被当作埋点像素忽略），
             CSS 隐藏避免影响页面渲染 */}
         <img
-          src={`${SITE_URL}/og-image-wechat.png?v=4`}
+          src={`${SITE_URL}/og-image-wechat.jpg?v=5`}
           alt=""
           width="0"
           height="0"

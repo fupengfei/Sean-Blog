@@ -37,14 +37,14 @@ function getSiteUrl(): string {
  * 将可能为相对路径的封面图 URL 转为绝对 URL（OG 要求绝对路径）
  */
 function resolveImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) return `${getSiteUrl()}/og-image.png?v=4`;
+  if (!imagePath) return `${getSiteUrl()}/og-image.jpg?v=5`;
   if (imagePath.startsWith('http')) return imagePath;
   return `${getSiteUrl()}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 }
 
 /** 微信 thumbnail 专用：默认用 300x300 小图（微信限制 32KB），有封面图则用封面 */
 function resolveWechatThumbnail(imagePath: string | null | undefined): string {
-  if (!imagePath) return `${getSiteUrl()}/og-image-wechat.png?v=4`;
+  if (!imagePath) return `${getSiteUrl()}/og-image-wechat.jpg?v=5`;
   if (imagePath.startsWith('http')) return imagePath;
   return `${getSiteUrl()}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 }
@@ -110,17 +110,17 @@ export async function generateMetadata({
         title: "文章详情 - Sean's AI World",
         description: '个人技术博客，探索 AI 与软件开发',
         type: 'website',
-        images: [`${siteUrl}/og-image.png?v=4`],
+        images: [`${siteUrl}/og-image.jpg?v=5`],
       },
       twitter: {
         card: 'summary',
         title: "文章详情 - Sean's AI World",
         description: '个人技术博客，探索 AI 与软件开发',
-        images: [`${siteUrl}/og-image.png?v=4`],
+        images: [`${siteUrl}/og-image.jpg?v=5`],
       },
       other: {
         'wx:webpage': 'true',
-        'wx:thumbnail': `${siteUrl}/og-image-wechat.png?v=4`,
+        'wx:thumbnail': `${siteUrl}/og-image-wechat.jpg?v=5`,
       },
     };
   }
