@@ -70,6 +70,12 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true  # 自动转换下划线字段名 → 驼峰属性名（如 created_at → createdAt）
 
+# ---- 微信公众号配置 ----
+# 用于 JS-SDK 签名，分享到朋友圈/好友时展示标题、描述和缩略图
+wechat:
+  app-id: ${WECHAT_APP_ID:}              # 微信公众号 AppID
+  app-secret: ${WECHAT_APP_SECRET:}      # 微信公众号 AppSecret
+
 # ---- JWT 认证配置 ----
 # 使用 HMAC-SHA 算法签名的 JSON Web Token
 jwt:

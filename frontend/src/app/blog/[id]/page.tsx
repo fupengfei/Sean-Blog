@@ -10,6 +10,7 @@ import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
 import Footer from '@/components/layout/Footer';
 import WeChatShareButton from '@/components/blog/WeChatShareButton';
+import WeChatSDK from '@/components/blog/WeChatSDK';
 
 // ---------------------------------------------------------------------------
 // 工具函数：日期格式化、Markdown 纯文本提取、阅读时间估算、字数统计
@@ -505,6 +506,19 @@ export default function ArticleDetailPage() {
       {/* ==================================================================== */}
       <RelatedArticles articles={relatedArticles} />
       <Footer />
+
+      {/* WeChat JS-SDK：微信内分享朋友圈/好友时显示标题、描述和缩略图 */}
+      <WeChatSDK
+        title={article.title}
+        description={article.excerpt || ''}
+        imageUrl={
+          article.coverImage
+            ? article.coverImage.startsWith('http')
+              ? article.coverImage
+              : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${article.coverImage.startsWith('/') ? '' : '/'}${article.coverImage}`
+            : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/og-image.jpg`
+        }
+      />
     </>
   );
 }
