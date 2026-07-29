@@ -24,6 +24,9 @@ services:
       - "3000:3000"                   # 将容器的 3000 端口映射到宿主机 3000
     environment:
       - BACKEND_URL=http://backend:8880  # 后端 API 地址（Docker 内部网络）
+      - TZ=Asia/Shanghai
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped           # 异常退出时自动重启
 
   # ---------------------------------------------------------------------------
@@ -42,7 +45,10 @@ services:
       - ./data/skills:/data/skills       # Skill Bundle 文件
       - ./data/images:/data/images       # 图片资源
       - ./data/lucene-index:/data/lucene-index  # Lucene HNSW 向量索引
+      - /etc/localtime:/etc/localtime:ro # 同步宿主机时间（微信签名依赖准确时间戳）
     environment:
+      # ---- 时区 ----
+      - TZ=Asia/Shanghai
       # ---- 数据库连接 ----
       - DB_HOST=mysql                   # MySQL 服务名（Docker DNS 解析）
       - DB_PORT=3306                    # MySQL 端口
@@ -59,6 +65,9 @@ services:
       - REDIS_HOST=redis                # Redis 服务名（Docker DNS 解析）
       - REDIS_PORT=6379                 # Redis 端口
       - REDIS_PASSWORD=${REDIS_PASSWORD:-devsecret}   # Redis 密码，默认 devsecret
+      # ---- 微信公众号（JS-SDK 签名 / 分享）----
+      - WECHAT_APP_ID=${WECHAT_APP_ID:-}
+      - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       # ---- AI 模型 API Key（智能客服：聊天 + RAG 向量检索）----
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}                 # DeepSeek 聊天模型密钥
       - QWEN_EMBEDDING_API_KEY=${QWEN_EMBEDDING_API_KEY:-}     # 通义千问向量 Embedding 密钥
