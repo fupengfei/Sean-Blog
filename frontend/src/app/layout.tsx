@@ -53,6 +53,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  other: {
+    'wx:webpage': 'true',
+    'wx:thumbnail': `${SITE_URL}/og-image.jpg?v=2`,
+  },
 }
 
 /**
@@ -70,18 +74,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN">
       <head>
-        {/* 微信分享私有标签（必须 property 属性 + 绝对路径，朋友圈专用） */}
+        {/* 微信朋友圈标记（property 属性兼容微信爬虫） */}
         <meta property="wx:webpage" content="true" />
-        <meta property="wx:thumbnail" content={`${SITE_URL}/og-image.jpg`} />
       </head>
       <body className="font-ui">
         {/* 微信朋友圈爬虫需要页面 body 内有实际 <img> 标签才会抓取缩略图；
-            宽高设为 1×1 不可见，仅用于爬虫识别，不影响页面渲染 */}
+            300×300 尺寸确保被爬虫识别为有效图片（1×1 可能被当作埋点像素忽略），
+            CSS 隐藏避免影响页面渲染 */}
         <img
-          src={`${SITE_URL}/og-image.jpg`}
+          src={`${SITE_URL}/og-image.jpg?v=2`}
           alt=""
-          width="1"
-          height="1"
+          width="300"
+          height="300"
           style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
         />
         <ChatProviderWrapper>
