@@ -75,6 +75,10 @@ mybatis:
 wechat:
   app-id: ${WECHAT_APP_ID:}              # 微信公众号 AppID
   app-secret: ${WECHAT_APP_SECRET:}      # 微信公众号 AppSecret
+  # PC OpenSDK 需要开放平台网站应用凭证，与公众号凭证不同
+  # 未配置时自动回退到公众号凭证（但 PC 分享可能不可用）
+  open-app-id: ${WECHAT_OPEN_APP_ID:${wechat.app-id}}
+  open-app-secret: ${WECHAT_OPEN_APP_SECRET:${wechat.app-secret}}
 
 # ---- JWT 认证配置 ----
 # 使用 HMAC-SHA 算法签名的 JSON Web Token

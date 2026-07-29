@@ -50,12 +50,13 @@ public class WechatController {
      */
     @PostMapping("/wechat/pc-ticket")
     public Result<?> getPcTicket() {
-        String ticket = wechatService.fetchPcTicket();
-        if (ticket == null) {
-            return Result.error(500, "Failed to obtain PC OpenSDK ticket");
+        WechatService.PcTicketResult result = wechatService.fetchPcTicket();
+        if (!result.isOk()) {
+            String detail = String.format("[errcode=%d] %s", result.getErrcode(), result.getErrmsg());
+            return Result.error(500, detail);
         }
         return Result.success(Map.of(
-                "ticket", ticket,
+                "ticket", result.getTicket(),
                 "appId", wechatService.getAppId()
         ));
     }

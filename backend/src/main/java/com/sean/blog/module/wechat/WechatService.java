@@ -45,6 +45,13 @@ public class WechatService {
     @Value("${wechat.app-secret:}")
     private String appSecret;
 
+    /** PC OpenSDK 需要开放平台网站应用凭证，未配置时回退到公众号凭证 */
+    @Value("${wechat.open-app-id:}")
+    private String openAppId;
+
+    @Value("${wechat.open-app-secret:}")
+    private String openAppSecret;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
@@ -53,6 +60,9 @@ public class WechatService {
     // ---- 缓存字段 ----
     private volatile String cachedAccessToken;
     private volatile long accessTokenExpireAt;
+
+    private volatile String cachedOpenAccessToken;
+    private volatile long openAccessTokenExpireAt;
 
     private volatile String cachedJsapiTicket;
     private volatile long jsapiTicketExpireAt;
@@ -190,16 +200,25 @@ public class WechatService {
     /**
      * 获取 PC OpenSDK 单次调用 ticket（有效期 5 分钟，一次一票，不缓存）。
      *
-     * <p>调用 {@code wxopensdk.shareLink()} 等 PC OpenSDK 方法时必须传入此 ticket。</p>
+     * <p>使用开放平台网站应用凭证（独立于公众号），
+     * 调用 {@code wxopensdk.shareLink()} 等 PC OpenSDK 方法时必须传入此 ticket。</p>
      *
-     * @return ticket 字符串，失败返回 null
+     * @return PcTicketResult（成功时包含 ticket，失败时包含 errcode + errmsg）
      */
-    public String fetchPcTicket() {
-        String token = getAccessToken();
-        if (token == null) {
-            log.error("Cannot get PC ticket: access_token is null");
-            return null;
+    public PcTicketResult fetchPcTicket() {
+        // 优先用开放平台凭证，未配置则回退到公众号凭证（通常会失败，因为 API 权限不同）
+        String appIdForPc = (openAppId != null && !openAppId.isBlank()) ? openAppId : appId;
+        String appSecretForPc = (openAppSecret != null && !openAppSecret.isBlank()) ? openAppSecret : appSecret;
+
+        if (appIdForPc == null || appIdForPc.isBlank()) {
+            return PcTicketResult.error(-1, "WeChat Open Platform AppID not configured");
         }
+
+        String token = getOpenAccessToken(appIdForPc, appSecretForPc);
+        if (token == null) {
+            return PcTicketResult.error(-1, "Cannot obtain access_token for Open Platform");
+        }
+
         String url = API_BASE + "/cgi-bin/pcopensdk/ticket?access_token=" + token;
         try {
             String body = "{\"ticket_type\":\"pcopensdk\"}";
@@ -211,22 +230,88 @@ public class WechatService {
                     .build();
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() != 200) {
-                log.error("Failed to get PC ticket: HTTP {}", resp.statusCode());
-                return null;
+                String msg = "WeChat API HTTP " + resp.statusCode();
+                log.error("Failed to get PC ticket: {}", msg);
+                return PcTicketResult.error(-1, msg);
             }
             JsonNode json = objectMapper.readTree(resp.body());
-            if (json.get("errcode").asInt() != 0) {
-                log.error("Failed to get PC ticket: errcode={} errmsg={}",
-                        json.get("errcode").asInt(), json.has("errmsg") ? json.get("errmsg").asText() : "");
-                return null;
+            int errcode = json.get("errcode").asInt();
+            if (errcode != 0) {
+                String errmsg = json.has("errmsg") ? json.get("errmsg").asText() : "unknown";
+                log.error("Failed to get PC ticket: errcode={} errmsg={}", errcode, errmsg);
+                return PcTicketResult.error(errcode, errmsg);
             }
             String ticket = json.get("ticket").asText();
             log.info("PC OpenSDK ticket obtained");
-            return ticket;
+            return PcTicketResult.ok(ticket);
         } catch (Exception e) {
             log.error("Failed to get PC ticket: {}", e.getMessage());
-            return null;
+            return PcTicketResult.error(-1, "Network error: " + e.getMessage());
         }
+    }
+
+    /** 获取开放平台的 access_token（独立缓存，与公众号 token 分离） */
+    private synchronized String getOpenAccessToken(String appId, String appSecret) {
+        if (cachedOpenAccessToken != null && System.currentTimeMillis() < openAccessTokenExpireAt) {
+            return cachedOpenAccessToken;
+        }
+        return refreshOpenAccessToken(appId, appSecret);
+    }
+
+    private String refreshOpenAccessToken(String appId, String appSecret) {
+        String url = API_BASE + "/cgi-bin/token?grant_type=client_credential"
+                + "&appid=" + appId + "&secret=" + appSecret;
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(5))
+                    .GET()
+                    .build();
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) {
+                log.error("Failed to get Open access_token: HTTP {}", resp.statusCode());
+                return cachedOpenAccessToken;
+            }
+            JsonNode json = objectMapper.readTree(resp.body());
+            if (json.has("errcode") && json.get("errcode").asInt() != 0) {
+                log.error("Failed to get Open access_token: errcode={} errmsg={}",
+                        json.get("errcode").asInt(), json.has("errmsg") ? json.get("errmsg").asText() : "");
+                return cachedOpenAccessToken;
+            }
+            String token = json.get("access_token").asText();
+            cachedOpenAccessToken = token;
+            openAccessTokenExpireAt = System.currentTimeMillis() + CACHE_TTL_SECONDS * 1000;
+            log.info("Open Platform access_token refreshed");
+            return token;
+        } catch (Exception e) {
+            log.error("Failed to refresh Open access_token: {}", e.getMessage());
+            return cachedOpenAccessToken;
+        }
+    }
+
+    // =========================================================================
+    // 内部 DTO
+    // =========================================================================
+
+    /** PC OpenSDK ticket 结果 */
+    public static class PcTicketResult {
+        private final String ticket;
+        private final int errcode;
+        private final String errmsg;
+
+        PcTicketResult(String ticket, int errcode, String errmsg) {
+            this.ticket = ticket;
+            this.errcode = errcode;
+            this.errmsg = errmsg;
+        }
+
+        static PcTicketResult ok(String ticket) { return new PcTicketResult(ticket, 0, null); }
+        static PcTicketResult error(int errcode, String errmsg) { return new PcTicketResult(null, errcode, errmsg); }
+
+        public String getTicket() { return ticket; }
+        public int getErrcode() { return errcode; }
+        public String getErrmsg() { return errmsg; }
+        public boolean isOk() { return ticket != null; }
     }
 
     // =========================================================================

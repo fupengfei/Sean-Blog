@@ -111,14 +111,9 @@ export default function WeChatPCShare({ title, description, imageUrl }: WeChatPC
 
       // 2. 获取单次 ticket
       const resp = await fetch('/api/v1/wechat/pc-ticket', { method: 'POST' });
-      if (!resp.ok) {
-        alert('获取分享凭证失败，请稍后重试。');
-        setSharing(false);
-        return;
-      }
       const json = await resp.json();
-      if (json.code !== 200 || !json.data?.ticket) {
-        alert('获取分享凭证失败：' + (json.message || '未知错误'));
+      if (!resp.ok || json.code !== 200 || !json.data?.ticket) {
+        alert('获取分享凭证失败：' + (json.message || `HTTP ${resp.status}`));
         setSharing(false);
         return;
       }
