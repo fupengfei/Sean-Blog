@@ -13,7 +13,12 @@ services:
   # 通过 BACKEND_URL 环境变量连接后端 API（容器内 DNS 解析 backend:8880）
   # ---------------------------------------------------------------------------
   frontend:
-    build: ./frontend                 # 构建上下文：frontend/ 目录
+    build:
+      context: ./frontend                 # 构建上下文：frontend/ 目录
+      args:
+        # 站点公开 URL（用于 metadataBase、og:image 等绝对路径）
+        # 生产环境通过 .env 文件或命令行注入：NEXT_PUBLIC_SITE_URL=https://your-domain.com docker compose build
+        - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     container_name: sean-blog-frontend
     ports:
       - "3000:3000"                   # 将容器的 3000 端口映射到宿主机 3000

@@ -6,14 +6,15 @@
 // 点击微信图标弹出二维码：桌面端为贴近图标的 popover，移动端为居中模态。
 // 二维码内容为当前页面 URL（window.location.href），微信扫码即可在微信内
 // 打开文章并转发给好友/朋友圈。附带「复制链接」作为非微信场景补充。
+//
+// 颜色说明：微信品牌绿 #07C160 不在设计系统 token 内，按约定以 Tailwind 任意值
+// （text-[#07C160] 等）硬编码使用；二维码前景 #002045 / 背景 #ffffff 为库 prop，
+// 仅接受 hex，分别对应 primary / surface-container-lowest token 的值。
 // =============================================================================
 
 import { useEffect, useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { FaWeixin, FaTimes, FaLink, FaCheck } from 'react-icons/fa';
-
-/** 微信品牌绿（设计系统 token 之外的品牌专有色） */
-const WECHAT_GREEN = '#07C160';
 
 /**
  * 二维码容器四角的取景框角标（L 形，微信绿），呼应"扫一扫"动作
@@ -47,7 +48,12 @@ export default function WeChatShareButton() {
   const [clipboardOk, setClipboardOk] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevOpenRef = useRef(false);
+  const wasMobileRef = useRef(false);
 
   // 客户端 mount 后取当前文章 URL 作为二维码内容
   // （初始为 null，避免 SSR 与首帧 hydration 不一致）
@@ -56,11 +62,70 @@ export default function WeChatShareButton() {
     setClipboardOk(!!navigator.clipboard);
   }, []);
 
-  // 弹窗打开时：Esc 关闭 + 点击组件外部关闭
+  // ------------------------------------------------------------------
+  // 弹窗开/关副作用（单一 effect，按序处理）：
+  //  - inert 同步：关闭态两容器 inert，移出 Tab 序与无障碍树（修复 opacity-0
+  //    仍挂载导致的隐藏按钮可被 Tab 聚焦的问题）；打开态清除
+  //  - 移动端模态（dialog 语义）：焦点移入关闭按钮、Tab 焦点陷阱、锁定背后
+  //    页面滚动、关闭后焦点归还触发器
+  //  - 桌面 popover（非模态）：不抢焦点、不陷阱，仅 Esc + 点击外部关闭
+  //  - 两态共用：Esc 关闭 + 点击组件外部关闭
+  // ------------------------------------------------------------------
   useEffect(() => {
-    if (!open) return;
+    const wasOpen = prevOpenRef.current;
+    prevOpenRef.current = open;
+
+    const isMobile = window.matchMedia('(max-width: 639px)').matches;
+    const visible = isMobile ? modalRef.current : popoverRef.current;
+    const setInert = (el: HTMLDivElement | null, value: boolean) => {
+      if (el) (el as HTMLElement & { inert?: boolean }).inert = value;
+    };
+    setInert(popoverRef.current, !open);
+    setInert(modalRef.current, !open);
+
+    if (!open) {
+      // 仅当上一态是移动端模态打开时才归还焦点（桌面 popover 焦点从未离开触发器，
+      // 且点击外部关闭时不应抢占用户点击目标的焦点）
+      if (wasOpen && wasMobileRef.current) triggerRef.current?.focus();
+      return;
+    }
+
+    wasMobileRef.current = isMobile;
+
+    let restoreOverflow: (() => void) | undefined;
+    if (isMobile) {
+      // 焦点移入弹窗（关闭按钮），便于键盘与读屏操作
+      visible
+        ?.querySelector<HTMLButtonElement>('button[aria-label="关闭分享弹窗"]')
+        ?.focus();
+      // 模态全屏，锁定背后页面滚动
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      restoreOverflow = () => {
+        document.body.style.overflow = prev;
+      };
+    }
+
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+      // Tab 焦点陷阱：仅移动端模态，循环限制在可见弹窗内
+      if (isMobile && e.key === 'Tab' && visible) {
+        const nodes = visible.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]');
+        const list = Array.from(nodes).filter((el) => el.offsetParent !== null);
+        if (list.length === 0) return;
+        const first = list[0];
+        const last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     const onMouseDown = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -72,6 +137,7 @@ export default function WeChatShareButton() {
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('mousedown', onMouseDown);
+      restoreOverflow?.();
     };
   }, [open]);
 
@@ -120,12 +186,13 @@ export default function WeChatShareButton() {
       {/* 二维码 + 取景框角标（Navy 前景，与品牌一致） */}
       <div
         data-testid="wechat-share-qr"
-        className="relative w-fit mx-auto p-3 bg-white border border-outline-variant rounded"
+        className="relative w-fit mx-auto p-3 bg-surface-container-lowest border border-outline-variant rounded"
       >
         <CornerMark position="tl" />
         <CornerMark position="tr" />
         <CornerMark position="bl" />
         <CornerMark position="br" />
+        {/* fgColor/bgColor 为库 prop 仅接受 hex：#002045 = primary，#ffffff = surface-container-lowest */}
         <QRCodeSVG value={url} size={160} fgColor="#002045" bgColor="#ffffff" level="M" />
       </div>
 
@@ -164,6 +231,7 @@ export default function WeChatShareButton() {
     <div ref={containerRef} className="relative">
       {/* ---- 微信图标按钮（分隔线 + 圆形 hover 底） ---- */}
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="分享到微信"
@@ -188,6 +256,8 @@ export default function WeChatShareButton() {
 
       {/* ---- 桌面 popover（≥sm）：图标正下方右对齐，带上指箭头 ---- */}
       <div
+        ref={popoverRef}
+        aria-hidden={!open}
         className={`hidden sm:block absolute right-0 top-full mt-3 z-40 origin-top-right transition-all duration-150 ease-out ${
           open
             ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
@@ -203,6 +273,8 @@ export default function WeChatShareButton() {
 
       {/* ---- 移动模态（<sm）：半透明遮罩 + 居中卡片 ---- */}
       <div
+        ref={modalRef}
+        aria-hidden={!open}
         className={`sm:hidden fixed inset-0 z-50 flex items-center justify-center p-6 transition-opacity duration-200 ${
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}

@@ -5,14 +5,53 @@ import PageViewTracker from '@/components/analytics/PageViewTracker'
 import ChatProviderWrapper from '@/components/chat/ChatProviderWrapper'
 
 /**
- * 全局 SEO 元数据：站点标题、描述、图标
+ * 站点 URL（构建时注入，用于 metadataBase 解析相对路径）
+ * - 本地：http://localhost:3000
+ * - 生产：通过 docker-compose build-arg / .env.production 注入
+ */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+/**
+ * 全局 SEO 元数据：站点标题、描述、图标、Open Graph / Twitter Card
+ *
+ * 文章详情页通过 /blog/[id]/layout.tsx 的 generateMetadata 进一步覆写，
+ * 为每篇文章生成独立的 og:title / og:description / og:image。
  */
 export const metadata: Metadata = {
-  title: "Sean's AI World",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Sean's AI World",
+    template: "%s - Sean's AI World",
+  },
   description: '个人技术博客，探索 AI 与软件开发',
   icons: {
     icon: '/favicon.png',
     apple: '/favicon.png',
+  },
+  // 站点级 Open Graph — 文章页会覆写这些值
+  openGraph: {
+    title: "Sean's AI World",
+    description: '个人技术博客，探索 AI 与软件开发',
+    type: 'website',
+    siteName: "Sean's AI World",
+    images: [
+      {
+        url: '/logo.png',
+        width: 512,
+        height: 512,
+        alt: "Sean's AI World Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: "Sean's AI World",
+    description: '个人技术博客，探索 AI 与软件开发',
+    images: ['/logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 

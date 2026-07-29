@@ -9,6 +9,16 @@
 # =============================================================================
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# ---------------------------------------------------------------------------
+# 构建参数
+# NEXT_PUBLIC_SITE_URL：站点公开 URL，用于 metadataBase 和 og:image 等绝对路径
+#   - 未传时默认 http://localhost:3000（本地开发）
+#   - 生产部署应传入 https://your-domain.com
+# ---------------------------------------------------------------------------
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+
 # 先复制依赖文件，利用 Docker 层缓存（源码修改时无需重复 npm ci）
 COPY package.json package-lock.json ./
 # 仅安装生产依赖，速度比 npm install 快且可重复
