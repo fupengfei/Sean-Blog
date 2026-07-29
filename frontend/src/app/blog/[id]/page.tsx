@@ -516,7 +516,7 @@ export default function ArticleDetailPage() {
             ? article.coverImage.startsWith('http')
               ? article.coverImage
               : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${article.coverImage.startsWith('/') ? '' : '/'}${article.coverImage}`
-            : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/og-image-wechat.jpg?v=3`
+            : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/og-image-wechat.png?v=4`
         }
       />
     </>
