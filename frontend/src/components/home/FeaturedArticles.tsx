@@ -93,7 +93,7 @@ export default function FeaturedArticles() {
             {articles.map((article) => (
               <article
                 key={article.id}
-                className="group bg-surface p-6 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant"
+                className="group bg-surface p-6 rounded-xl border border-outline-variant hover:bg-surface-container-low transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,32,69,0.08)]"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:gap-8">
                   {/* Date + Category + Author */}
