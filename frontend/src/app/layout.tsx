@@ -75,6 +75,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta property="wx:thumbnail" content={`${SITE_URL}/og-image.jpg`} />
       </head>
       <body className="font-ui">
+        {/* 微信朋友圈爬虫需要页面 body 内有实际 <img> 标签才会抓取缩略图；
+            宽高设为 1×1 不可见，仅用于爬虫识别，不影响页面渲染 */}
+        <img
+          src={`${SITE_URL}/og-image.jpg`}
+          alt=""
+          width="1"
+          height="1"
+          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        />
         <ChatProviderWrapper>
           <PageViewTracker />
           {children}
