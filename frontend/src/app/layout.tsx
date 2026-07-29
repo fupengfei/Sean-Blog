@@ -36,18 +36,18 @@ export const metadata: Metadata = {
     siteName: "Sean's AI World",
     images: [
       {
-        url: '/logo.png',
-        width: 512,
-        height: 512,
-        alt: "Sean's AI World Logo",
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: "Sean's AI World",
       },
     ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: "Sean's AI World",
     description: '个人技术博客，探索 AI 与软件开发',
-    images: ['/logo.png'],
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,

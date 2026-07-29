@@ -37,7 +37,7 @@ function getSiteUrl(): string {
  * 将可能为相对路径的封面图 URL 转为绝对 URL（OG 要求绝对路径）
  */
 function resolveImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) return `${getSiteUrl()}/logo.png`;
+  if (!imagePath) return `${getSiteUrl()}/og-image.png`;
   if (imagePath.startsWith('http')) return imagePath;
   // 相对路径 → 拼上站点域名
   return `${getSiteUrl()}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
@@ -104,13 +104,13 @@ export async function generateMetadata({
         title: "文章详情 - Sean's AI World",
         description: '个人技术博客，探索 AI 与软件开发',
         type: 'website',
-        images: [`${siteUrl}/logo.png`],
+        images: [`${siteUrl}/og-image.png`],
       },
       twitter: {
         card: 'summary',
         title: "文章详情 - Sean's AI World",
         description: '个人技术博客，探索 AI 与软件开发',
-        images: [`${siteUrl}/logo.png`],
+        images: [`${siteUrl}/og-image.png`],
       },
     };
   }
@@ -129,8 +129,8 @@ export async function generateMetadata({
       images: [
         {
           url: ogImage,
-          width: article.coverImage ? 1200 : 512,
-          height: article.coverImage ? 630 : 512,
+          width: article.coverImage ? 1200 : 1200,
+          height: article.coverImage ? 630 : 630,
           alt: article.title,
         },
       ],
