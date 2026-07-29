@@ -8,7 +8,6 @@ import { useChat } from '@/components/chat/ChatProvider';
 import type { Article, ArticleSummary } from '@/types';
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
 import TableOfContents from '@/components/blog/TableOfContents';
-import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
 import WeChatShareButton from '@/components/blog/WeChatShareButton';
 
@@ -357,16 +356,15 @@ export default function ArticleDetailPage() {
   // States: loading / error
   // ------------------------------------------------------------------
 
-  if (loading) return (<><NavBar /><Skeleton /><Footer /></>);
-  if (error || !article) return (<><NavBar /><ErrorState message={error || '无法找到该文章'} /><Footer /></>);
+  if (loading) return (<><Skeleton /><Footer /></>);
+  if (error || !article) return (<><ErrorState message={error || '无法找到该文章'} /><Footer /></>);
 
   const readingTime = estimateReadingTime(article.contentMd || '');
   const wordCount = countWords(article.contentMd || '');
 
   return (
     <>
-      <NavBar />
-      <main className="pt-12 pb-24">
+      <main className="pt-8 pb-24">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* ================================================================ */}
