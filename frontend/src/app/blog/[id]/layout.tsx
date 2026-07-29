@@ -42,6 +42,13 @@ function resolveImageUrl(imagePath: string | null | undefined): string {
   return `${getSiteUrl()}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 }
 
+/** 微信 thumbnail 专用：默认用 300x300 小图（微信限制 32KB），有封面图则用封面 */
+function resolveWechatThumbnail(imagePath: string | null | undefined): string {
+  if (!imagePath) return `${getSiteUrl()}/og-image-wechat.jpg?v=2`;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${getSiteUrl()}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+}
+
 // ---------------------------------------------------------------------------
 // 服务端数据获取（带 5s 超时 + 错误兜底）
 // ---------------------------------------------------------------------------
@@ -113,12 +120,13 @@ export async function generateMetadata({
       },
       other: {
         'wx:webpage': 'true',
-        'wx:thumbnail': `${siteUrl}/og-image.jpg?v=2`,
+        'wx:thumbnail': `${siteUrl}/og-image-wechat.jpg?v=2`,
       },
     };
   }
 
   const ogImage = resolveImageUrl(article.coverImage);
+  const wechatThumb = resolveWechatThumbnail(article.coverImage);
 
   // title 只用文章标题，站点名由根 layout 的 title.template 自动拼接
   return {
@@ -145,10 +153,10 @@ export async function generateMetadata({
       description: article.excerpt || '',
       images: [ogImage],
     },
-    // 微信私有标签：朋友圈分享依赖 wx:thumbnail 展示缩略图
+    // 微信私有标签：朋友圈分享依赖 wx:thumbnail 展示缩略图（微信限制 32KB，默认用 300x300 小图）
     other: {
       'wx:webpage': 'true',
-      'wx:thumbnail': ogImage,
+      'wx:thumbnail': wechatThumb,
     },
   };
 }
