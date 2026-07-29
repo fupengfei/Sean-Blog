@@ -36,9 +36,9 @@ export const metadata: Metadata = {
     siteName: "Sean's AI World",
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/og-image.jpg',
+        width: 1024,
+        height: 1024,
         alt: "Sean's AI World",
       },
     ],
@@ -47,7 +47,11 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Sean's AI World",
     description: '个人技术博客，探索 AI 与软件开发',
-    images: ['/og-image.png'],
+    images: ['/og-image.jpg'],
+  },
+  // 微信私有标签：朋友圈分享依赖 wx:thumbnail 来展示缩略图
+  other: {
+    'wx:thumbnail': '/og-image.jpg',
   },
   robots: {
     index: true,
@@ -69,6 +73,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
+      <head>
+        {/* 微信分享私有标签：告诉微信这是一张可分享的网页卡片 */}
+        <meta property="wx:webpage" content="true" />
+      </head>
       <body className="font-ui">
         <ChatProviderWrapper>
           <PageViewTracker />

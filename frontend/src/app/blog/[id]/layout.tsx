@@ -37,7 +37,7 @@ function getSiteUrl(): string {
  * 将可能为相对路径的封面图 URL 转为绝对 URL（OG 要求绝对路径）
  */
 function resolveImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) return `${getSiteUrl()}/og-image.png`;
+  if (!imagePath) return `${getSiteUrl()}/og-image.jpg`;
   if (imagePath.startsWith('http')) return imagePath;
   // 相对路径 → 拼上站点域名
   return `${getSiteUrl()}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
@@ -104,13 +104,17 @@ export async function generateMetadata({
         title: "文章详情 - Sean's AI World",
         description: '个人技术博客，探索 AI 与软件开发',
         type: 'website',
-        images: [`${siteUrl}/og-image.png`],
+        images: [`${siteUrl}/og-image.jpg`],
       },
       twitter: {
         card: 'summary',
         title: "文章详情 - Sean's AI World",
         description: '个人技术博客，探索 AI 与软件开发',
-        images: [`${siteUrl}/og-image.png`],
+        images: [`${siteUrl}/og-image.jpg`],
+      },
+      other: {
+        'wx:webpage': 'true',
+        'wx:thumbnail': `${siteUrl}/og-image.jpg`,
       },
     };
   }
@@ -129,8 +133,8 @@ export async function generateMetadata({
       images: [
         {
           url: ogImage,
-          width: article.coverImage ? 1200 : 1200,
-          height: article.coverImage ? 630 : 630,
+          width: article.coverImage ? 1200 : 1024,
+          height: article.coverImage ? 630 : 1024,
           alt: article.title,
         },
       ],
@@ -141,6 +145,11 @@ export async function generateMetadata({
       title: article.title,
       description: article.excerpt || '',
       images: [ogImage],
+    },
+    // 微信私有标签：朋友圈分享依赖 wx:thumbnail 展示缩略图
+    other: {
+      'wx:webpage': 'true',
+      'wx:thumbnail': ogImage,
     },
   };
 }
