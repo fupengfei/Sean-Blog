@@ -36,9 +36,9 @@ export const metadata: Metadata = {
     siteName: "Sean's AI World",
     images: [
       {
-        url: '/og-image.jpg',
-        width: 1024,
-        height: 1024,
+        url: '/og-image.jpg?v=3',
+        width: 300,
+        height: 300,
         alt: "Sean's AI World",
       },
     ],
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   },
   other: {
     'wx:webpage': 'true',
-    'wx:thumbnail': `${SITE_URL}/og-image-wechat.jpg?v=2`,
+    'wx:thumbnail': `${SITE_URL}/og-image-wechat.jpg?v=3`,
   },
 }
 
@@ -82,10 +82,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             300×300 尺寸确保被爬虫识别为有效图片（1×1 可能被当作埋点像素忽略），
             CSS 隐藏避免影响页面渲染 */}
         <img
-          src={`${SITE_URL}/og-image-wechat.jpg?v=2`}
+          src={`${SITE_URL}/og-image-wechat.jpg?v=3`}
           alt=""
-          width="300"
-          height="300"
+          width="0"
+          height="0"
           style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
         />
         <ChatProviderWrapper>
