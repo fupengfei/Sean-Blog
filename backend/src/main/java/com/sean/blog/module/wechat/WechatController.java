@@ -6,12 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * 微信公众号 JS-SDK 签名接口。
+ * 微信公众号 JS-SDK 签名接口 + PC OpenSDK ticket 接口。
  *
- * <p>前端页面加载时调用此接口获取 {@code wx.config()} 所需的
- * appId、timestamp、nonceStr、signature，用于配置微信 JS-SDK。</p>
- *
- * <p>接口路径：{@code GET /api/v1/wechat/jsapi-signature?url=...}</p>
+ * <p>移动端：{@code GET /api/v1/wechat/jsapi-signature?url=...}</p>
+ * <p>PC 端：{@code POST /api/v1/wechat/pc-ticket}</p>
  */
 @RestController
 @RequestMapping("/api/v1")
@@ -42,6 +40,23 @@ public class WechatController {
                 "timestamp", String.valueOf(signResult.getTimestamp()),
                 "nonceStr", signResult.getNonceStr(),
                 "signature", signResult.getSignature()
+        ));
+    }
+
+    /**
+     * 获取 PC OpenSDK 单次调用 ticket，供 {@code wxopensdk.shareLink()} 使用。
+     *
+     * @return ticket（5 分钟有效，一次一票）+ appId
+     */
+    @PostMapping("/wechat/pc-ticket")
+    public Result<?> getPcTicket() {
+        String ticket = wechatService.fetchPcTicket();
+        if (ticket == null) {
+            return Result.error(500, "Failed to obtain PC OpenSDK ticket");
+        }
+        return Result.success(Map.of(
+                "ticket", ticket,
+                "appId", wechatService.getAppId()
         ));
     }
 }

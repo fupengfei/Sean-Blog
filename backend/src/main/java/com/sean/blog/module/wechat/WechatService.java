@@ -61,6 +61,10 @@ public class WechatService {
     // 公开接口
     // =========================================================================
 
+    public String getAppId() {
+        return appId;
+    }
+
     /**
      * 返回 JS-SDK 签名结果，供前端 {@code wx.config()} 使用。
      *
@@ -176,6 +180,52 @@ public class WechatService {
         } catch (Exception e) {
             log.error("Failed to refresh jsapi_ticket: {}", e.getMessage());
             return cachedJsapiTicket;
+        }
+    }
+
+    // =========================================================================
+    // 内部：PC OpenSDK ticket（单次有效，不缓存）
+    // =========================================================================
+
+    /**
+     * 获取 PC OpenSDK 单次调用 ticket（有效期 5 分钟，一次一票，不缓存）。
+     *
+     * <p>调用 {@code wxopensdk.shareLink()} 等 PC OpenSDK 方法时必须传入此 ticket。</p>
+     *
+     * @return ticket 字符串，失败返回 null
+     */
+    public String fetchPcTicket() {
+        String token = getAccessToken();
+        if (token == null) {
+            log.error("Cannot get PC ticket: access_token is null");
+            return null;
+        }
+        String url = API_BASE + "/cgi-bin/pcopensdk/ticket?access_token=" + token;
+        try {
+            String body = "{\"ticket_type\":\"pcopensdk\"}";
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(5))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) {
+                log.error("Failed to get PC ticket: HTTP {}", resp.statusCode());
+                return null;
+            }
+            JsonNode json = objectMapper.readTree(resp.body());
+            if (json.get("errcode").asInt() != 0) {
+                log.error("Failed to get PC ticket: errcode={} errmsg={}",
+                        json.get("errcode").asInt(), json.has("errmsg") ? json.get("errmsg").asText() : "");
+                return null;
+            }
+            String ticket = json.get("ticket").asText();
+            log.info("PC OpenSDK ticket obtained");
+            return ticket;
+        } catch (Exception e) {
+            log.error("Failed to get PC ticket: {}", e.getMessage());
+            return null;
         }
     }
 
