@@ -11,7 +11,6 @@ import TableOfContents from '@/components/blog/TableOfContents';
 import Footer from '@/components/layout/Footer';
 import WeChatShareButton from '@/components/blog/WeChatShareButton';
 import WeChatSDK from '@/components/blog/WeChatSDK';
-import WeChatPCShare from '@/components/blog/WeChatPCShare';
 
 // ---------------------------------------------------------------------------
 // 工具函数：日期格式化、Markdown 纯文本提取、阅读时间估算、字数统计
@@ -443,19 +442,6 @@ export default function ArticleDetailPage() {
 
                   {/* WeChat share */}
                   <WeChatShareButton />
-
-                  {/* PC 微信一键分享（无需扫码，直接拉起客户端） */}
-                  <WeChatPCShare
-                    title={article.title}
-                    description={article.excerpt || ''}
-                    imageUrl={
-                      article.coverImage
-                        ? article.coverImage.startsWith('http')
-                          ? article.coverImage
-                          : `${process.env.NEXT_PUBLIC_SITE_URL || ''}${article.coverImage.startsWith('/') ? '' : '/'}${article.coverImage}`
-                        : `${process.env.NEXT_PUBLIC_SITE_URL || ''}/og-image-wechat.jpg?v=3`
-                    }
-                  />
                 </div>
 
                 {/* Category + Tags */}
