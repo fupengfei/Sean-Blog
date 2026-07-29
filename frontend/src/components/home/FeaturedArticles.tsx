@@ -39,7 +39,7 @@ export default function FeaturedArticles() {
 
   return (
     <section className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-24">
-      <div className="max-w-[720px]">
+      <div className="max-w-[720px] lg:max-w-[880px]">
         <h2 className="text-3xl sm:text-[36px] font-bold tracking-[-0.01em] text-primary mb-12">
           精选文章
         </h2>
