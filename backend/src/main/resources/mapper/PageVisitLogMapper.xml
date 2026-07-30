@@ -8,10 +8,10 @@
 -->
 <mapper namespace="com.sean.blog.module.analytics.mapper.PageVisitLogMapper">
 
-    <!-- insert: 插入新的访问日志（每次页面访问时调用，先记录 IP 和时间，地理位置异步回填） -->
+    <!-- insert: 插入新的访问日志（包含设备信息） -->
     <insert id="insert">
-        INSERT INTO t_page_visit_log (id, page_type, page_key, ip, visited_at)
-        VALUES (#{id}, #{pageType}, #{pageKey}, #{ip}, NOW())
+        INSERT INTO t_page_visit_log (id, page_type, page_key, ip, os, browser, device_type, visited_at)
+        VALUES (#{id}, #{pageType}, #{pageKey}, #{ip}, #{os}, #{browser}, #{deviceType}, NOW())
     </insert>
 
     <!-- updateGeo: 回填访问记录的地理位置信息（通过外部 GeoIP 服务解析后更新） -->
