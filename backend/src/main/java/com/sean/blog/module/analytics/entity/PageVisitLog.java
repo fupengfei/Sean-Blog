@@ -34,6 +34,15 @@ public class PageVisitLog {
     /** 城市 */
     private String city;
 
+    /** 操作系统（从 User-Agent 解析） */
+    private String os;
+
+    /** 浏览器及版本（从 User-Agent 解析） */
+    private String browser;
+
+    /** 设备类型：DESKTOP / MOBILE / TABLET */
+    private String deviceType;
+
     /** 访问时间 */
     private LocalDateTime visitedAt;
 }
