@@ -58,7 +58,10 @@ vector:
 # ---- 日志配置 ----
 logging:
   level:
-    org.springframework.security: DEBUG
+    # 生产用 INFO：DEBUG 下 Security 过滤器链每个请求都刷屏，曾打满磁盘
+    # 排查认证问题时可临时开 DEBUG（环境变量覆盖即可，无需改代码）：
+    # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+    org.springframework.security: INFO
     # SSE 流式响应时客户端断开是正常行为，抑制相关异步异常日志
     '[org.springframework.web.context.request.async]': WARN
 
