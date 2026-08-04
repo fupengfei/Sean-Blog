@@ -81,7 +81,7 @@ export default function FeaturedArticles() {
                     d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
                   />
                 </svg>
-                <p className="text-sm text-on-surface-variant/50">文章即将发布</p>
+                <p className="text-sm text-on-surface-variant">文章即将发布</p>
               </div>
             ))}
           </div>
@@ -107,7 +107,7 @@ export default function FeaturedArticles() {
                       </span>
                     )}
                     {article.author && (
-                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-1">
+                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant mt-1">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>

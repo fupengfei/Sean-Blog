@@ -104,11 +104,11 @@ export default function ArticleCard({ article, variant = 'default', index = 0 }:
               {article.category.name}
             </span>
           )}
-          <span className="text-xs text-on-surface-variant/55 font-medium tracking-wide">
+          <span className="text-xs text-on-surface-variant font-medium tracking-wide">
             {formatDate(article.publishDate || article.createdAt)}
           </span>
           {article.author && (
-            <span className="inline-flex items-center gap-1 text-xs text-on-surface-variant/45">
+            <span className="inline-flex items-center gap-1 text-xs text-on-surface-variant">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -160,7 +160,7 @@ export default function ArticleCard({ article, variant = 'default', index = 0 }:
           )}
 
           {/* Read more */}
-          <span className="inline-flex items-center gap-1 text-sm font-medium text-secondary/80 group-hover:text-secondary group-hover:gap-2 transition-all duration-300 shrink-0">
+          <span className="inline-flex items-center gap-1 text-sm font-medium text-secondary group-hover:text-secondary group-hover:gap-2 transition-all duration-300 shrink-0">
             阅读全文
             <svg
               className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5"

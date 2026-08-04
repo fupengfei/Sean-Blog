@@ -85,7 +85,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
           return (
             <span
               key={`ellipsis-${idx}`}
-              className="px-2 py-2 text-sm text-on-surface-variant/50"
+              className="px-2 py-2 text-sm text-on-surface-variant"
             >
               ...
             </span>

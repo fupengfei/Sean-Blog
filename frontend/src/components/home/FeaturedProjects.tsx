@@ -137,7 +137,7 @@ export default function FeaturedProjects() {
                     d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
                   />
                 </svg>
-                <p className="text-sm text-on-surface-variant/50">
+                <p className="text-sm text-on-surface-variant">
                   更多项目即将上线
                 </p>
               </div>
@@ -201,7 +201,7 @@ export default function FeaturedProjects() {
                           </p>
 
                           {/* Author */}
-                          <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-1">
+                          <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant mt-1">
                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
@@ -298,7 +298,7 @@ export default function FeaturedProjects() {
                       </p>
 
                       {/* Author */}
-                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mt-1">
+                      <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant mt-1">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -354,7 +354,7 @@ export default function FeaturedProjects() {
                       d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
                     />
                   </svg>
-                  <p className="text-sm text-on-surface-variant/50">
+                  <p className="text-sm text-on-surface-variant">
                     更多项目即将上线
                   </p>
                 </div>

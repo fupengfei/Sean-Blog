@@ -137,7 +137,7 @@ export default function BlogListPage() {
         {/* Error state */}
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-            <p className="text-red-600 mb-4">{error}</p>
+            <p className="text-red-700 mb-4">{error}</p>
             <button
               onClick={() => {
                 setError(null);
@@ -204,7 +204,7 @@ export default function BlogListPage() {
                     d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
                   />
                 </svg>
-                <p className="text-sm text-on-surface-variant/50">
+                <p className="text-sm text-on-surface-variant">
                   {selectedCategory !== null ? '该分类下暂无文章' : '文章即将发布'}
                 </p>
               </div>

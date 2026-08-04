@@ -48,7 +48,7 @@ export default function NewsletterSection() {
     <section className="bg-primary-container py-24 px-4 sm:px-6 lg:px-10 text-center">
       <div className="max-w-3xl mx-auto">
         {/* Badge */}
-        <div className="inline-block px-4 py-1 bg-white/10 text-on-primary-container text-xs font-semibold uppercase tracking-widest rounded-full mb-6">
+        <div className="inline-block px-4 py-1 bg-white/10 text-white text-xs font-semibold uppercase tracking-widest rounded-full mb-6">
           定期更新
         </div>
 
@@ -58,7 +58,7 @@ export default function NewsletterSection() {
         </h2>
 
         {/* Description */}
-        <p className="text-on-primary-container/80 mb-10 max-w-xl mx-auto leading-relaxed">
+        <p className="text-on-primary-container mb-10 max-w-xl mx-auto leading-relaxed">
           每两周一次，获取经过深度筛选的技术好文与架构心得。无广告，无垃圾邮件。
         </p>
 
@@ -66,7 +66,7 @@ export default function NewsletterSection() {
         {submitted ? (
           <div className="max-w-xl mx-auto rounded-xl border border-white/20 bg-white/5 px-8 py-6">
             <p className="text-on-primary font-medium text-lg mb-2">感谢订阅！</p>
-            <p className="text-on-primary-container/60 text-sm">
+            <p className="text-on-primary-container text-sm">
               我们已收到您的邮箱，后续更新将第一时间送达。
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function NewsletterSection() {
         )}
 
         {/* Privacy note */}
-        <p className="mt-6 text-on-primary-container/40 text-[10px] font-semibold tracking-wider uppercase">
+        <p className="mt-6 text-on-primary-container text-[10px] font-semibold tracking-wider uppercase">
           点击订阅即表示您同意我们的《隐私政策》
         </p>
       </div>
