@@ -100,7 +100,7 @@ core_checks:          # 一票否决项：任一失败 → 整次验收不通过
   - Q-fe-01           # tsc --noEmit 零错误
 
 features:             # 功能登记：验收模式按此过滤，防静默漏测
-  - id: wechat-share
+  - id: wechat-share  # 执行用例数 < min_tests 即判失败（不只是 0）
     desc: 微信分享
     min_tests: 3
 
@@ -119,7 +119,8 @@ test('[A-blog-01] 博客列表页 axe 扫描无 critical/serious 违规 @a11y', 
 ```
 
 - ID 前缀归属维度：`F`=功能、`D`=设计、`A`=可访问性、`Q`=代码质量、`P`=性能
-- score.mjs 解析用例 ID 前缀归入维度；`@core` 标签与 yaml `core_checks` 双重确认否决项
+- score.mjs 解析用例 ID 前缀归入维度
+- 否决项判定**以 yaml `core_checks` 为准**；标题里的 `@core` 标签只是辅助可读性标记，score.mjs 不依赖它（避免标签与配置漂移）
 - 功能验收用例额外打 `@feature:<id>` 标签（id 须在 yaml features 中登记）
 
 ### 6.3 适配器输出 JSON 契约
@@ -166,7 +167,7 @@ score.mjs 对格式做校验，不合法即终止（见第 9 节）。
 
 把 `design/intellectual_professional/DESIGN.md` 规范翻译成 DOM 断言：
 
-- **design-system.spec.ts**：导航栏高 80px、页面最大宽 1200px、文章列 720px、卡片边框 `1px solid #E2E8F0`、主按钮背景 `#002045`、字体栈含 Inter 与 Source Serif 4、抽样区块间距为 8 的倍数
+- **design-system.spec.ts**：导航栏高 80px、页面最大宽 1200px、文章列 720px、卡片边框 `1px solid #E2E8F0`、主按钮背景 `#002045`、字体栈含 Inter 与 Source Serif 4；间距抽样对象为各页主容器（Hero、卡片网格、CTA 区块）的 margin/padding，断言为 8 的倍数
 - **responsive.spec.ts**：375px 视口下逐页断言 `scrollWidth <= innerWidth`（无横向溢出）、导航折叠为移动端形态、卡片单列堆叠。Playwright 的 viewport 设置可信，无需手写 CDP 锁视口
 - **截图基线**：每个公共页桌面（1280px）+ 移动（375px）各一张 `toHaveScreenshot()` 基线，`maxDiffPixelRatio: 0.01`；基线图 gitignore，首次运行生成，视觉改动后须显式 `--update-snapshots` 确认
 - 已知合理偏差（sticky NavBar / pt-12）写进 yaml 注释，断言以实现约定为准
@@ -180,7 +181,7 @@ score.mjs 对格式做校验，不合法即终止（见第 9 节）。
 | 调试残留 | Q-fe-03 | 源码 `console.log` 扫描，仅允许 allowlist 文件 |
 | 后端编译 | Q-be-01 | `mvn -q clean compile` 退出码 0 |
 
-ESLint 存量豁免机制：首次生成 `.eslintignore` 或基线文件冻结存量问题清单，仅对清单外文件/新增告警判失败。
+ESLint 存量豁免机制：首次运行生成基线文件 `scorecard/eslint-baseline.json`（冻结当前各文件的告警数），此后 `eslint --format json` 结果与基线比对，仅当出现基线外的新增告警时判失败；修复存量问题后用 `--update-eslint-baseline` 刷新基线。
 
 ### 7.4 可访问性 + 性能（权重 15%，内部各 50%）
 
@@ -200,7 +201,7 @@ npm run check:feature -- --feature=wechat-share
 npm run check:all
 ```
 
-- **功能登记防漏测**：yaml features 中登记的功能若实际执行用例数为 0，判定失败并报「未登记用例」，不静默通过
+- **功能登记防漏测**：yaml features 中登记的功能若实际执行用例数 < min_tests，判定失败并报「用例不足」，不静默通过
 - **环境体检**：run.mjs 开跑前 curl 探测 Nginx 80 与后端 API 健康；栈未启动则直接退出并提示 `docker compose up -d`，不产生报告
 - **`--rebuild` 标志**：自动 `docker compose build frontend backend && docker compose up -d` 后再跑，保证验的是最新构建而非旧容器（历史教训：3000 端口常挂着旧 docker 前端）
 
@@ -216,7 +217,7 @@ a11y_perf 分 = 0.5 × a11y分 + 0.5 × perf分
 通过判定 = 同时满足：
   ① total ≥ 80（pass_threshold）
   ② core_checks 全部通过（一票否决）
-  ③ 每个 yaml 登记的功能至少有用例被执行
+  ③ 每个 yaml 登记的功能，实际执行用例数 ≥ min_tests
 ```
 
 单功能验收模式下总分只按该功能涉及的用例计算，但否决项与代码质量维度永远全量执行——功能再小也不能把编译弄挂。
