@@ -141,6 +141,7 @@ function playwrightToChecks(json) {
   const checks = [];
   const featureCounts = {};
   for (const { title, status } of specs) {
+    if (status === 'skipped') continue; // 数据守卫跳过 = 未执行，不计入分母
     const m = title.match(/\[([A-Z][\w-]*)\]/);
     if (!m) {
       console.warn(`⚠️ 跳过无评分卡 ID 的用例：${title}`);
