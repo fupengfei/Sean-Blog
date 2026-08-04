@@ -62,6 +62,7 @@ export default function AnnouncementBanner() {
       className={[
         'relative overflow-hidden border-b border-on-primary/10 bg-gradient-to-r from-primary to-primary-container',
         'transition-all ease-out',
+        'motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:translate-y-0',
         closing ? 'duration-200' : 'duration-300',
         entered && !closing ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0',
       ].join(' ')}
@@ -74,7 +75,7 @@ export default function AnnouncementBanner() {
 
       {/* 流光：低透明度白色光带缓慢扫过（减弱动态效果时关闭） */}
       <span aria-hidden className="pointer-events-none absolute inset-0">
-        <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-white/[0.06] to-transparent motion-reduce:animate-none" />
+        <span className="absolute inset-y-0 left-0 w-1/3 animate-banner-sheen bg-gradient-to-r from-transparent via-white/[0.06] to-transparent motion-reduce:animate-none motion-reduce:opacity-0" />
       </span>
 
       {/* 横幅内容容器：仅展示，不可点击；交互收敛到「立即体验」按钮 */}
@@ -103,7 +104,7 @@ export default function AnnouncementBanner() {
 
           <span
             aria-hidden
-            className="animate-banner-pulse rounded bg-secondary px-2 py-0.5 text-xs font-semibold leading-4 text-on-secondary motion-reduce:animate-none"
+            className="rounded bg-secondary px-2 py-0.5 text-xs font-semibold leading-4 text-on-secondary"
           >
             NEW
           </span>
