@@ -105,6 +105,11 @@ async function sweepTestData() {
 }
 
 function runPlaywright(grep) {
+  const pwConfig = path.join(ROOT, 'playwright', 'playwright.config.ts');
+  if (!existsSync(pwConfig)) {
+    console.warn('⚠️ Playwright 套件尚未建立，跳过（playwright/playwright.config.ts 不存在）');
+    return null;
+  }
   const args = ['playwright', 'test', '--reporter=json'];
   if (grep) args.push('--grep', grep);
   const r = spawnSync('npx', args, { cwd: path.join(ROOT, 'playwright'), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
@@ -184,7 +189,7 @@ await sweepTestData();
 // Playwright：feature 模式只跑目标功能用例 + 核心项；巡检跑全量
 const grep = isFeature ? `@feature:${args.feature}|@core` : undefined;
 console.log(`🎭 运行 Playwright 套件${grep ? `（grep: ${grep}）` : '（全量）'}…`);
-const pwJson = runPlaywright(grep);
+const pwJson = runPlaywright(grep) ?? { suites: [] };
 const { checks: pwChecks, featureCounts } = playwrightToChecks(pwJson);
 
 // 代码质量：永远全量执行（功能再小也不能把编译弄挂）
