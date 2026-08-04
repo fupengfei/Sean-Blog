@@ -11,6 +11,10 @@ const PAGES: Array<[string, string]> = [
 PAGES.forEach(([path, label], i) => {
   test(`[A-page-0${i + 1}] ${label} axe 扫描无 critical/serious 违规 @a11y`, async ({ page }) => {
     await page.goto(path);
+    // 等待卡片入场动画完成（IntersectionObserver + staggered delay + CSS transition）
+    // 否则 axe 会在 opacity 过渡期间扫描，导致对比度误判
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
     const results = await new AxeBuilder({ page }).analyze();
     const bad = results.violations.filter(
       (v) => v.impact === 'critical' || v.impact === 'serious',

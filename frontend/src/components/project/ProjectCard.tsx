@@ -85,7 +85,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </p>
 
         {/* Author */}
-        <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant/50 mb-3">
+        <div className="inline-flex items-center gap-1 text-xs text-on-surface-variant mb-3">
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
