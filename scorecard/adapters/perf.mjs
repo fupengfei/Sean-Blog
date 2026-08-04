@@ -51,12 +51,12 @@ for (const p of pages) {
     const lh = Math.round((runner.lhr.categories.performance.score ?? 0) * 100);
     checks.push({
       id: p.id, name: p.name, passed: lh >= 90,
-      score: Math.min(100, (lh / 90) * 100),
+      score: Math.round(Math.min(100, (lh / 90) * 100) * 10) / 10,
       detail: `Lighthouse performance ${lh}`,
     });
   } catch (e) {
     checks.push({ id: p.id, name: p.name, passed: false, score: 0, detail: `Lighthouse 运行失败：${e.message}` });
   }
 }
-await chrome.kill();
+try { await chrome.kill(); } catch {}
 console.log(JSON.stringify({ dimension: 'perf', checks }, null, 2));
