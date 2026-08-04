@@ -31,6 +31,10 @@ cd frontend && npm run build     # 生产构建
 # Docker 部署
 docker compose build              # 构建所有镜像
 docker compose up -d              # 启动全部服务
+
+# 验收评分卡（详见 docs/superpowers/specs/2026-08-04-acceptance-scorecard-design.md）
+cd scorecard && npm run check:all                       # 全站巡检
+cd scorecard && npm run check:feature -- --feature=<id> # 单功能验收（改过代码加 --rebuild）
 ```
 
 ## 架构
