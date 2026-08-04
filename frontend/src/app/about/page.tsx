@@ -1,6 +1,5 @@
 import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
-import CTASection from '@/components/home/CTASection';
 import {
   SiSpringboot,
   SiSpring,
@@ -237,7 +236,6 @@ function WorldFootprintsSection() {
  * - ProfileSection：头像 + 个人简介
  * - SkillsSection：技术栈网格（10 项技术 / 工具）
  * - WorldFootprintsSection：亚洲 + 欧洲旅行足迹卡片
- * - CTASection：行动号召
  */
 export default function AboutPage() {
   return (
@@ -259,7 +257,6 @@ export default function AboutPage() {
         <ProfileSection />
         <SkillsSection />
         <WorldFootprintsSection />
-        <CTASection />
       </main>
       <Footer />
     </>

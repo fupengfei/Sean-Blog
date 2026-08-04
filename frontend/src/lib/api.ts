@@ -217,22 +217,6 @@ export async function postBusinessContact(
   });
 }
 
-/** 关于我 - 发送邮件 */
-export async function postMailContact(email: string, content: string): Promise<void> {
-  await request<void>(publicUrl('/contact/mail'), {
-    method: 'POST',
-    body: JSON.stringify({ email, content }),
-  });
-}
-
-/** 获取简历 */
-export async function postResumeContact(companyName: string, email: string): Promise<void> {
-  await request<void>(publicUrl('/contact/resume'), {
-    method: 'POST',
-    body: JSON.stringify({ companyName, email }),
-  });
-}
-
 /** 订阅 */
 export async function postSubscribeContact(email: string): Promise<void> {
   await request<void>(publicUrl('/contact/subscribe'), {
