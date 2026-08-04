@@ -1,0 +1,17 @@
+{
+  "name": "sean-blog-scorecard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:all": "node scripts/run.mjs --mode=patrol",
+    "check:feature": "node scripts/run.mjs --mode=feature",
+    "test": "node --test 'scripts/*.test.mjs'"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.9.0",
+    "@playwright/test": "^1.45.0",
+    "chrome-launcher": "^1.1.0",
+    "lighthouse": "^12.2.0",
+    "yaml": "^2.4.0"
+  }
+}

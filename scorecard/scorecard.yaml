@@ -1,0 +1,36 @@
+version: 1
+pass_threshold: 80
+
+dimensions:
+  functional:
+    weight: 0.40
+    runner: playwright
+    tag: "@functional"
+  design:
+    weight: 0.25
+    runner: playwright
+    tag: "@design"
+  code_quality:
+    weight: 0.20
+    runner: adapters/code-quality.mjs
+  a11y_perf:
+    weight: 0.15
+    sub_weights:
+      a11y: 0.5
+      perf: 0.5
+
+# 一票否决项：任一失败 → 整次验收不通过，与总分无关。判定以此列表为准。
+core_checks:
+  - F-home-01     # 首页可打开且核心区块渲染
+  - F-blog-01     # 文章列表加载出数据
+  - F-detail-01   # 文章详情 MD 渲染成功
+  - F-admin-01    # Admin 登录成功
+  - Q-fe-01       # tsc --noEmit 零错误
+
+# 功能登记：新功能在这里登记 id/desc/min_tests，用例打 @feature:<id> 标签。
+# 巡检模式下每个登记功能执行用例数 < min_tests 判失败（防静默漏测）。
+features: []
+
+# 已知合理偏差（断言以实现约定为准，不照抄设计稿）：
+# - NavBar 为 sticky（h-20 占文档流 80px），设计稿为 fixed
+# - 页面顶部留白 pt-12（48px），设计稿 pt-32 是给 fixed 导航的补偿，不适用
