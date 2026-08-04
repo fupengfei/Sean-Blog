@@ -29,7 +29,7 @@
 | 评分维度 | 功能 40% / 设计还原+响应式 25% / 代码质量 20% / 可访问性+性能 15% |
 | 计分规则 | 加权总分 ≥ 80 且核心项无一失败（一票否决）才算通过 |
 | 触发方式 | npm scripts + 项目 Skill（AI 做完功能后自主调用） |
-| 验收环境 | docker compose 全栈（Nginx + Next.js + Spring Boot + MySQL），与生产同构 |
+| 验收环境 | docker compose 全栈（frontend:3000 + backend:8880 + MySQL + Redis；本地 compose 无 Nginx），与生产同构 |
 | 报告 | Markdown 报告 + `scores/history.csv`，均提交进 git |
 | 数据写入 | 只读优先；对有删除功能的实体（文章、项目）允许写入测试，须遵守第 6.4 节安全规则 |
 
@@ -62,7 +62,7 @@ scorecard/
 ├── package.json                # devDeps: playwright / @axe-core/playwright / lighthouse
 ├── scorecard.yaml              # 评分卡定义（唯一事实源）
 ├── playwright/
-│   ├── playwright.config.ts    # baseURL=http://localhost（Nginx 80 端口）
+│   ├── playwright.config.ts    # baseURL=http://localhost:3000（frontend 容器）
 │   ├── functional/*.spec.ts    # 按页面分文件：home / blog / blog-detail / skills / projects / admin
 │   ├── design/*.spec.ts        # design-system.spec.ts + responsive.spec.ts
 │   ├── a11y/a11y.spec.ts
@@ -202,7 +202,7 @@ npm run check:all
 ```
 
 - **功能登记防漏测**：yaml features 中登记的功能若实际执行用例数 < min_tests，判定失败并报「用例不足」，不静默通过
-- **环境体检**：run.mjs 开跑前 curl 探测 Nginx 80 与后端 API 健康；栈未启动则直接退出并提示 `docker compose up -d`，不产生报告
+- **环境体检**：run.mjs 开跑前探测 frontend 3000（GET /）与 backend 8880（GET /api/v1/categories）健康；栈未启动则直接退出并提示 `docker compose up -d`，不产生报告
 - **`--rebuild` 标志**：自动 `docker compose build frontend backend && docker compose up -d` 后再跑，保证验的是最新构建而非旧容器（历史教训：3000 端口常挂着旧 docker 前端）
 
 ## 9. 计分算法与报告
