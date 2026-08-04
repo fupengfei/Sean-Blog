@@ -156,9 +156,9 @@ score.mjs 对格式做校验，不合法即终止（见第 9 节）。
 
 | 页面 | 关键用例 |
 |------|---------|
-| 首页 `/` | Hero 渲染、精选项目/文章卡片加载出数据、CTA 邮件按钮与简历表单弹窗可用 |
+| 首页 `/` | Hero 渲染、精选项目/文章卡片加载出数据、ContactSection 联系表单（姓名/邮箱/留言）可用 |
 | 博客列表 `/blog` | 列表加载出数据、分类筛选、标签筛选、分页切换（有分页器时） |
-| 文章详情 `/blog/[slug]` | MD 渲染（标题/代码块/数学公式元素存在）、阅读量显示、NavBar+Footer 齐全 |
+| 文章详情 `/blog/[id]` | MD 渲染（标题/代码块/数学公式元素存在）、阅读量显示、Footer 齐全；**详情页故意不含 NavBar**（2026-08-04 产品决策：沉浸式阅读，不做站点导航） |
 | Skill 浏览 `/blog/skills/[id]` | 文件树展开/收起、点击文件显示内容 |
 | 项目 `/projects` | 卡片渲染、外链 href 正确、不足一页时居中且无分页器 |
 | Admin `/admin` | 登录成功/失败提示、登录后各 Tab 可打开；文章/项目的创建-删除闭环（按 6.4 规则） |
@@ -167,7 +167,7 @@ score.mjs 对格式做校验，不合法即终止（见第 9 节）。
 
 把 `design/intellectual_professional/DESIGN.md` 规范翻译成 DOM 断言：
 
-- **design-system.spec.ts**：导航栏高 80px、页面最大宽 1200px、文章列 720px、卡片边框 `1px solid #E2E8F0`、主按钮背景 `#002045`、字体栈含 Inter 与 Source Serif 4；间距抽样对象为各页主容器（Hero、卡片网格、CTA 区块）的 margin/padding，断言为 8 的倍数
+- **design-system.spec.ts**：导航栏高 80px、页面最大宽 1200px、文章列 720px、卡片边框 `1px solid #E2E8F0`、主按钮背景 `#002045`、字体栈含 Inter 与 Source Serif 4；间距抽样对象为各页主容器（Hero、卡片网格、联系表单区块）的 margin/padding，断言为 8 的倍数
 - **responsive.spec.ts**：375px 视口下逐页断言 `scrollWidth <= innerWidth`（无横向溢出）、导航折叠为移动端形态、卡片单列堆叠。Playwright 的 viewport 设置可信，无需手写 CDP 锁视口
 - **截图基线**：每个公共页桌面（1280px）+ 移动（375px）各一张 `toHaveScreenshot()` 基线，`maxDiffPixelRatio: 0.01`；基线图 gitignore，首次运行生成，视觉改动后须显式 `--update-snapshots` 确认
 - 已知合理偏差（sticky NavBar / pt-12）写进 yaml 注释，断言以实现约定为准

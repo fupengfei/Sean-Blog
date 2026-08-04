@@ -841,13 +841,12 @@ test('[F-home-02] 精选文章卡片与后端数据一致 @functional', async ({
   await expect(page.getByText(featured[0].title)).toBeVisible();
 });
 
-test('[F-home-03] CTA：简历表单弹窗可打开（公司名+邮箱输入项） @functional', async ({ page }) => {
+test('[F-home-03] 首页 ContactSection 联系表单可用 @functional', async ({ page }) => {
+  // 产品演进：ContactSection 取代原 CTASection（简历弹窗已废弃），
+  // 选择器以 frontend/src/components/home/ContactSection.tsx 实际 DOM 为准
   await page.goto('/');
-  await page.getByRole('button', { name: /简历/ }).click();
-  // 弹窗含「公司名称」「邮箱」输入项（feature-list 1.3.2）
-  await expect(page.getByPlaceholder(/公司/)).toBeVisible();
-  await expect(page.getByPlaceholder(/邮箱/)).toBeVisible();
-  await page.keyboard.press('Escape');
+  await expect(page.getByPlaceholder(/姓名|Name/i).first()).toBeVisible();
+  await expect(page.getByPlaceholder(/邮箱|Email/i).first()).toBeVisible();
 });
 ```
 
@@ -921,14 +920,14 @@ test('[F-detail-01] 文章详情 MD 渲染成功 @functional @core', async ({ pa
   await expect(page.locator('.prose, article').first()).toBeVisible();
 });
 
-test('[F-detail-02] 详情页 NavBar 与 Footer 齐全 @functional', async ({ page }) => {
-  // 历史踩坑：详情页曾漏掉 NavBar+Footer，此用例防回归
+test('[F-detail-02] 详情页 Footer 齐全且故意无 NavBar @functional', async ({ page }) => {
+  // 产品决策（2026-08-04）：文章详情页不含 NavBar，沉浸式阅读；此用例固化该决策
   const res = await api<PageResult<Article>>('/api/v1/articles?page=1&size=1');
   test.skip(res.total === 0, '无文章数据');
   const a = res.list[0];
-  await page.goto(`/blog/${a.slug ?? a.id}`);
-  await expect(page.locator('header.sticky')).toBeVisible();
+  await page.goto(`/blog/${a.id}`);
   await expect(page.locator('footer')).toBeVisible();
+  await expect(page.locator('header.sticky')).toHaveCount(0);
 });
 ```
 
