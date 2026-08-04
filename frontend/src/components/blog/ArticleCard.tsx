@@ -81,6 +81,7 @@ export default function ArticleCard({ article, variant = 'default', index = 0 }:
       className={`
         group block rounded-lg border border-outline-variant overflow-hidden
         transition-all duration-500 ease-out
+        motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:translate-y-0
         hover:-translate-y-1 hover:border-primary/20
         hover:shadow-[0_8px_30px_rgba(0,32,69,0.08)]
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
