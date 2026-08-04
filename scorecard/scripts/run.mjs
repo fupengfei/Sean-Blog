@@ -91,15 +91,17 @@ async function sweepTestData() {
     { headers },
   )).json();
   for (const a of arts.data?.list ?? []) {
-    await fetch(`${BACKEND_URL}/api/v1/admin/articles/${a.id}`, { method: 'DELETE', headers });
-    console.log(`🧹 清扫残留文章：${a.title}`);
+    const del = await fetch(`${BACKEND_URL}/api/v1/admin/articles/${a.id}`, { method: 'DELETE', headers });
+    if (!del.ok) console.warn(`⚠️ 清扫文章 ${a.id} 失败：HTTP ${del.status}`);
+    else console.log(`🧹 清扫残留文章：${a.title}`);
   }
   // 项目：无搜索参数，拉全量后按前缀过滤
   const projs = await (await fetch(`${BACKEND_URL}/api/v1/admin/projects`, { headers })).json();
   for (const p of projs.data ?? []) {
     if (String(p.title ?? '').startsWith(TEST_PREFIX)) {
-      await fetch(`${BACKEND_URL}/api/v1/admin/projects/${p.id}`, { method: 'DELETE', headers });
-      console.log(`🧹 清扫残留项目：${p.title}`);
+      const del = await fetch(`${BACKEND_URL}/api/v1/admin/projects/${p.id}`, { method: 'DELETE', headers });
+      if (!del.ok) console.warn(`⚠️ 清扫项目 ${p.id} 失败：HTTP ${del.status}`);
+      else console.log(`🧹 清扫残留项目：${p.title}`);
     }
   }
 }
