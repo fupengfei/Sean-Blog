@@ -221,8 +221,15 @@ const activeDimensions = isFeature
 const { scores, total, warnings } = computeScores(config, resultsByDimension, activeDimensions);
 const allChecks = [...pwChecks, ...cqChecks, ...perfChecks];
 const veto = evaluateVeto(config, allChecks);
+// 功能覆盖计数：执行数 + 数据守卫跳过数（skip 不是漏测，仍计入 min_tests 防漏测检查）
+const coverageCounts = { ...featureCounts };
+for (const s of skipped) {
+  for (const fid of s.features) {
+    coverageCounts[fid] = (coverageCounts[fid] ?? 0) + 1;
+  }
+}
 // feature 模式只校验目标功能的用例数，避免其他功能误报
-const counts = isFeature ? { [args.feature]: featureCounts[args.feature] ?? 0 } : featureCounts;
+const counts = isFeature ? { [args.feature]: coverageCounts[args.feature] ?? 0 } : coverageCounts;
 const featureFailures = evaluateFeatureCoverage(config, counts);
 const verdict = buildVerdict(config, total, veto, featureFailures);
 

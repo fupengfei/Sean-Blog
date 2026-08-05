@@ -153,7 +153,7 @@ test('featureBreakdown：有覆盖的功能计算得分', () => {
       { id: 'F-home-02', name: '[F-home-02] 精选文章 @feature:1.2', passed: true },
     ]],
   ]);
-  const rows = featureBreakdown(config, checksByFeature);
+  const rows = featureBreakdown(config, checksByFeature, []);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].id, '1.2');
   assert.equal(rows[0].total, 1);
@@ -164,7 +164,7 @@ test('featureBreakdown：有覆盖的功能计算得分', () => {
 test('featureBreakdown：无覆盖的功能 score 为 null', () => {
   const config = { features: [{ id: '1.1', desc: '精选项目展示', min_tests: 0 }] };
   const checksByFeature = new Map();
-  const rows = featureBreakdown(config, checksByFeature);
+  const rows = featureBreakdown(config, checksByFeature, []);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].total, 0);
   assert.equal(rows[0].passed, 0);
@@ -183,13 +183,31 @@ test('featureBreakdown：多标签用例计入每个功能', () => {
     ['5.1.2', [check]],
     ['5.1.3', [check]],
   ]);
-  const rows = featureBreakdown(config, checksByFeature);
+  const rows = featureBreakdown(config, checksByFeature, []);
   assert.equal(rows.length, 3);
   for (const r of rows) {
     assert.equal(r.total, 1);
     assert.equal(r.passed, 1);
     assert.equal(r.score, 100.0);
   }
+});
+
+test('featureBreakdown：数据守卫 skip 计入 total 但不影响 score', () => {
+  const config = { features: [{ id: '2.1', desc: '文章列表页', min_tests: 4 }] };
+  const checksByFeature = new Map([
+    ['2.1', [
+      { id: 'F-blog-01', name: '[F-blog-01] 列表加载 @feature:2.1', passed: true },
+      { id: 'F-blog-02', name: '[F-blog-02] 分类筛选 @feature:2.1', passed: true },
+      { id: 'F-blog-03', name: '[F-blog-03] 视图切换 @feature:2.1', passed: true },
+    ]],
+  ]);
+  const skipped = [
+    { id: 'F-blog-04', name: '[F-blog-04] 分页切换 @feature:2.1', features: ['2.1'] },
+  ];
+  const rows = featureBreakdown(config, checksByFeature, skipped);
+  assert.equal(rows[0].total, 4);  // 3 executed + 1 skipped
+  assert.equal(rows[0].passed, 3);
+  assert.equal(rows[0].score, 100.0);  // 3/3 = 100, not 3/4
 });
 
 test('buildReport：包含功能明细的按功能汇总和逐用例', () => {

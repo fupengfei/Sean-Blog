@@ -94,14 +94,19 @@ export function evaluateFeatureCoverage(config, featureCounts) {
   return failures;
 }
 
-/** 功能明细：每个登记功能的用例数/通过数/得分；无用例 → score null（无覆盖）。 */
-export function featureBreakdown(config, checksByFeature) {
+/** 功能明细：每个登记功能的用例数/通过数/得分；无用例 → score null（无覆盖）。
+ *  total 包含数据守卫跳过的用例（skip 不是漏测，仍计入覆盖计数）。
+ *  score 仅按已执行用例计算（passed / executed * 100），跳过用例不影响得分。
+ */
+export function featureBreakdown(config, checksByFeature, skipped) {
   const rows = [];
   for (const f of config.features ?? []) {
     const checks = checksByFeature.get(f.id) ?? [];
-    const total = checks.length;
+    const executed = checks.length;
+    const skippedCount = (skipped ?? []).filter((s) => s.features.includes(f.id)).length;
+    const total = executed + skippedCount;
     const passed = checks.filter((c) => c.passed).length;
-    const score = total > 0 ? Math.round((passed * 1000) / total) / 10 : null;
+    const score = executed > 0 ? Math.round((passed * 1000) / executed) / 10 : null;
     rows.push({ id: f.id, desc: f.desc, min_tests: f.min_tests, total, passed, score });
   }
   return rows;
@@ -146,7 +151,7 @@ export function buildReport({ config, mode, timestamp, scores, total, veto, feat
   }
   // 功能明细：按功能汇总 + 逐用例
   if (checksByFeature) {
-    const breakdown = featureBreakdown(config, checksByFeature);
+    const breakdown = featureBreakdown(config, checksByFeature, skipped);
     const covered = breakdown.filter((r) => r.total > 0);
     const uncovered = breakdown.filter((r) => r.total === 0);
     lines.push('');
