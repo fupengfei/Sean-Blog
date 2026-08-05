@@ -115,8 +115,41 @@
 - ⚠️ 当前数据库仅 5 篇文章，F-blog-04 跳过导致 feature 2.1 用例不足（3/4）
 - 生产环境文章数 ≥11 时该问题消失
 
-## Commit
+## Commit 1
 
 ```
 f18521e feat(scorecard): 报告增加功能明细 — 按功能清单汇总 + 逐用例状态
+```
+
+---
+
+## 修复：数据守卫 skip 计入功能覆盖计数
+
+### 问题
+`min_tests` 的目的是**防漏测**（防止忘记给功能写/登记用例），数据守卫导致的 skip 不是漏测。原实现中 F-blog-04 因文章不足一页被 skip，导致 feature 2.1 仅计 3 个用例但 min_tests=4，巡检永久判"用例不足"exit 1。
+
+### 修复方案
+- `run.mjs`：合并 skipped 用例到 coverageCounts（执行数 + skip 数），传给 `evaluateFeatureCoverage`
+- `score.mjs`：`featureBreakdown` 接受 `skipped` 参数，total 包含 skip 但 score 仅按 executed 计算（passed / executed * 100）
+- 新增单测验证 skip 语义：total=4（含 skip），passed=3，score=100.0
+
+### 验证结果
+
+**单元测试**: 19/19 通过（新增 1 项 skip 计数测试）
+
+**巡检**: 100.0/100 ✅ 通过，exit 0
+
+**2.1 汇总行**:
+```
+| 2.1 | 文章列表页（筛选/排序/分页/视图切换） | 4 | 3 | 100.0 | ✅ |
+```
+- 用例 = 4（3 执行 + 1 skip）
+- 通过 = 3（仅执行用例）
+- 得分 = 100.0（3/3，skip 不影响得分）
+- F-blog-04 在逐用例表仍显示 `⏭ 跳过`
+
+## Commit 2
+
+```
+773ee8f fix(scorecard): 数据守卫 skip 计入功能覆盖计数（防漏测 ≠ 防 skip）
 ```
