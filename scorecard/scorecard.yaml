@@ -29,7 +29,40 @@ core_checks:
 
 # 功能登记：新功能在这里登记 id/desc/min_tests，用例打 @feature:<id> 标签。
 # 巡检模式下每个登记功能执行用例数 < min_tests 判失败（防静默漏测）。
-features: []
+features:
+  - { id: "1.1", desc: 精选项目展示, min_tests: 0 }
+  - { id: "1.2", desc: 精选文章展示, min_tests: 1 }
+  - { id: "1.3", desc: 联系区（ContactSection，已取代旧 CTA）, min_tests: 1 }
+  - { id: "1.3.1", desc: 发送邮件（已废弃：CTA 移除）, min_tests: 0 }
+  - { id: "1.3.2", desc: 获取简历（已废弃：CTA 移除）, min_tests: 0 }
+  - { id: "2.1", desc: 文章列表页（筛选/排序/分页/视图切换）, min_tests: 4 }
+  - { id: "2.2", desc: 文章详情页, min_tests: 2 }
+  - { id: "2.3", desc: Skill 目录浏览, min_tests: 2 }
+  - { id: "3.1", desc: 项目列表页, min_tests: 1 }
+  - { id: "3.2", desc: 项目外链跳转, min_tests: 1 }
+  - { id: "4.1", desc: 个人介绍, min_tests: 0 }
+  - { id: "4.2", desc: 联系方式展示, min_tests: 0 }
+  - { id: "5.1.1", desc: Admin 文章列表, min_tests: 1 }
+  - { id: "5.1.2", desc: Admin 新建文章, min_tests: 1 }
+  - { id: "5.1.3", desc: Admin 删除文章, min_tests: 1 }
+  - { id: "5.1.4", desc: 文章精选标记, min_tests: 0 }
+  - { id: "5.1.5", desc: 分类管理, min_tests: 0 }
+  - { id: "5.1.6", desc: 标签管理, min_tests: 0 }
+  - { id: "5.2.1", desc: Admin 项目列表, min_tests: 0 }
+  - { id: "5.2.2", desc: Admin 新建项目, min_tests: 0 }
+  - { id: "5.2.3", desc: Admin 删除项目, min_tests: 0 }
+  - { id: "5.2.4", desc: 项目精选标记, min_tests: 0 }
+  - { id: "5.2.5", desc: 项目排序, min_tests: 0 }
+  - { id: "5.3.1", desc: Bundle 列表, min_tests: 0 }
+  - { id: "5.3.2", desc: Bundle 上传, min_tests: 0 }
+  - { id: "5.3.3", desc: Bundle 删除, min_tests: 0 }
+  - { id: "5.3.4", desc: Bundle 发布/取消发布, min_tests: 0 }
+  - { id: "5.3.5", desc: 目录树预览, min_tests: 0 }
+  - { id: "5.4.1", desc: 邮件请求记录, min_tests: 0 }
+  - { id: "5.4.2", desc: 简历请求记录, min_tests: 0 }
+  - { id: "5.5.1", desc: Admin 登录, min_tests: 2 }
+  - { id: "5.5.2", desc: Token 过期处理, min_tests: 0 }
+  - { id: "5.5.3", desc: 修改密码, min_tests: 0 }
 
 # 已知合理偏差（断言以实现约定为准，不照抄设计稿）：
 # - NavBar 为 sticky（h-20 占文档流 80px），设计稿为 fixed

@@ -94,6 +94,19 @@ export function evaluateFeatureCoverage(config, featureCounts) {
   return failures;
 }
 
+/** 功能明细：每个登记功能的用例数/通过数/得分；无用例 → score null（无覆盖）。 */
+export function featureBreakdown(config, checksByFeature) {
+  const rows = [];
+  for (const f of config.features ?? []) {
+    const checks = checksByFeature.get(f.id) ?? [];
+    const total = checks.length;
+    const passed = checks.filter((c) => c.passed).length;
+    const score = total > 0 ? Math.round((passed * 1000) / total) / 10 : null;
+    rows.push({ id: f.id, desc: f.desc, min_tests: f.min_tests, total, passed, score });
+  }
+  return rows;
+}
+
 export function buildVerdict(config, total, veto, featureFailures) {
   const passed = total >= config.pass_threshold && !veto.vetoed && featureFailures.length === 0;
   return { passed, total, veto, featureFailures };
@@ -106,7 +119,7 @@ const DIM_LABELS = {
   a11y_perf: '可访问性+性能',
 };
 
-export function buildReport({ config, mode, timestamp, scores, total, veto, featureFailures, allChecks, warnings }) {
+export function buildReport({ config, mode, timestamp, scores, total, veto, featureFailures, allChecks, warnings, checksByFeature, skipped }) {
   const passed = total >= config.pass_threshold && !veto.vetoed && featureFailures.length === 0;
   const lines = [];
   lines.push(`# 验收报告 — ${mode} | ${timestamp}`);
@@ -129,6 +142,39 @@ export function buildReport({ config, mode, timestamp, scores, total, veto, feat
       lines.push(`| ${DIM_LABELS[name] ?? name} | —（未激活） | ${dim.weight} | — |`);
     } else {
       lines.push(`| ${DIM_LABELS[name] ?? name} | ${s.toFixed(1)} | ${dim.weight} | ${(s * dim.weight).toFixed(1)} |`);
+    }
+  }
+  // 功能明细：按功能汇总 + 逐用例
+  if (checksByFeature) {
+    const breakdown = featureBreakdown(config, checksByFeature);
+    const covered = breakdown.filter((r) => r.total > 0);
+    const uncovered = breakdown.filter((r) => r.total === 0);
+    lines.push('');
+    lines.push('## 功能明细');
+    lines.push('');
+    lines.push('### 按功能汇总');
+    lines.push('| 编号 | 功能项 | 用例 | 通过 | 得分 | 状态 |');
+    lines.push('|------|--------|------|------|------|------|');
+    for (const r of covered) {
+      lines.push(`| ${r.id} | ${r.desc} | ${r.total} | ${r.passed} | ${r.score.toFixed(1)} | ✅ |`);
+    }
+    for (const r of uncovered) {
+      lines.push(`| ${r.id} | ${r.desc} | 0 | — | — | ⚠️ 无覆盖 |`);
+    }
+    // 逐用例：已执行 + 跳过
+    lines.push('');
+    lines.push('### 逐用例');
+    lines.push('| 用例 | 功能项 | 状态 |');
+    lines.push('|------|--------|------|');
+    for (const c of allChecks) {
+      const featureIds = [...c.name.matchAll(/@feature:([\w.-]+)/g)].map((m) => m[1]);
+      const featureCol = featureIds.length > 0 ? featureIds.join(',') : '通用';
+      const statusCol = c.passed ? '✅' : '❌';
+      lines.push(`| ${c.name} | ${featureCol} | ${statusCol} |`);
+    }
+    for (const s of skipped ?? []) {
+      const featureCol = s.features.length > 0 ? s.features.join(',') : '通用';
+      lines.push(`| ${s.name} | ${featureCol} | ⏭ 跳过 |`);
     }
   }
   const failures = allChecks.filter((c) => !c.passed);

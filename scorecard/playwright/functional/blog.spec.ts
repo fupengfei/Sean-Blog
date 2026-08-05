@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { api } from '../support/api';
 import type { Article, Category, PageResult } from '../support/api';
 
-test('[F-blog-01] 文章列表加载出数据 @functional @core', async ({ page }) => {
+test('[F-blog-01] 文章列表加载出数据 @functional @core @feature:2.1', async ({ page }) => {
   const res = await api<PageResult<Article>>('/api/v1/articles?page=1&size=10');
   await page.goto('/blog');
   if (res.total > 0) {
@@ -12,7 +12,7 @@ test('[F-blog-01] 文章列表加载出数据 @functional @core', async ({ page 
   }
 });
 
-test('[F-blog-02] 分类筛选：点击分类后列表刷新不报错 @functional', async ({ page }) => {
+test('[F-blog-02] 分类筛选：点击分类后列表刷新不报错 @functional @feature:2.1', async ({ page }) => {
   const categories = await api<Category[]>('/api/v1/categories');
   test.skip(categories.length === 0, '无分类数据');
   await page.goto('/blog');
@@ -24,7 +24,7 @@ test('[F-blog-02] 分类筛选：点击分类后列表刷新不报错 @functiona
   await expect(hasContent.or(empty)).toBeVisible({ timeout: 10_000 });
 });
 
-test('[F-blog-03] 卡片视图/列表视图切换 @functional', async ({ page }) => {
+test('[F-blog-03] 卡片视图/列表视图切换 @functional @feature:2.1', async ({ page }) => {
   const res = await api<PageResult<Article>>('/api/v1/articles?page=1&size=10');
   test.skip(res.total === 0, '无文章数据');
   await page.goto('/blog');
@@ -33,7 +33,7 @@ test('[F-blog-03] 卡片视图/列表视图切换 @functional', async ({ page })
   await expect(page.locator('main')).toBeVisible();
 });
 
-test('[F-blog-04] 分页切换 @functional', async ({ page }) => {
+test('[F-blog-04] 分页切换 @functional @feature:2.1', async ({ page }) => {
   const res = await api<PageResult<Article>>('/api/v1/articles?page=1&size=10');
   // 不足一页不显示分页器（项目约定），此时跳过
   test.skip(res.total <= 10, '文章不足一页，无分页器');

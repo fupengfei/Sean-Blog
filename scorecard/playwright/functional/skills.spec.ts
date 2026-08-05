@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { api } from '../support/api';
 import type { FileBundle } from '../support/api';
 
-test('[F-skills-01] Skill 列表页加载 @functional', async ({ page }) => {
+test('[F-skills-01] Skill 列表页加载 @functional @feature:2.3', async ({ page }) => {
   const bundles = await api<FileBundle[]>('/api/v1/bundles');
   await page.goto('/blog/skills');
   if (bundles.length > 0) {
@@ -12,7 +12,7 @@ test('[F-skills-01] Skill 列表页加载 @functional', async ({ page }) => {
   }
 });
 
-test('[F-skills-02] Skill 文件树浏览页可打开 @functional', async ({ page }) => {
+test('[F-skills-02] Skill 文件树浏览页可打开 @functional @feature:2.3', async ({ page }) => {
   const bundles = await api<FileBundle[]>('/api/v1/bundles');
   test.skip(bundles.length === 0, '无 Skill Bundle 数据');
   await page.goto(`/blog/skills/${bundles[0].id}`);

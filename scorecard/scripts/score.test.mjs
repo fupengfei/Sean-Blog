@@ -5,6 +5,7 @@ import {
   computeScores,
   evaluateVeto,
   evaluateFeatureCoverage,
+  featureBreakdown,
   buildVerdict,
   buildReport,
   historyRow,
@@ -143,4 +144,86 @@ test('historyRow：CSV 列顺序正确', () => {
     passed: true,
   });
   assert.equal(row, '2026-08-04T15:30:00Z,patrol,87.5,95,82,100,60,true');
+});
+
+test('featureBreakdown：有覆盖的功能计算得分', () => {
+  const config = { features: [{ id: '1.2', desc: '精选文章展示', min_tests: 1 }] };
+  const checksByFeature = new Map([
+    ['1.2', [
+      { id: 'F-home-02', name: '[F-home-02] 精选文章 @feature:1.2', passed: true },
+    ]],
+  ]);
+  const rows = featureBreakdown(config, checksByFeature);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].id, '1.2');
+  assert.equal(rows[0].total, 1);
+  assert.equal(rows[0].passed, 1);
+  assert.equal(rows[0].score, 100.0);
+});
+
+test('featureBreakdown：无覆盖的功能 score 为 null', () => {
+  const config = { features: [{ id: '1.1', desc: '精选项目展示', min_tests: 0 }] };
+  const checksByFeature = new Map();
+  const rows = featureBreakdown(config, checksByFeature);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].total, 0);
+  assert.equal(rows[0].passed, 0);
+  assert.equal(rows[0].score, null);
+});
+
+test('featureBreakdown：多标签用例计入每个功能', () => {
+  const config = { features: [
+    { id: '5.1.1', desc: 'Admin 文章列表', min_tests: 1 },
+    { id: '5.1.2', desc: 'Admin 新建文章', min_tests: 1 },
+    { id: '5.1.3', desc: 'Admin 删除文章', min_tests: 1 },
+  ] };
+  const check = { id: 'F-admin-03', name: '[F-admin-03] 文章闭环 @feature:5.1.1 @feature:5.1.2 @feature:5.1.3', passed: true };
+  const checksByFeature = new Map([
+    ['5.1.1', [check]],
+    ['5.1.2', [check]],
+    ['5.1.3', [check]],
+  ]);
+  const rows = featureBreakdown(config, checksByFeature);
+  assert.equal(rows.length, 3);
+  for (const r of rows) {
+    assert.equal(r.total, 1);
+    assert.equal(r.passed, 1);
+    assert.equal(r.score, 100.0);
+  }
+});
+
+test('buildReport：包含功能明细的按功能汇总和逐用例', () => {
+  const config = {
+    ...CONFIG,
+    features: [
+      { id: '1.2', desc: '精选文章展示', min_tests: 1 },
+      { id: '1.1', desc: '精选项目展示', min_tests: 0 },
+    ],
+  };
+  const allChecks = [
+    { id: 'F-home-02', name: '[F-home-02] 精选文章卡片 @functional @feature:1.2', passed: true, dim: 'functional' },
+  ];
+  const checksByFeature = new Map([
+    ['1.2', allChecks],
+  ]);
+  const skipped = [
+    { id: 'F-blog-04', name: '[F-blog-04] 分页切换 @functional @feature:2.1', features: ['2.1'] },
+  ];
+  const report = buildReport({
+    config, mode: '全站巡检', timestamp: '2026-08-05 10:00',
+    scores: { functional: 100, design: 100, code_quality: 100, a11y_perf: 100 },
+    total: 100, veto: { vetoed: false, failed: [] }, featureFailures: [],
+    allChecks, warnings: [], checksByFeature, skipped,
+  });
+  // 按功能汇总
+  assert.ok(report.includes('## 功能明细'));
+  assert.ok(report.includes('### 按功能汇总'));
+  assert.ok(report.includes('| 1.2 | 精选文章展示 | 1 | 1 | 100.0 | ✅ |'));
+  assert.ok(report.includes('| 1.1 | 精选项目展示 | 0 | — | — | ⚠️ 无覆盖 |'));
+  // 逐用例
+  assert.ok(report.includes('### 逐用例'));
+  assert.ok(report.includes('[F-home-02] 精选文章卡片 @functional @feature:1.2'));
+  assert.ok(report.includes('| 1.2 | ✅ |'));
+  assert.ok(report.includes('[F-blog-04] 分页切换 @functional @feature:2.1'));
+  assert.ok(report.includes('| ⏭ 跳过 |'));
 });

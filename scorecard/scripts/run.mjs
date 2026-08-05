@@ -141,9 +141,10 @@ function playwrightToChecks(json) {
   const specs = [];
   for (const suite of json.suites ?? []) collectSpecs(suite, specs);
   const checks = [];
+  const skipped = [];
   const featureCounts = {};
+  const checksByFeature = new Map();
   for (const { title, status } of specs) {
-    if (status === 'skipped') continue; // 数据守卫跳过 = 未执行，不计入分母
     const m = title.match(/\[([A-Z][\w-]*)\]/);
     if (!m) {
       console.warn(`⚠️ 跳过无评分卡 ID 的用例：${title}`);
@@ -155,11 +156,22 @@ function playwrightToChecks(json) {
       console.warn(`⚠️ 跳过未知 ID 前缀的用例：${title}`);
       continue;
     }
-    checks.push({ id, name: title, dim, passed: status === 'passed' });
-    const fm = title.match(/@feature:([\w-]+)/);
-    if (fm) featureCounts[fm[1]] = (featureCounts[fm[1]] ?? 0) + 1;
+    // 提取所有 @feature:<id> 标签（支持点号如 5.1.1）
+    const featureIds = [...title.matchAll(/@feature:([\w.-]+)/g)].map((fm) => fm[1]);
+    if (status === 'skipped') {
+      // 数据守卫跳过 = 未执行，不计入分母，但捕获用于报告
+      skipped.push({ id, name: title, features: featureIds });
+      continue;
+    }
+    const check = { id, name: title, dim, passed: status === 'passed' };
+    checks.push(check);
+    for (const fid of featureIds) {
+      featureCounts[fid] = (featureCounts[fid] ?? 0) + 1;
+      if (!checksByFeature.has(fid)) checksByFeature.set(fid, []);
+      checksByFeature.get(fid).push(check);
+    }
   }
-  return { checks, featureCounts };
+  return { checks, featureCounts, checksByFeature, skipped };
 }
 
 function runAdapter(script) {
@@ -193,7 +205,7 @@ await sweepTestData();
 const grep = isFeature ? `@feature:${args.feature}|@core` : undefined;
 console.log(`🎭 运行 Playwright 套件${grep ? `（grep: ${grep}）` : '（全量）'}…`);
 const pwJson = runPlaywright(grep) ?? { suites: [] };
-const { checks: pwChecks, featureCounts } = playwrightToChecks(pwJson);
+const { checks: pwChecks, featureCounts, checksByFeature, skipped } = playwrightToChecks(pwJson);
 
 // 代码质量：永远全量执行（功能再小也不能把编译弄挂）
 const cqChecks = runAdapter('adapters/code-quality.mjs') ?? [];
@@ -218,7 +230,7 @@ const now = new Date();
 const timestamp = now.toISOString().replace('T', ' ').slice(0, 16);
 const stamp = now.toISOString().replace(/[-:TZ]/g, '').slice(0, 12);
 const modeLabel = isFeature ? `功能验收（${args.feature}）` : '全站巡检';
-const report = buildReport({ config, mode: modeLabel, timestamp, scores, total, veto, featureFailures, allChecks, warnings });
+const report = buildReport({ config, mode: modeLabel, timestamp, scores, total, veto, featureFailures, allChecks, warnings, checksByFeature, skipped });
 
 const reportsDir = path.join(ROOT, 'reports');
 mkdirSync(reportsDir, { recursive: true });

@@ -9,14 +9,14 @@ test('[F-home-01] 首页打开，NavBar/主内容/Footer 渲染 @functional @cor
   await expect(page.locator('footer')).toBeVisible();
 });
 
-test('[F-home-02] 精选文章卡片与后端数据一致 @functional', async ({ page }) => {
+test('[F-home-02] 精选文章卡片与后端数据一致 @functional @feature:1.2', async ({ page }) => {
   const featured = await api<Article[]>('/api/v1/articles/featured?limit=6');
   test.skip(featured.length === 0, '后端无精选文章');
   await page.goto('/');
   await expect(page.getByText(featured[0].title)).toBeVisible();
 });
 
-test('[F-home-03] ContactSection 合作意向表单可见（姓名+邮箱+留言） @functional', async ({ page }) => {
+test('[F-home-03] ContactSection 合作意向表单可见（姓名+邮箱+留言） @functional @feature:1.3', async ({ page }) => {
   await page.goto('/');
   // ContactSection 表单：姓名、邮箱输入项 + 合作详情留言框
   await expect(page.getByPlaceholder('Name')).toBeVisible();

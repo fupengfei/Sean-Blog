@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { BACKEND } from '../support/api';
 import { loginAdmin, adminHeaders, TEST_PREFIX } from '../support/admin-api';
 
-test('[F-admin-01] Admin 登录成功 @functional @core', async ({ page }) => {
+test('[F-admin-01] Admin 登录成功 @functional @core @feature:5.5.1', async ({ page }) => {
   await page.goto('/admin/login');
   await page.getByPlaceholder('请输入用户名').fill('admin');
   await page.getByPlaceholder('请输入密码').fill('admin123');
@@ -11,7 +11,7 @@ test('[F-admin-01] Admin 登录成功 @functional @core', async ({ page }) => {
   await expect(page).not.toHaveURL(/\/admin\/login/);
 });
 
-test('[F-admin-02] 登录失败给出错误提示 @functional', async ({ page }) => {
+test('[F-admin-02] 登录失败给出错误提示 @functional @feature:5.5.1', async ({ page }) => {
   await page.goto('/admin/login');
   await page.getByPlaceholder('请输入用户名').fill('admin');
   await page.getByPlaceholder('请输入密码').fill('wrong-password');
@@ -19,7 +19,7 @@ test('[F-admin-02] 登录失败给出错误提示 @functional', async ({ page })
   await expect(page).toHaveURL(/\/admin\/login/); // 仍停留在登录页
 });
 
-test('[F-admin-03] 文章创建-后台可见-删除-公开不可见闭环 @functional @writes', async ({ request }) => {
+test('[F-admin-03] 文章创建-后台可见-删除-公开不可见闭环 @functional @writes @feature:5.1.1 @feature:5.1.2 @feature:5.1.3', async ({ request }) => {
   const token = await loginAdmin(request);
   const headers = adminHeaders(token);
   const title = `${TEST_PREFIX} 自动验收文章`;
