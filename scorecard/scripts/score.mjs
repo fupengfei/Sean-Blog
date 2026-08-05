@@ -150,10 +150,11 @@ export function buildReport({ config, mode, timestamp, scores, total, veto, feat
     }
   }
   // 功能明细：按功能汇总 + 逐用例
+  // covered 用 score !== null 过滤：全 skip 功能 total>0 但 score=null，归入无覆盖区
   if (checksByFeature) {
     const breakdown = featureBreakdown(config, checksByFeature, skipped);
-    const covered = breakdown.filter((r) => r.total > 0);
-    const uncovered = breakdown.filter((r) => r.total === 0);
+    const covered = breakdown.filter((r) => r.score !== null);
+    const uncovered = breakdown.filter((r) => r.score === null);
     lines.push('');
     lines.push('## 功能明细');
     lines.push('');

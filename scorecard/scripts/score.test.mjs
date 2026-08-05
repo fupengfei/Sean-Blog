@@ -245,3 +245,28 @@ test('buildReport：包含功能明细的按功能汇总和逐用例', () => {
   assert.ok(report.includes('[F-blog-04] 分页切换 @functional @feature:2.1'));
   assert.ok(report.includes('| ⏭ 跳过 |'));
 });
+
+test('buildReport：全 skip 功能不崩溃，归入 ⚠️ 无覆盖', () => {
+  const config = {
+    ...CONFIG,
+    features: [
+      { id: '2.1', desc: '文章列表页', min_tests: 4 },
+    ],
+  };
+  const checksByFeature = new Map(); // 无执行用例
+  const skipped = [
+    { id: 'F-blog-01', name: '[F-blog-01] 列表加载 @functional @feature:2.1', features: ['2.1'] },
+    { id: 'F-blog-02', name: '[F-blog-02] 分类筛选 @functional @feature:2.1', features: ['2.1'] },
+  ];
+  // 不应抛 TypeError
+  const report = buildReport({
+    config, mode: '全站巡检', timestamp: '2026-08-05 12:00',
+    scores: { functional: 100, design: 100, code_quality: 100, a11y_perf: 100 },
+    total: 100, veto: { vetoed: false, failed: [] }, featureFailures: [],
+    allChecks: [], warnings: [], checksByFeature, skipped,
+  });
+  // 全 skip 功能归入 ⚠️ 无覆盖行
+  assert.ok(report.includes('| 2.1 | 文章列表页 | 0 | — | — | ⚠️ 无覆盖 |'));
+  // 逐用例仍显示 ⏭ 跳过
+  assert.ok(report.includes('| 2.1 | ⏭ 跳过 |'));
+});
