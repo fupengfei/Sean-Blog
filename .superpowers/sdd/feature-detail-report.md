@@ -153,3 +153,27 @@ f18521e feat(scorecard): 报告增加功能明细 — 按功能清单汇总 + �
 ```
 773ee8f fix(scorecard): 数据守卫 skip 计入功能覆盖计数（防漏测 ≠ 防 skip）
 ```
+
+---
+
+## 修复：全 skip 功能不再导致报告崩溃
+
+### 问题
+`buildReport` 中 `covered` 过滤用 `r.total > 0`，但全 skip 功能 total>0 且 score=null，`r.score.toFixed(1)` 抛 TypeError。触发场景：某功能所有用例都被数据守卫 skip（如文章数为 0 时 2.1 全 skip）。
+
+### 修复
+- `score.mjs` buildReport：`covered` 过滤改为 `r.score !== null`，全 skip 功能归入无覆盖区显示 ⚠️ 无覆盖
+- 逐用例表保持 ⏭ 跳过显示不变
+- 新增单测：构造「某登记功能仅有 skipped 用例」的输入，断言 buildReport 不抛异常且该功能出现在 ⚠️ 无覆盖行
+
+### 验证结果
+
+**单元测试**: 20/20 通过（新增 1 项全 skip 崩溃测试）
+
+**巡检**: 100.0/100 ✅ 通过，exit 0
+
+## Commit 3
+
+```
+aeb164c fix(scorecard): 全 skip 功能不再导致报告崩溃
+```
